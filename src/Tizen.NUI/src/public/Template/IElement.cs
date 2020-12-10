@@ -12,4 +12,3 @@ namespace Tizen.NUI.Binding
         void RemoveResourcesChangedListener(Action<object, ResourcesChangedEventArgs> onchanged);
     }
 }
-;
