@@ -256,5 +256,15 @@ namespace Tizen.NUI.Components
             }
             return true;
         }
+
+        /// FIXME!! This has to be done in Element or View class.
+        /// <inheritdoc/>
+        protected override void OnBindingContextChanged()
+        {
+            foreach (View child in Children)
+            {
+                SetChildInheritedBindingContext(child, BindingContext);
+            }
+        }
     }
 }

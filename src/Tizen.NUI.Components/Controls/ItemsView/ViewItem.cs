@@ -129,7 +129,9 @@ namespace Tizen.NUI.Components
         /// <since_tizen> 6 </since_tizen>
         protected bool isPressed = false;
 
-        static ViewItem() { }
+        static ViewItem()
+        {
+        }
 
         /// <summary>
         /// Creates a new instance of ViewItem.
@@ -137,6 +139,7 @@ namespace Tizen.NUI.Components
         /// <since_tizen> 6 </since_tizen>
         public ViewItem() : base()
         {
+            IsCreateByXaml = true;
             Initialize();
         }
 
