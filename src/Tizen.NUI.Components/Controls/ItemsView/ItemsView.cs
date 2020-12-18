@@ -38,7 +38,7 @@ namespace Tizen.NUI.Components
         /// This may be public opened in tizen_6.0 after ACR done. Before ACR, need to be hidden as inhouse API
         public ItemsView() : base()
         {
-
+            Scrolling += OnScrolling;
         }
 
         /// <summary>
@@ -83,6 +83,8 @@ namespace Tizen.NUI.Components
                 base.ScrollingDirection = value;
             }
         }
+
+        private IEnumerable _itemsSource = null;
         /// <summary>
         /// Item's source data.
         /// </summary>
@@ -93,22 +95,33 @@ namespace Tizen.NUI.Components
         {
             get
             {
-                return ItemsSource;
+                return _itemsSource;
             }
             set
             {
-                ItemsSource = value;
+                _itemsSource = value;
 
                 if (InternalItemSource != null) 
                     InternalItemSource.Dispose();
-                InternalItemSource = ItemsSourceFactory.Create(value, this);
+                InternalItemSource = ItemsSourceFactory.Create(_itemsSource, this);
 
                 if (NeedInitalizeLayouter)
                 {
-                    if (ItemsTemplate != null)
+                    if (_itemsTemplate != null)
                     {
-                        ItemsLayouter.Initialze(this);
-                        ItemsLayouter.RequestLayout(0.0f);
+                        _itemsLayouter.Initialize(this);
+                        _itemsLayouter.RequestLayout(0.0f);
+                        if (ScrollingDirection == Direction.Horizontal)
+                        {
+                            ContentContainer.SizeWidth =
+                                _itemsLayouter.CalculateLayoutOrientationSize();
+                        }
+                        else
+                        {
+                            ContentContainer.SizeHeight =
+                                _itemsLayouter.CalculateLayoutOrientationSize();
+                        }
+                        NeedInitalizeLayouter = false;
                     }
                 }
             }
@@ -121,6 +134,7 @@ namespace Tizen.NUI.Components
         internal IItemSource InternalItemSource;
 
         
+        private DataTemplate _itemsTemplate = null;
         /// <summary>
         /// DataTemplate for items.
         /// </summary>
@@ -131,22 +145,34 @@ namespace Tizen.NUI.Components
         {
             get
             {
-                return ItemsTemplate;
+                return _itemsTemplate;
             }
             set
             {
-                ItemsTemplate = value;
+                _itemsTemplate = value;
                 if (NeedInitalizeLayouter)
                 {
-                    if (ItemsSource != null)
+                    if (_itemsLayouter != null)
                     {
-                        ItemsLayouter.Initialze(this);
-                        ItemsLayouter.RequestLayout(0.0f);
+                        _itemsLayouter.Initialize(this);
+                        _itemsLayouter.RequestLayout(0.0f);
+                        if (ScrollingDirection == Direction.Horizontal)
+                        {
+                            ContentContainer.SizeWidth =
+                                _itemsLayouter.CalculateLayoutOrientationSize();
+                        }
+                        else
+                        {
+                            ContentContainer.SizeHeight =
+                                _itemsLayouter.CalculateLayoutOrientationSize();
+                        }
+                        NeedInitalizeLayouter = false;
                     }
                 }
             }
         }
 
+        private ItemsLayouter _itemsLayouter = null;
         /// <summary>
         /// Items Layouter.
         /// </summary>
@@ -157,16 +183,26 @@ namespace Tizen.NUI.Components
         {
             get
             {
-                return ItemsLayouter;
+                return _itemsLayouter;
             }
             set
             {
-                ItemsLayouter = value;
+                _itemsLayouter = value;
                 if (value == null) NeedInitalizeLayouter = false;
                 if ((ItemsSource != null) && (ItemsTemplate != null))
                 {
-                    value.Initialze(this);
-                    value.RequestLayout(0.0f);
+                    _itemsLayouter.Initialize(this);
+                    _itemsLayouter.RequestLayout(0.0f);
+                    if (ScrollingDirection == Direction.Horizontal)
+                        {
+                            ContentContainer.SizeWidth =
+                                _itemsLayouter.CalculateLayoutOrientationSize();
+                        }
+                        else
+                        {
+                            ContentContainer.SizeHeight =
+                                _itemsLayouter.CalculateLayoutOrientationSize();
+                        }
                 }
                 else NeedInitalizeLayouter = true;
             }
@@ -183,6 +219,24 @@ namespace Tizen.NUI.Components
         /// </summary>
         /// This may be public opened in tizen_6.0 after ACR done. Before ACR, need to be hidden as inhouse API
         protected int CacheMax = 50;
+
+        /// <inheritdoc/>
+         public override void OnRelayout(Vector2 size, RelayoutContainer container)
+        {
+            Console.WriteLine("LSH :: On ReLayout [{0} {0}]", size.X, size.Y);
+            base.OnRelayout(size, container);
+            if (_itemsLayouter != null) 
+            {
+                _itemsLayouter.Initialize(this);
+                _itemsLayouter.RequestLayout(ScrollingDirection == Direction.Horizontal ? ContentContainer.CurrentPosition.X : ContentContainer.CurrentPosition.Y);
+            }
+        }
+
+        private void OnScrolling(object source, ScrollEventArgs args)
+        {
+            Console.WriteLine("LSH :: On Scrolling!");
+            ItemsLayouter.RequestLayout(ScrollingDirection == Direction.Horizontal ? args.Position.X : args.Position.Y);
+        }        
 
         /// <summary>
         /// Push the item into the recycle cache. this item will be reused in view update.
@@ -210,20 +264,24 @@ namespace Tizen.NUI.Components
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected virtual ViewItem PopRecycleCache(DataTemplate Template)
         {
-           foreach (ViewItem item in RecycleCache)
+           for (int i = 0; i < RecycleCache.Count; i++)
            {
+               ViewItem item = RecycleCache[i];
                if (item.Template == Template)
                {
+                   Console.WriteLine("Pop recycle Cache");
                    RecycleCache.Remove(item);
+                   item.Show();
                    return item;
                }
            }
            return null;
         }
 
-        private void OnItemSizeChanged(object source, PropertyNotification.NotifyEventArgs args)
+        private void OnItemRelayout(object sender, EventArgs e)
         {
-            ItemsLayouter.RequestLayout(ScrollingDirection == Direction.Horizontal ? ContentContainer.CurrentPosition.X : ContentContainer.CurrentPosition.Y);
+            _itemsLayouter.NotifyItemSizeChanged((sender as ViewItem));
+            //_itemsLayouter.RequestLayout(ScrollingDirection == Direction.Horizontal ? ContentContainer.CurrentPosition.X : ContentContainer.CurrentPosition.Y);
         }
 
         /// <summary>
@@ -238,7 +296,7 @@ namespace Tizen.NUI.Components
             // Check DataTemplate is Same!
             if (ItemsTemplate is DataTemplateSelector)
             {
-
+               Console.WriteLine("LSH :: DataTemplate is Selector??");
             }
             else
             {
@@ -246,36 +304,50 @@ namespace Tizen.NUI.Components
                ViewItem item = PopRecycleCache(ItemsTemplate);
                if (item != null)
                {
+                   Console.WriteLine("LSH :: Realize [{0}] from cache", Index);
                    item.Index = Index;
                    item.BindingContext = InternalItemSource.GetItem(Index);
-                   ContentContainer.Children.Add(item);
+                   item.BackgroundColor = Color.Yellow;
+                   item.Relayout += OnItemRelayout;
+                   ContentContainer.Add(item);
+/*
                    PropertyNotification noti = item.AddPropertyNotification("size", PropertyCondition.Step(0.1f));
                    noti.Notified += OnItemSizeChanged;
                    notifications.Add(noti);
+*/
                    return item;
                }
             }
 
             object content = ItemsTemplate.CreateContent();
-            if (content is ViewItem)
+            if (content == null)
             {
+                Console.WriteLine("LSH :: Template CreateContent Failed!!!");
+            }
+            if (content as ViewItem)
+            {
+                Console.WriteLine("LSH :: Realize [{0}] from template", Index);
                 ViewItem item = content as ViewItem;
                 item.Index = Index;
                 item.Template = (ItemsTemplate is DataTemplateSelector ?
                                      (ItemsTemplate as DataTemplateSelector).SelectDataTemplate(InternalItemSource.GetItem(Index), this) :
                                      ItemsTemplate);
                item.BindingContext = InternalItemSource.GetItem(Index);
-               ContentContainer.Children.Add(item);
+               item.BackgroundColor = Color.White;
+               item.Relayout += OnItemRelayout;
+
+               ContentContainer.Add(item);
+/*
                PropertyNotification noti = item.AddPropertyNotification("size", PropertyCondition.Step(0.1f));
                noti.Notified += OnItemSizeChanged;
                notifications.Add(noti);
-                
+*/                
                 //viewItem.Selected =   
                 //viewItem.Disbled =
                 //viewItem.ClickedEventArgs +=
                 return item;
             }
-            else if (content is View)
+            else if (content as View)
             {
                 ViewItem item = new ViewItem((content as View));
                 item.Index = Index;
@@ -283,12 +355,13 @@ namespace Tizen.NUI.Components
                                      (ItemsTemplate as DataTemplateSelector).SelectDataTemplate(InternalItemSource.GetItem(Index), this) :
                                      ItemsTemplate);
                item.BindingContext = InternalItemSource.GetItem(Index);
-               ContentContainer.Children.Add(item);
-
+               ContentContainer.Add(item);
+               item.Relayout += OnItemRelayout;
+/*
                PropertyNotification noti = item.AddPropertyNotification("size", PropertyCondition.Step(0.1f));
                noti.Notified += OnItemSizeChanged;
                notifications.Add(noti);
-                
+*/              
                 //viewItem.Selected = 
                 //viewItem.Disbled =
                 //viewItem.ClickedEventArgs +=
@@ -298,6 +371,7 @@ namespace Tizen.NUI.Components
             else
             {
                 //wrong input
+                Console.WriteLine("LSH :: content is wrong class");
                 return null;
             }
 
@@ -306,25 +380,29 @@ namespace Tizen.NUI.Components
         /// <summary>
         /// Unrealize indexed item.
         /// </summary>
-        /// <param name="Item"> Target item for unrealizing </param>
+        /// <param name="item"> Target item for unrealizing </param>
         /// <since_tizen> 8 </since_tizen>
         /// This may be public opened in tizen_6.0 after ACR done. Before ACR, need to be hidden as inhouse API
         [EditorBrowsable(EditorBrowsableState.Never)]
-        internal void UnrealizeItem(ViewItem Item)
+        internal void UnrealizeItem(ViewItem item)
         {
-                Item.Index = -1;
-                Item.IsSelected = false;
-                Item.IsEnabled = true;
-                ContentContainer.Children.Remove(Item);
+                Console.WriteLine("LSH :: Unrealize [{0}]", item.Index);
+                item.Index = -1;
+                item.IsSelected = false;
+                item.IsEnabled = true;
+                item.BindingContext = null;
+                item.Relayout -= OnItemRelayout;
+                ContentContainer.Remove(item);
 
 /* PLEASE LET ME KNOW HOW TO GET RID OF NOTI!
                  PropertyNotification noti = Item.AddPropertyNotification("size", PropertyCondition.Step(0.1f));
                    noti.Notified += OnItemSizeChanged;
                    */
                                 //Item.ClickedEventArgs -=
-                if (!PushRecycleCache(Item))
+                if (!PushRecycleCache(item))
                 {
-                    Item.Dispose();
+                    Console.WriteLine("Cache is Full!");
+                    item.Dispose();
                 }
         }
 
@@ -355,7 +433,20 @@ namespace Tizen.NUI.Components
 		public void NotifyDataSetChanged()
         {
             //Need to update view.
-            if (ItemsLayouter != null) ItemsLayouter.Initialze(this);
+            if (ItemsLayouter != null)
+            {
+                ItemsLayouter.Initialize(this);
+                if (ScrollingDirection == Direction.Horizontal)
+                {
+                    ContentContainer.SizeWidth =
+                        _itemsLayouter.CalculateLayoutOrientationSize();
+                }
+                else
+                {
+                    ContentContainer.SizeHeight =
+                        _itemsLayouter.CalculateLayoutOrientationSize();
+                }
+            }
         }
 
         /// <summary>

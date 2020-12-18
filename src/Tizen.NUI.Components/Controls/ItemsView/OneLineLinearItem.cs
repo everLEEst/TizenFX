@@ -29,6 +29,17 @@ namespace Tizen.NUI.Components
     /// <since_tizen> 6 </since_tizen>
     public class OneLineLinearItem : ViewItem
     {
+        static OneLineLinearItem() {}
+
+        /// <summary>
+        /// Creates a new instance of OneLineLinearItem.
+        /// </summary>
+        /// <since_tizen> 6 </since_tizen>
+        public OneLineLinearItem() : base()
+        {
+            Layout = new LinearLayout();
+        }
+
         /// This will be public opened in tizen_6.0 after ACR done. Before ACR, need to be hidden as inhouse API.
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly BindableProperty IconRelativeOrientationProperty = BindableProperty.Create(nameof(IconRelativeOrientation), typeof(IconOrientation?), typeof(OneLineLinearItem), null, propertyChanged: (bindable, oldValue, newValue) =>

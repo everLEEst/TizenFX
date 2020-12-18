@@ -82,6 +82,7 @@ namespace Tizen.NUI.Components
         public CollectionView() : base()
         {
             FocusGroup = true;
+            Init();
             SetKeyboardNavigationSupport(true);
             Scrolling += OnScrolling;
         }
@@ -276,6 +277,7 @@ namespace Tizen.NUI.Components
 
         private void OnScrolling(object source, ScrollEventArgs args)
         {
+            Console.WriteLine("LSH :: On Scrolling!");
             ItemsLayouter.RequestLayout(ScrollingDirection == Direction.Horizontal ? args.Position.X : args.Position.Y);
         }
 

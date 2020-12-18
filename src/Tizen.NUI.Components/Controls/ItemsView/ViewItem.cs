@@ -140,6 +140,7 @@ namespace Tizen.NUI.Components
         public ViewItem() : base()
         {
             IsCreateByXaml = true;
+            Layout = new AbsoluteLayout();
             Initialize();
         }
 

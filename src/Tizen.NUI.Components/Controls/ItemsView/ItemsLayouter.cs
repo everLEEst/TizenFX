@@ -95,7 +95,7 @@ namespace Tizen.NUI.Components
         /// <since_tizen> 8 </since_tizen>
         /// This may be public opened in tizen_6.0 after ACR done. Before ACR, need to be hidden as inhouse API
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public virtual void Initialze(ItemsView view)
+        public virtual void Initialize(ItemsView view)
         {
             ItemsView = view;
             Container = view.ContentContainer;            
@@ -156,13 +156,21 @@ List? or int{start,end}?
             return scrollPosition;
         }
 
-                /// <summary>
+        /// <summary>
+        /// </summary>
+        /// <since_tizen> 8 </since_tizen>
+        /// This may be public opened in tizen_6.0 after ACR done. Before ACR, need to be hidden as inhouse API
+        public virtual void NotifyItemSizeChanged(ViewItem item)
+        {
+        }
+
+        /// <summary>
         /// </summary>
         /// <since_tizen> 8 </since_tizen>
         /// This may be public opened in tizen_6.0 after ACR done. Before ACR, need to be hidden as inhouse API
 		public void NotifyDataSetChanged()
         {
-            Initialze(ItemsView);
+            Initialize(ItemsView);
         }
 
         /// <summary>
