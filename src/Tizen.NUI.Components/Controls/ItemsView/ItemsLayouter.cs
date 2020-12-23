@@ -77,10 +77,10 @@ namespace Tizen.NUI.Components
 
 
         /// <summary>
-        /// Candidate item size for scroll size measure.
+        /// Candidate item step size for scroll size measure.
         /// </summary>
         /// This may be public opened in tizen_6.0 after ACR done. Before ACR, need to be hidden as inhouse API
-        protected float SizeCandidate;
+        protected float StepCandidate;
 
         /// <summary>
         /// Content size of scrollable.
@@ -109,10 +109,11 @@ namespace Tizen.NUI.Components
         /// This is called to find out where items are lain out according to current scroll position.
         /// </summary>
         /// <param name="scrollPosition">Scroll position which is calculated by ScrollableBase</param>
+        /// <param name="force">boolean force flag to layouting forcely.</param>
         /// <since_tizen> 8 </since_tizen>
         /// This may be public opened in tizen_6.0 after ACR done. Before ACR, need to be hidden as inhouse API
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public virtual void RequestLayout(float scrollPosition)
+        public virtual void RequestLayout(float scrollPosition, bool force = false)
         {
            // Layouting Items in scrollPosition.
         }

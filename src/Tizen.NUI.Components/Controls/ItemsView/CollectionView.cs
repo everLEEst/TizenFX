@@ -39,22 +39,60 @@ namespace Tizen.NUI.Components
         public ItemSelectionMode SelectionMode;
 
 		public static readonly BindableProperty SelectedItemProperty =
-			BindableProperty.Create(nameof(SelectedItem), typeof(object), typeof(CollectionView), default(object),
-				defaultBindingMode: BindingMode.TwoWay,
-				propertyChanged: SelectedItemPropertyChanged);
+			BindableProperty.Create(nameof(SelectedItem), typeof(object), typeof(CollectionView), null,
+				propertyChanged: (bindable, oldValue, newValue)=>
+                {
+			        var colView = (CollectionView)bindable;
+                    var args = new SelectionChangedEventArgs(oldValue, newValue);
+                    oldValue = colView.selectedItem;
+                    
+                    foreach(View item in colView.ContentContainer.Children)
+                    {
+                        if (item as ViewItem)
+                        {
+                            var vItem = item as ViewItem;
+                            if (vItem.BindingContext == null) continue;
+                            if (vItem.BindingContext == oldValue) vItem.IsSelected = false;
+                            else if (item.BindingContext == newValue) vItem.IsSelected = true;
+                        }
+                    }
+
+                    SelectionPropertyChanged(colView, args);
+		        },
+				defaultValueCreator: (bindable)=>
+                {
+                    var colView = (CollectionView)bindable;
+                    return colView.selectedItem;
+                });
 
 		public static readonly BindableProperty SelectedItemsProperty =
 			BindableProperty.Create(nameof(SelectedItems), typeof(IList<object>), typeof(CollectionView), null,
-				defaultBindingMode: BindingMode.OneWay,
-				propertyChanged: SelectedItemsPropertyChanged,
-				coerceValue: CoerceSelectedItems,
-				defaultValueCreator: DefaultValueCreator);
+				propertyChanged: (bindable, oldValue, newValue)=>
+                {
+                    var colView = (CollectionView)bindable;
+                    var oldSelection = (IList<object>)colView.selectedItems ?? s_empty;
+                    //FIXME : CoerceSelectedItems calls only isCreatedByXaml
+                    var newSelection = (SelectionList)CoerceSelectedItems(colView, newValue);
+                    colView.selectedItems = newSelection;
+			        colView.SelectedItemsPropertyChanged(oldSelection, newSelection);
+                },
+				defaultValueCreator: (bindable) =>
+                {
+                    var colView = (CollectionView)bindable;
+                    colView.selectedItems = colView.selectedItems ?? new SelectionList(colView);
+                    return colView.selectedItems;
+                });
+
+		static readonly IList<object> s_empty = new List<object>(0);
+        private object selectedItem;
 
 		public object SelectedItem
 		{
 			get => GetValue(SelectedItemProperty);
 			set => SetValue(SelectedItemProperty, value);
 		}
+
+        private SelectionList selectedItems;
 
 		public IList<object> SelectedItems
 		{
@@ -68,13 +106,9 @@ namespace Tizen.NUI.Components
 
 		public event EventHandler<SelectionChangedEventArgs> SelectionChanged;
 
-		static readonly IList<object> s_empty = new List<object>(0);
 		bool _suppressSelectionChangeNotification;
 
         public ItemSizingStrategy SizingStrategy;
-    
-        private int _itemCount = 15;
-        private IItemSource _internalItemsSource;
         private List<PropertyNotification> notifications = new List<PropertyNotification>();
 
 
@@ -95,7 +129,7 @@ namespace Tizen.NUI.Components
             if (ItemsLayouter == null) return;
             if (ItemsTemplate == null) return;
 
-            ItemsLayouter.RequestLayout(0.0f);
+            ItemsLayouter.RequestLayout(0.0f, true);
 
             if (ScrollingDirection == Direction.Horizontal)
             {
@@ -106,6 +140,37 @@ namespace Tizen.NUI.Components
                 ContentContainer.SizeHeight = ItemsLayouter.CalculateLayoutOrientationSize();
             }
         }
+
+        internal override ViewItem RealizeItem(int Index)
+        {
+            ViewItem item = base.RealizeItem(Index);
+
+            switch (SelectionMode)
+            {
+                case ItemSelectionMode.Single:
+                    if (item.BindingContext == SelectedItem) item.IsSelected = true;
+                    break;
+
+                case ItemSelectionMode.Multiple:
+                    if (SelectedItems!=null && SelectedItems.Contains(item.BindingContext)) item.IsSelected = true;
+                    break;
+                case ItemSelectionMode.None:
+                    item.IsSelectable = false;
+                    break;
+            }
+            
+            
+            return item;
+        }
+
+        internal override void UnrealizeItem(ViewItem item)
+        {
+            item.IsSelected = false;
+            base.UnrealizeItem(item);
+        }
+
+
+        
 
 
 		public void UpdateSelectedItems(IList<object> newSelection)
@@ -148,19 +213,6 @@ namespace Tizen.NUI.Components
 			return new SelectionList((CollectionView)bindable, value as IList<object>);
 		}
 
-		static object DefaultValueCreator(BindableObject bindable)
-		{
-			return new SelectionList((CollectionView)bindable);
-		}
-
-		static void SelectedItemsPropertyChanged(BindableObject bindable, object oldValue, object newValue)
-		{
-			var colView = (CollectionView)bindable;
-			var oldSelection = (IList<object>)oldValue ?? s_empty;
-			var newSelection = (IList<object>)newValue ?? s_empty;
-
-			colView.SelectedItemsPropertyChanged(oldSelection, newSelection);
-		}
 
 		internal void SelectedItemsPropertyChanged(IList<object> oldSelection, IList<object> newSelection)
 		{
@@ -169,6 +221,23 @@ namespace Tizen.NUI.Components
 				return;
 			}
 
+            foreach(View content in ContentContainer.Children)
+            {
+                if (content as ViewItem)
+                {
+                    var item = (ViewItem)content;
+                    var binding = item.BindingContext;
+                    if (binding == null) continue;
+                    if (newSelection.Contains(binding))
+                    {
+                        if (!item.IsSelected) item.IsSelected = true;
+                    }
+                    else
+                    {
+                        if (item.IsSelected) item.IsSelected = false;
+                    }
+                }
+            }
 			SelectionPropertyChanged(this, new SelectionChangedEventArgs(oldSelection, newSelection));
 
 			OnPropertyChanged(SelectedItemsProperty.PropertyName);
@@ -187,18 +256,8 @@ namespace Tizen.NUI.Components
 					command.Execute(commandParameter);
 				}
 			}
-
 			colView.SelectionChanged?.Invoke(colView, args);
 			colView.OnSelectionChanged(args);
-		}
-
-		static void SelectedItemPropertyChanged(BindableObject bindable, object oldValue, object newValue)
-		{
-			var colView = (CollectionView)bindable;
-
-			var args = new SelectionChangedEventArgs(oldValue, newValue);
-
-			SelectionPropertyChanged(colView, args);
 		}
 
 		static void SelectionModePropertyChanged(BindableObject bindable, object oldValue, object newValue)
@@ -277,8 +336,7 @@ namespace Tizen.NUI.Components
 
         private void OnScrolling(object source, ScrollEventArgs args)
         {
-            Console.WriteLine("LSH :: On Scrolling!");
-            ItemsLayouter.RequestLayout(ScrollingDirection == Direction.Horizontal ? args.Position.X : args.Position.Y);
+            //ItemsLayouter.RequestLayout(ScrollingDirection == Direction.Horizontal ? args.Position.X : args.Position.Y);
         }
 
         /// <summary>

@@ -27,91 +27,55 @@ namespace Tizen.NUI.Components
     /// Button may contain text or an icon.
     /// </summary>
     /// <since_tizen> 6 </since_tizen>
-    public class OneLineLinearItem : ViewItem
+    public class OutLineGridItem : ViewItem
     {
-        static OneLineLinearItem() {}
+        static OutLineGridItem() {}
 
         /// <summary>
-        /// Creates a new instance of OneLineLinearItem.
+        /// Creates a new instance of OutLineGridItem.
         /// </summary>
         /// <since_tizen> 6 </since_tizen>
-        public OneLineLinearItem() : base()
+        public OutLineGridItem() : base()
         {
-            Layout = new LinearLayout();
+            Layout = new RelativeLayout();
         }
 
         /// This will be public opened in tizen_6.0 after ACR done. Before ACR, need to be hidden as inhouse API.
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public static readonly BindableProperty IconRelativeOrientationProperty = BindableProperty.Create(nameof(IconRelativeOrientation), typeof(IconOrientation?), typeof(OneLineLinearItem), null, propertyChanged: (bindable, oldValue, newValue) =>
+        public static readonly BindableProperty IconPaddingProperty = BindableProperty.Create(nameof(IconPadding), typeof(Extents), typeof(OutLineGridItem), null, propertyChanged: (bindable, oldValue, newValue) =>
         {
-            var instance = (OneLineLinearItem)bindable;
-            var newIconOrientation = (IconOrientation?)newValue;
-            if (instance.iconRelativeOrientation != newIconOrientation)
-            {
-                instance.iconRelativeOrientation = newIconOrientation;
-                instance.UpdateContent();
-            }
-        },
-        defaultValueCreator: (bindable) => ((OneLineLinearItem)bindable).iconRelativeOrientation
-        );
-
-        /// This will be public opened in tizen_6.0 after ACR done. Before ACR, need to be hidden as inhouse API.
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public static readonly BindableProperty IconPaddingProperty = BindableProperty.Create(nameof(IconPadding), typeof(Extents), typeof(OneLineLinearItem), null, propertyChanged: (bindable, oldValue, newValue) =>
-        {
-            var instance = (OneLineLinearItem)bindable;
+            var instance = (OutLineGridItem)bindable;
             instance.iconPadding = (Extents)((Extents)newValue).Clone();
             instance.UpdateContent();
         },
-        defaultValueCreator: (bindable) => ((OneLineLinearItem)bindable).iconPadding);
+        defaultValueCreator: (bindable) => ((OutLineGridItem)bindable).iconPadding);
 
         /// This will be public opened in tizen_6.0 after ACR done. Before ACR, need to be hidden as inhouse API.
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public static readonly BindableProperty TextPaddingProperty = BindableProperty.Create(nameof(TextPadding), typeof(Extents), typeof(OneLineLinearItem), null, propertyChanged: (bindable, oldValue, newValue) =>
+        public static readonly BindableProperty TextPaddingProperty = BindableProperty.Create(nameof(TextPadding), typeof(Extents), typeof(OutLineGridItem), null, propertyChanged: (bindable, oldValue, newValue) =>
         {
-            var instance = (OneLineLinearItem)bindable;
+            var instance = (OutLineGridItem)bindable;
             instance.textPadding = (Extents)((Extents)newValue).Clone();
             instance.UpdateContent();
         },
-        defaultValueCreator: (bindable) => ((OneLineLinearItem)bindable).textPadding);
+        defaultValueCreator: (bindable) => ((OutLineGridItem)bindable).textPadding);
 
         private TextLabel itemText;
-        private View itemIcon;
-
-        private IconOrientation? iconRelativeOrientation;
+        private ImageView itemIcon;
         private Extents iconPadding;
         private Extents textPadding;
-
-
-        /// <summary>
-        /// Icon orientation.
-        /// </summary>
-        /// <since_tizen> 6 </since_tizen>
-        public enum IconOrientation
-        {
-            /// <summary>
-            /// Left.
-            /// </summary>
-            /// <since_tizen> 6 </since_tizen>
-            Left,
-            /// <summary>
-            /// Right.
-            /// </summary>
-            /// <since_tizen> 6 </since_tizen>
-            Right,
-        }
 
         /// <summary>
         /// Button's icon part.
         /// </summary>
         /// <since_tizen> 8 </since_tizen>
-        public View Icon
+        public ImageView Icon
         {
             get
             {
                 if (null == itemIcon)
                 {
-                    itemIcon = (View)CreateIcon();
+                    itemIcon = CreateIcon();
                     /*
                     if (null != Extension)
                     {
@@ -131,7 +95,7 @@ namespace Tizen.NUI.Components
                 itemIcon = value;
             }
         }
-/*
+
         /// <summary>
         /// Icon image's resource url in Button.
         /// </summary>
@@ -147,7 +111,7 @@ namespace Tizen.NUI.Components
                 Icon.ResourceUrl = value;
             }
         }
-*/
+
         /// <summary>
         /// Button's text part.
         /// </summary>
@@ -196,23 +160,7 @@ namespace Tizen.NUI.Components
         }
 
         /// <summary>
-        /// Icon relative orientation in ViewItem, work only when show icon and text.
-        /// </summary>
-        /// <since_tizen> 8 </since_tizen>
-        public IconOrientation? IconRelativeOrientation
-        {
-            get
-            {
-                return (IconOrientation?)GetValue(IconRelativeOrientationProperty) ?? IconOrientation.Left;
-            }
-            set
-            {
-                SetValue(IconRelativeOrientationProperty, value);
-            }
-        }
-
-        /// <summary>
-        /// Icon padding in Button, work only when show icon and text.
+        /// Icon padding in ViewItem, work only when show icon and text.
         /// </summary>
         /// <since_tizen> 6 </since_tizen>
         public Extents IconPadding
@@ -222,7 +170,7 @@ namespace Tizen.NUI.Components
         }
 
         /// <summary>
-        /// Text padding in Button, work only when show icon and text.
+        /// Text padding in ViewItem, work only when show icon and text.
         /// </summary>
         /// <since_tizen> 6 </since_tizen>
         public Extents TextPadding
@@ -272,11 +220,11 @@ namespace Tizen.NUI.Components
             return new TextLabel
             {
                 PositionUsesPivotPoint = true,
-                ParentOrigin = NUI.ParentOrigin.Center,
-                PivotPoint = NUI.PivotPoint.Center,
+                ParentOrigin = NUI.ParentOrigin.BottomCenter,
+                PivotPoint = NUI.PivotPoint.BottomCenter,
                 WidthResizePolicy = ResizePolicyType.FillToParent,
                 HeightResizePolicy = ResizePolicyType.FillToParent,
-                HorizontalAlignment = HorizontalAlignment.Begin,
+                HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center
             };
         }
@@ -291,8 +239,8 @@ namespace Tizen.NUI.Components
             return new ImageView
             {
                 PositionUsesPivotPoint = true,
-                ParentOrigin = NUI.ParentOrigin.Center,
-                PivotPoint = NUI.PivotPoint.Center
+                ParentOrigin = NUI.ParentOrigin.TopCenter,
+                PivotPoint = NUI.PivotPoint.TopCenter
             };
         }
 
@@ -320,8 +268,8 @@ namespace Tizen.NUI.Components
             int iconPaddingTop = iconPadding.Top;
             int iconPaddingBottom = iconPadding.Bottom;
 
-            itemText.SizeWidth = SizeWidth - textPaddingStart - textPaddingEnd - iconPaddingStart - iconPaddingEnd - itemIcon.SizeWidth;
-            itemText.SizeHeight = SizeHeight - textPaddingTop - textPaddingBottom;
+            itemText.SizeWidth = SizeWidth - textPaddingStart - textPaddingEnd;
+            itemText.SizeHeight = SizeHeight - textPaddingTop - textPaddingBottom - iconPaddingTop - iconPaddingBottom - itemIcon.SizeHeight;
         }
 
 
@@ -346,65 +294,17 @@ namespace Tizen.NUI.Components
             int iconPaddingTop = iconPadding.Top;
             int iconPaddingBottom = iconPadding.Bottom;
 
-            switch (IconRelativeOrientation)
-            {
-                case IconOrientation.Left:
-                    if (LayoutDirection == ViewLayoutDirectionType.LTR)
-                    {
-                        itemIcon.PositionUsesPivotPoint = true;
-                        itemIcon.ParentOrigin = NUI.ParentOrigin.CenterLeft;
-                        itemIcon.PivotPoint = NUI.PivotPoint.CenterLeft;
-                        itemIcon.Position2D = new Position2D(iconPaddingStart, 0);
+            itemIcon.PositionUsesPivotPoint = true;
+            itemIcon.ParentOrigin = NUI.ParentOrigin.TopCenter;
+            itemIcon.PivotPoint = NUI.PivotPoint.TopCenter;
+            itemIcon.Position2D = new Position2D(0, iconPaddingTop);
 
-                        itemText.PositionUsesPivotPoint = true;
-                        itemText.ParentOrigin = NUI.ParentOrigin.CenterRight;
-                        itemText.PivotPoint = NUI.PivotPoint.CenterRight;
-                        itemText.Position2D = new Position2D(-textPaddingEnd, 0);
-                    }
-                    else
-                    {
-                        itemIcon.PositionUsesPivotPoint = true;
-                        itemIcon.ParentOrigin = NUI.ParentOrigin.CenterRight;
-                        itemIcon.PivotPoint = NUI.PivotPoint.CenterRight;
-                        itemIcon.Position2D = new Position2D(-iconPaddingStart, 0);
+            itemText.PositionUsesPivotPoint = true;
+            itemText.ParentOrigin = NUI.ParentOrigin.BottomCenter;
+            itemText.PivotPoint = NUI.PivotPoint.BottomCenter;
+            itemText.Position2D = new Position2D(0, -textPaddingBottom);
 
-                        itemText.PositionUsesPivotPoint = true;
-                        itemText.ParentOrigin = NUI.ParentOrigin.CenterLeft;
-                        itemText.PivotPoint = NUI.PivotPoint.CenterLeft;
-                        itemText.Position2D = new Position2D(textPaddingEnd, 0);
-                    }
-
-                    break;
-                case IconOrientation.Right:
-                    if (LayoutDirection == ViewLayoutDirectionType.RTL)
-                    {
-                        itemIcon.PositionUsesPivotPoint = true;
-                        itemIcon.ParentOrigin = NUI.ParentOrigin.CenterLeft;
-                        itemIcon.PivotPoint = NUI.PivotPoint.CenterLeft;
-                        itemIcon.Position2D = new Position2D(iconPaddingEnd, 0);
-
-                        itemText.PositionUsesPivotPoint = true;
-                        itemText.ParentOrigin = NUI.ParentOrigin.CenterRight;
-                        itemText.PivotPoint = NUI.PivotPoint.CenterRight;
-                        itemText.Position2D = new Position2D(-textPaddingStart, 0);
-                    }
-                    else
-                    {
-                        itemIcon.PositionUsesPivotPoint = true;
-                        itemIcon.ParentOrigin = NUI.ParentOrigin.CenterRight;
-                        itemIcon.PivotPoint = NUI.PivotPoint.CenterRight;
-                        itemIcon.Position2D = new Position2D(-iconPaddingEnd, 0);
-
-                        itemText.PositionUsesPivotPoint = true;
-                        itemText.ParentOrigin = NUI.ParentOrigin.CenterLeft;
-                        itemText.PivotPoint = NUI.PivotPoint.CenterLeft;
-                        itemText.Position2D = new Position2D(textPaddingStart, 0);
-                    }
-                    break;
-                default:
-                    break;
-            }
-            if (string.IsNullOrEmpty(itemText.Text))
+           if (string.IsNullOrEmpty(itemText.Text))
             {
                 itemIcon.ParentOrigin = NUI.ParentOrigin.Center;
                 itemIcon.PivotPoint = NUI.PivotPoint.Center;

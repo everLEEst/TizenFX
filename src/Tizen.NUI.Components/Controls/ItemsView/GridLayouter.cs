@@ -22,48 +22,34 @@ using Tizen.NUI.Binding;
 namespace Tizen.NUI.Components
 {
     /// <summary>
-    /// [Draft] This class implements a linear box layout.
+    /// [Draft] This class implements a grid box layout.
     /// </summary>
     /// <since_tizen> 8 </since_tizen>
     /// This may be public opened in tizen_6.0 after ACR done. Before ACR, need to be hidden as inhouse API
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public class LinearLayouter : ItemsLayouter
+    public class GridLayouter : ItemsLayouter
     {
-        private List<float> ItemPosition = new List<float>();
-        private List<float> ItemSize = new List<float>();
+        private int spanSize = 1;
+        private int userSpanSize;
         private int ItemSizeChanged = -1;
-
-        private float GetItemSize(int index)
+        private float align = 0.5f;
+        private Size2D SizeCandidate;
+        private Position GetPosition(ViewItem item)
         {
-            CollectionView colView = ItemsView as CollectionView;
-            if (colView.SizingStrategy == ItemSizingStrategy.MeasureAll)
-            {
-                return ItemSize[index];
-            }
-            else
-            {
-                return StepCandidate;
-            }
-            
-        }
-        private void UpdatePosition(int Index)
-        {
-            CollectionView colView = ItemsView as CollectionView;
-            bool IsGroup = (colView.InternalItemSource is IGroupableItemSource);
-            bool IsGroupHeader = false;
-            bool IsGroupFooter = false;
+            if (SizeCandidate == null) return null;
+            bool isHorizontal = (ItemsView.ScrollingDirection == ScrollableBase.Direction.Horizontal);
+            // int convert must be truncate value.
+            int division = item.Index / spanSize;
+            int remainder = item.Index % spanSize;
+            int emptyArea = isHorizontal ? (int)(ItemsView.Size.Height - (SizeCandidate.Height * spanSize)) :
+                                            (int)(ItemsView.Size.Width - (SizeCandidate.Width * spanSize));
+            if (division < 0) division = 0;
+            if (remainder < 0) remainder = 0;
 
-            if (Index <= 0) return;
-            if (Index >= colView.InternalItemSource.Count)
+            float xPos = isHorizontal ? division * SizeCandidate.Width : emptyArea * align + remainder * SizeCandidate.Width;
+            float yPos = isHorizontal ? emptyArea * align + remainder * SizeCandidate.Height : division * SizeCandidate.Height;
 
-            if (IsGroup)
-            {
-                IsGroupHeader = (colView.InternalItemSource as IGroupableItemSource).IsGroupHeader(Index);
-                IsGroupFooter = (colView.InternalItemSource as IGroupableItemSource).IsGroupFooter(Index);
-                //Do Something
-            }
-
-            ItemPosition[Index] = ItemPosition[Index-1] + GetItemSize(Index);           
+            return new Position(xPos, yPos);
         }
 
         private void FindVisibleItems(Vector2 visibleArea)
@@ -71,15 +57,14 @@ namespace Tizen.NUI.Components
             int MaxIndex = ItemsView.InternalItemSource.Count - 1;
             if ((ItemsView as CollectionView).SizingStrategy == ItemSizingStrategy.MeasureAll)
             {
-                //If Position is exist, need to find proper visible item!
-                FirstVisible = Convert.ToInt32(Math.Abs(visibleArea.X / StepCandidate)) - 3;
-                LastVisible = Convert.ToInt32(Math.Abs(visibleArea.Y / StepCandidate)) + 3;
+                FirstVisible = (Convert.ToInt32(Math.Abs(visibleArea.X / StepCandidate)) - 1) * spanSize;
+                LastVisible = (Convert.ToInt32(Math.Abs(visibleArea.Y / StepCandidate)) + 1) * spanSize;
             }
             else
             {
                 //Need to Consider GroupHeight!!!!
-                FirstVisible = Convert.ToInt32(Math.Abs(visibleArea.X / StepCandidate)) - 3;
-                LastVisible = Convert.ToInt32(Math.Abs(visibleArea.Y / StepCandidate)) + 3;
+                FirstVisible = (Convert.ToInt32(Math.Abs(visibleArea.X / StepCandidate)) - 1) * spanSize;
+                LastVisible = (Convert.ToInt32(Math.Abs(visibleArea.Y / StepCandidate)) + 1) * spanSize;
             }
             if (FirstVisible < 0) FirstVisible = 0;
             if (LastVisible > (MaxIndex)) LastVisible = MaxIndex;
@@ -116,8 +101,6 @@ namespace Tizen.NUI.Components
 
             FirstVisible = 0;
             LastVisible = 0;
-            ItemPosition.Clear();
-            ItemSize.Clear();
 
             bool isHorizontal = (view.ScrollingDirection == ScrollableBase.Direction.Horizontal);
 
@@ -135,51 +118,45 @@ namespace Tizen.NUI.Components
             float Width, Height, FingerSize = 30.0f;
             // Need to Set proper hieght or width on scroll direciton.
 
-            if (SizeDeligate.Layout == null)
+            if (SizeDeligate.Size.Width != 0 &&
+                SizeDeligate.Size.Height != 0)
             {
-                Console.WriteLine("LSH: Layout is NULL!!!!!");
                 Width = SizeDeligate.Size.Width;
                 Height = SizeDeligate.Size.Height;
             }
             else
             {                 
-                SizeDeligate.Layout.Measure(new MeasureSpecification(new LayoutLength(isHorizontal ? FingerSize : view.Size.Width), 
-                                             ( isHorizontal ? MeasureSpecification.ModeType.Unspecified :
-                                                              MeasureSpecification.ModeType.Exactly)),
-                                            new MeasureSpecification(new LayoutLength(isHorizontal ? view.Size.Height : FingerSize),
-                                             ( isHorizontal ? MeasureSpecification.ModeType.Exactly :
-                                                              MeasureSpecification.ModeType.Unspecified)));
+                SizeDeligate.Layout.Measure(new MeasureSpecification(new LayoutLength(FingerSize), MeasureSpecification.ModeType.Unspecified),
+                                            new MeasureSpecification(new LayoutLength(FingerSize), MeasureSpecification.ModeType.Unspecified));
 
                 Width = SizeDeligate.Layout.MeasuredWidth.Size.AsRoundedValue();
                 Height = SizeDeligate.Layout.MeasuredHeight.Size.AsRoundedValue();
 
-                Width = SizeDeligate.Size.Width == 0 ? Width : SizeDeligate.Size.Width;
-                Height = SizeDeligate.Size.Height == 0 ? Height : SizeDeligate.Size.Height;
+                Width = Math.Max(Width, SizeDeligate.Size.Width);
+                Height = Math.Max(Height, SizeDeligate.Size.Height);
             }
             
-            //Console.WriteLine("LSH : Layout Size {0} :{0}", Width, Height);
+            //Console.WriteLine("LSH : item Size {0} :{1}", Width, Height);
 
             // pick the StepCandidate.
             StepCandidate = isHorizontal ? Width : Height;
-            if (StepCandidate == 0) StepCandidate = 1;
+            spanSize = isHorizontal ? Convert.ToInt32(Math.Truncate((double)(view.Size.Height / Height))) : 
+                                      Convert.ToInt32(Math.Truncate((double)(view.Size.Width / Width)));
+            if (StepCandidate < 1) StepCandidate = 1;
+            if (spanSize < 1) spanSize = 1;
 
-            for (int i = 0; i < view.InternalItemSource.Count; i++)
-            {
-                if ((view as CollectionView).SizingStrategy == ItemSizingStrategy.MeasureAll)
-                  ItemSize.Add(StepCandidate);
-                ItemPosition.Add(StepCandidate * i);
-            }
+            SizeCandidate = new Size2D(Convert.ToInt32(Width), Convert.ToInt32(Height));
 
-            // ItemsView.UnrealizeItem(SizeDeligate); keep the SizeDeligate for tracking SizeChange.
-            ScrollContentSize = StepCandidate * view.InternalItemSource.Count;
+            int count = view.InternalItemSource.Count;
+            // ItemsView.UnrealizeItem(SizeDeligate); keep the SizeDeligate for tracking SizeChange?
+            ScrollContentSize = StepCandidate * Convert.ToInt32(Math.Ceiling((double)count / (double)spanSize));
             if (isHorizontal) view.ContentContainer.SizeWidth = ScrollContentSize;
             else view.ContentContainer.SizeHeight = ScrollContentSize; 
 
             view.UnrealizeItem(SizeDeligate);
 
             base.Initialize(view);
-            //Console.WriteLine("Init Done, StepCnadidate{0}, Scroll{1}", StepCandidate, ScrollContentSize);
-
+            //Console.WriteLine("Init Done, StepCnadidate{0}, spanSize{1}, Scroll{2}", StepCandidate, spanSize, ScrollContentSize);
         }
 
         /// <summary>
@@ -198,17 +175,11 @@ namespace Tizen.NUI.Components
             if (!force && PrevScrollPosition == Math.Abs(scrollPosition)) return;
             PrevScrollPosition = Math.Abs(scrollPosition);
 
-            if (ItemSizeChanged >= 0)
-            {
-                for (int i = ItemSizeChanged; i < LastIndex; i++)
-                    UpdatePosition(i);
-                ScrollContentSize = ItemPosition[LastIndex - 1] + GetItemSize(LastIndex);
-            }
-
             int prevFirstVisible = FirstVisible;
             int prevLastVisible = LastVisible;
             bool isHorizontal = (ItemsView.ScrollingDirection == ScrollableBase.Direction.Horizontal);
 
+          
             Vector2 visibleArea = new Vector2(PrevScrollPosition,
                 PrevScrollPosition + ( isHorizontal ? ItemsView.Size.Width : ItemsView.Size.Height)
             );
@@ -217,7 +188,7 @@ namespace Tizen.NUI.Components
 
             // 1. Set First/Last Visible Item Index. 
             FindVisibleItems(visibleArea);
-            //Console.WriteLine("LSH :: visibleArea before [{0},{1}] after [{2},{3}]", prevFirstVisible, prevLastVisible, FirstVisible, LastVisible);
+            //Console.WriteLine("LSH :: {0} :visibleArea before [{1},{2}] after [{3},{4}]", scrollPosition, prevFirstVisible, prevLastVisible, FirstVisible, LastVisible);
 
             // 2. Unrealize invisible items.
             List<ViewItem> unrealizedItems = new List<ViewItem>();
@@ -231,7 +202,7 @@ namespace Tizen.NUI.Components
                 }
             }
             VisibleItems.RemoveAll(unrealizedItems.Contains);
-            
+          
             //Console.WriteLine("Realize Begin [{0} to {1}]", FirstVisible, LastVisible);
             // 3. Realize and placing visible items.
             for (int i = FirstVisible; i <= LastVisible; i++)
@@ -253,17 +224,8 @@ namespace Tizen.NUI.Components
                     return;
                 }
                 VisibleItems.Add(item);
-
                 // 5. Placing item.
-                item.Position = ( isHorizontal ?
-                        new Position(
-                            ItemPosition[i],
-                            item.PositionY
-                        ):
-                        new Position(
-                            item.PositionX,
-                            ItemPosition[i]
-                        ));
+                item.Position = GetPosition(item);
                 // Console.WriteLine("LSH :: ["+item.Index+"] ["+item.Position.X+", "+item.Position.Y+" ==== \n");
             }
             //Console.WriteLine("Realize Done");
@@ -272,36 +234,9 @@ namespace Tizen.NUI.Components
         /// <inheritdoc/>
         public override void NotifyItemSizeChanged(ViewItem item)
         {
-            if (!IsInitialized) return;
-            if ((ItemsView as CollectionView).SizingStrategy == ItemSizingStrategy.MeasureFirst &&
-                item.Index != 0)
-              return;
-
-            if (item.Index < 0) return;
-            bool isHorizontal = ItemsView.ScrollingDirection == ScrollableBase.Direction.Horizontal;
-            float PrevSize, CurrentSize;
-            if (item.Index == (ItemsView.InternalItemSource.Count-1))
-            {
-                PrevSize = ScrollContentSize - ItemPosition[item.Index];
-            }
-            else
-            {
-                PrevSize = ItemPosition[item.Index + 1] - ItemPosition[item.Index];
-            }
-
-            CurrentSize = (isHorizontal ? item.Size.Width : item.Size.Height);
-
-            if (CurrentSize != PrevSize)
-            {
-                if ((ItemsView as CollectionView).SizingStrategy == ItemSizingStrategy.MeasureAll)
-                  ItemSize[item.Index] = CurrentSize;
-                else
-                  StepCandidate = CurrentSize;
-            }
-            if (ItemSizeChanged == -1) ItemSizeChanged = item.Index;
-            else ItemSizeChanged = Math.Min(ItemSizeChanged, item.Index);
-
-            //ScrollContentSize += Diff; UpdateOnce?
+            // All Item size need to be same in grid!
+            // if you want to change item size, change dataTemplate to re-initing.
+            return;
         }
 
         /// <summary>

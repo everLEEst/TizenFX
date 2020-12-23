@@ -42,12 +42,10 @@ namespace Tizen.NUI.Components
                 if (instance.isEnabled != newEnabled)
                 {
                     instance.isEnabled = newEnabled;
-/* Style
                     if (instance.viewItemStyle != null)
                     {
                         instance.viewItemStyle.IsEnabled = newEnabled;
                     }
-*/
                     instance.UpdateState();
                 }
             }
@@ -64,12 +62,12 @@ namespace Tizen.NUI.Components
                 if (instance.isSelected != newSelected)
                 {
                     instance.isSelected = newSelected;
-/* Style
+
                     if (instance.viewItemStyle != null)
                     {
                         instance.viewItemStyle.IsSelected = newSelected;
                     }
-*/
+
                     if (instance.isSelectable)
                     {
                         instance.UpdateState();
@@ -93,12 +91,12 @@ namespace Tizen.NUI.Components
                 if (instance.isSelectable != newSelectable)
                 {
                     instance.isSelectable = newSelectable;
-/*Style
+
                     if (instance.viewItemStyle != null)
                     {
                         instance.viewItemStyle.IsSelectable = newSelectable;
                     }
-*/
+
                     instance.UpdateState();
                 }
             }
@@ -127,7 +125,7 @@ namespace Tizen.NUI.Components
         /// Internal boolean flag for pressed state.
         /// </summary>
         /// <since_tizen> 6 </since_tizen>
-        protected bool isPressed = false;
+        internal bool isPressed = false;
 
         static ViewItem()
         {
@@ -219,9 +217,7 @@ namespace Tizen.NUI.Components
             }
         }
 
-/* Style
         private ViewItemStyle viewItemStyle => ViewStyle as ViewItemStyle;
-*/
 
         /// <summary>
         /// Called after a key event is received by the view that has had its focus set.
@@ -254,7 +250,24 @@ namespace Tizen.NUI.Components
 
                     if (IsSelectable)
                     {
-                        IsSelected = !IsSelected;
+                        // Extension : Extension?.SetTouchInfo(touch);
+                        if (ParentItemsView as CollectionView)
+                        {   
+                            CollectionView colView = ParentItemsView as CollectionView;
+                            switch (colView.SelectionMode)
+                            {
+                                case ItemSelectionMode.Single :
+                                    colView.SelectedItem = IsSelected ? null : BindingContext;
+                                    break;
+                                case ItemSelectionMode.Multiple :
+                                    var selectedItems = colView.SelectedItems;
+                                    if (selectedItems.Contains(BindingContext)) selectedItems.Remove(BindingContext);
+                                    else selectedItems.Add(BindingContext);
+                                    break;
+                                case ItemSelectionMode.None :
+                                    break;
+                            }
+                        }
                     }
                     else
                     {
@@ -291,9 +304,8 @@ namespace Tizen.NUI.Components
             UpdateState();
         }
 
-/* Style
         /// <summary>
-        /// Apply style to button.
+        /// Apply style to ViewItem.
         /// </summary>
         /// <param name="viewStyle">The style to apply.</param>
         /// <since_tizen> 8 </since_tizen>
@@ -303,28 +315,13 @@ namespace Tizen.NUI.Components
 
             base.ApplyStyle(viewStyle);
 
-            if (null != buttonStyle)
+            if (null != viewStyle)
             {
-                Extension = buttonStyle.CreateExtension();
-                if (buttonStyle.Overlay != null)
-                {
-                    OverlayImage?.ApplyStyle(buttonStyle.Overlay);
-                }
-
-                if (buttonStyle.Text != null)
-                {
-                    TextLabel?.ApplyStyle(buttonStyle.Text);
-                }
-
-                if (buttonStyle.Icon != null)
-                {
-                    Icon?.ApplyStyle(buttonStyle.Icon);
-                }
+                //Extension = viewItemStyle.CreateExtension();
             }
 
             styleApplied = true;
         }
-*/
 
         /// <summary>
         /// Data index which is binded to item.

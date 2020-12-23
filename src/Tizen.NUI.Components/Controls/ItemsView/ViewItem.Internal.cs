@@ -8,7 +8,14 @@ namespace Tizen.NUI.Components
 {
     public partial class ViewItem
     {
-        // Style : private bool styleApplied = false;
+
+        /// <summary>
+        /// Parent ItemsView of ViewItem.
+        /// </summary>
+        internal ItemsView ParentItemsView = null;
+        internal ViewItem ParentGroup = null;
+        internal ViewItem ParentItem = null;
+        private bool styleApplied = false;
 
         // Extension : protected ViewItemExtension Extension { get; set; }
  
@@ -19,6 +26,7 @@ namespace Tizen.NUI.Components
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected virtual void OnClicked(ClickedEventArgs eventArgs)
         {
+            Console.WriteLine("On Clicked Called {0}", this.Index);
         }
 
         /// This will be public opened in tizen_6.5 after ACR done. Before ACR, need to be hidden as inhouse API.
@@ -27,7 +35,6 @@ namespace Tizen.NUI.Components
         {
             base.OnUpdate();
             UpdateContent();
-
             // Extension : Extension?.OnRelayout(this);
         }
 
@@ -62,7 +69,24 @@ namespace Tizen.NUI.Components
                         if (IsSelectable)
                         {
                             // Extension : Extension?.SetTouchInfo(touch);
-                            IsSelected = !IsSelected;
+
+                            if (ParentItemsView as CollectionView)
+                            {
+                                CollectionView colView = ParentItemsView as CollectionView;
+                                switch (colView.SelectionMode)
+                                {
+                                    case ItemSelectionMode.Single :
+                                        colView.SelectedItem = IsSelected ? null : BindingContext;
+                                        break;
+                                    case ItemSelectionMode.Multiple :
+                                        var selectedItems = colView.SelectedItems;
+                                        if (selectedItems.Contains(BindingContext)) selectedItems.Remove(BindingContext);
+                                        else selectedItems.Add(BindingContext);
+                                        break;
+                                    case ItemSelectionMode.None :
+                                        break;
+                                }
+                            }
                         }
                         else
                         {
@@ -85,14 +109,14 @@ namespace Tizen.NUI.Components
         }
 
         /// <summary>
-        /// Update Button State.
+        /// Update ViewItem State.
         /// </summary>
         /// <since_tizen> 6 </since_tizen>
         /// This will be public opened in tizen_5.5 after ACR done. Before ACR, need to be hidden as inhouse API.
         [EditorBrowsable(EditorBrowsableState.Never)]
-        protected void UpdateState()
+        internal void UpdateState()
         {
-            // Style : if (!styleApplied) return;
+            if (!styleApplied) return;
 
             ControlState sourceState = ControlState;
             ControlState targetState;
@@ -242,7 +266,7 @@ namespace Tizen.NUI.Components
 
             if (IsSelectable)
             {
-                IsSelected = !IsSelected;
+                //IsSelected = !IsSelected;
             }
             else
             {
