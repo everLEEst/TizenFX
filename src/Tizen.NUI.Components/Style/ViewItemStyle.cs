@@ -131,25 +131,5 @@ namespace Tizen.NUI.Components
                 //
             }
         }
-
-        /// <summary>
-        /// Dispose ViewItemStyle and all children on it.
-        /// </summary>
-        /// <param name="type">Dispose type.</param>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        protected override void Dispose(DisposeTypes type)
-        {
-            if (Disposed)
-            {
-                return;
-            }
-
-            if (type == DisposeTypes.Explicit)
-            {
-                //
-            }
-
-            base.Dispose(type);
-        }
     }
 }
