@@ -23,58 +23,15 @@ using Tizen.NUI.Accessibility;
 namespace Tizen.NUI.Components
 {
     /// <summary>
-    /// Button is one kind of common component, a button clearly describes what action will occur when the user selects it.
-    /// Button may contain text or an icon.
+    /// OneLineLinearItem is one kind of common component, a OneLineLinearItem clearly describes what action will occur when the user selects it.
+    /// OneLineLinearItem may contain text or an icon.
     /// </summary>
-    /// <since_tizen> 6 </since_tizen>
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public class OneLineLinearItem : ViewItem
-    {
-        static OneLineLinearItem() {}
-
+    {     
         /// <summary>
-        /// Creates a new instance of OneLineLinearItem.
+        /// Extents padding around Icon
         /// </summary>
-        /// <since_tizen> 6 </since_tizen>
-        public OneLineLinearItem() : base()
-        {
-            Layout = new LinearLayout();
-        }
-
-         
-        /// <summary>
-        /// Creates a new instance of a OneLineLinearItem with style.
-        /// </summary>
-        /// <param name="style">Create ViewItem by style defined in UX.</param>
-        /// <since_tizen> 8 </since_tizen>
-        public OneLineLinearItem(string style) : base(style)
-        {
-        }
-         
-        /// <summary>
-        /// Creates a new instance of a OneLineLinearItem with style.
-        /// </summary>
-        /// <param name="viewItemStyle">Create ViewItem by style customized by user.</param>
-        /// <since_tizen> 8 </since_tizen>
-        public OneLineLinearItem(ViewItemStyle viewItemStyle) : base(viewItemStyle)
-        {
-        }
-
-        /// This will be public opened in tizen_6.0 after ACR done. Before ACR, need to be hidden as inhouse API.
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public static readonly BindableProperty IconRelativeOrientationProperty = BindableProperty.Create(nameof(IconRelativeOrientation), typeof(IconOrientation?), typeof(OneLineLinearItem), null, propertyChanged: (bindable, oldValue, newValue) =>
-        {
-            var instance = (OneLineLinearItem)bindable;
-            var newIconOrientation = (IconOrientation?)newValue;
-            if (instance.iconRelativeOrientation != newIconOrientation)
-            {
-                instance.iconRelativeOrientation = newIconOrientation;
-                instance.UpdateContent();
-            }
-        },
-        defaultValueCreator: (bindable) => ((OneLineLinearItem)bindable).iconRelativeOrientation
-        );
-
-        /// This will be public opened in tizen_6.0 after ACR done. Before ACR, need to be hidden as inhouse API.
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly BindableProperty IconPaddingProperty = BindableProperty.Create(nameof(IconPadding), typeof(Extents), typeof(OneLineLinearItem), null, propertyChanged: (bindable, oldValue, newValue) =>
         {
@@ -83,61 +40,65 @@ namespace Tizen.NUI.Components
             instance.UpdateContent();
         },
         defaultValueCreator: (bindable) => ((OneLineLinearItem)bindable).iconPadding);
-
-        /// This will be public opened in tizen_6.0 after ACR done. Before ACR, need to be hidden as inhouse API.
+        
+        /// <summary>
+        /// Extents padding around Label
+        /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public static readonly BindableProperty TextPaddingProperty = BindableProperty.Create(nameof(TextPadding), typeof(Extents), typeof(OneLineLinearItem), null, propertyChanged: (bindable, oldValue, newValue) =>
+        public static readonly BindableProperty LabelPaddingProperty = BindableProperty.Create(nameof(LabelPadding), typeof(Extents), typeof(OneLineLinearItem), null, propertyChanged: (bindable, oldValue, newValue) =>
         {
             var instance = (OneLineLinearItem)bindable;
-            instance.textPadding = (Extents)((Extents)newValue).Clone();
+            instance.labelPadding = (Extents)((Extents)newValue).Clone();
             instance.UpdateContent();
         },
-        defaultValueCreator: (bindable) => ((OneLineLinearItem)bindable).textPadding);
+        defaultValueCreator: (bindable) => ((OneLineLinearItem)bindable).labelPadding);
 
-        private TextLabel itemText;
+        private TextLabel itemLabel;
         private View itemIcon;
-
-        private IconOrientation? iconRelativeOrientation;
         private Extents iconPadding;
-        private Extents textPadding;
+        private Extents labelPadding;
 
+        static OneLineLinearItem() {}
 
         /// <summary>
-        /// Icon orientation.
+        /// Creates a new instance of OneLineLinearItem.
         /// </summary>
-        /// <since_tizen> 6 </since_tizen>
-        public enum IconOrientation
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public OneLineLinearItem() : base()
         {
-            /// <summary>
-            /// Left.
-            /// </summary>
-            /// <since_tizen> 6 </since_tizen>
-            Left,
-            /// <summary>
-            /// Right.
-            /// </summary>
-            /// <since_tizen> 6 </since_tizen>
-            Right,
+            Layout = new LinearLayout();
+        }
+         
+        /// <summary>
+        /// Creates a new instance of a OneLineLinearItem with style.
+        /// </summary>
+        /// <param name="style">Create ViewItem by style defined in UX.</param>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public OneLineLinearItem(string style) : base(style)
+        {
+        }
+         
+        /// <summary>
+        /// Creates a new instance of a OneLineLinearItem with style.
+        /// </summary>
+        /// <param name="viewItemStyle">Create ViewItem by style customized by user.</param>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public OneLineLinearItem(ViewItemStyle viewItemStyle) : base(viewItemStyle)
+        {
         }
 
         /// <summary>
-        /// Button's icon part.
+        /// Icon part of OneLineLinearItem.
         /// </summary>
-        /// <since_tizen> 8 </since_tizen>
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public View Icon
         {
             get
             {
-                if (null == itemIcon)
+                if (itemIcon == null)
                 {
-                    itemIcon = (View)CreateIcon();
-                    /*
-                    if (null != Extension)
-                    {
-                        itemIcon = Extension.OnCreateIcon(this, itemIcon);
-                    }
-                    */
-                    if (null != itemIcon)
+                    itemIcon = CreateIcon();
+                    if (itemIcon != null)
                     {
                         Add(itemIcon);
                         itemIcon.Relayout += OnIconRelayout;
@@ -150,58 +111,53 @@ namespace Tizen.NUI.Components
                 itemIcon = value;
             }
         }
-/*
+
         /// <summary>
-        /// Icon image's resource url in Button.
+        /// Icon image's resource url. Only activatable for icon as ImageView.
         /// </summary>
-        /// <since_tizen> 6 </since_tizen>
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public string IconURL
         {
             get
             {
-                return Icon.ResourceUrl;
+                return (Icon as ImageView)?.ResourceUrl;
             }
             set
             {
-                Icon.ResourceUrl = value;
-            }
-        }
-*/
-        /// <summary>
-        /// Button's text part.
-        /// </summary>
-        /// <since_tizen> 8 </since_tizen>
-        public TextLabel Label
-        {
-            get
-            {
-                if (null == itemText)
-                {
-                    itemText = CreateText();
-                    /*
-                    if (null != Extension)
-                    {
-                        itemText = Extension.OnCreateText(this, itemText);
-                    }
-                    */
-                    if (null != itemText)
-                    {
-                        Add(itemText);
-                    }
-                }
-                return itemText;
-            }
-            internal set
-            {
-                itemText = value;
-                AccessibilityManager.Instance.SetAccessibilityAttribute(this, AccessibilityManager.AccessibilityAttribute.Label, itemText.Text);
+                if (itemIcon != null && !(itemIcon is ImageView)) throw new ArgumentException("Icon is not ImageView.", (nameof(itemIcon)));
+                (Icon as ImageView).ResourceUrl = value; 
             }
         }
 
         /// <summary>
-        /// The text of Button.
+        /// OneLineLinearItem's text part of OneLineLinearItem
         /// </summary>
-        /// <since_tizen> 6 </since_tizen>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public TextLabel Label
+        {
+            get
+            {
+                if (itemLabel == null)
+                {
+                    itemLabel = CreateLabel();
+                    if (itemLabel != null)
+                    {
+                        Add(itemLabel);
+                    }
+                }
+                return itemLabel;
+            }
+            internal set
+            {
+                itemLabel = value;
+                AccessibilityManager.Instance.SetAccessibilityAttribute(this, AccessibilityManager.AccessibilityAttribute.Label, itemLabel.Text);
+            }
+        }
+
+        /// <summary>
+        /// The text of OneLineLinearItem.
+        /// </summary>
+       [EditorBrowsable(EditorBrowsableState.Never)]
         public string Text
         {
             get
@@ -215,25 +171,9 @@ namespace Tizen.NUI.Components
         }
 
         /// <summary>
-        /// Icon relative orientation in ViewItem, work only when show icon and text.
+        /// Icon padding in OneLineLinearItem, work only when show icon and text.
         /// </summary>
-        /// <since_tizen> 8 </since_tizen>
-        public IconOrientation? IconRelativeOrientation
-        {
-            get
-            {
-                return (IconOrientation?)GetValue(IconRelativeOrientationProperty) ?? IconOrientation.Left;
-            }
-            set
-            {
-                SetValue(IconRelativeOrientationProperty, value);
-            }
-        }
-
-        /// <summary>
-        /// Icon padding in Button, work only when show icon and text.
-        /// </summary>
-        /// <since_tizen> 6 </since_tizen>
+       [EditorBrowsable(EditorBrowsableState.Never)]
         public Extents IconPadding
         {
             get => (Extents)GetValue(IconPaddingProperty) ?? new Extents();
@@ -241,52 +181,21 @@ namespace Tizen.NUI.Components
         }
 
         /// <summary>
-        /// Text padding in Button, work only when show icon and text.
+        /// Text padding in OneLineLinearItem, work only when show icon and text.
         /// </summary>
-        /// <since_tizen> 6 </since_tizen>
-        public Extents TextPadding
+       [EditorBrowsable(EditorBrowsableState.Never)]
+        public Extents LabelPadding
         {
-            get => (Extents)GetValue(TextPaddingProperty) ?? new Extents();
-            set => SetValue(TextPaddingProperty, value);
+            get => (Extents)GetValue(LabelPaddingProperty) ?? new Extents();
+            set => SetValue(LabelPaddingProperty, value);
         }
-
-/* Style :
-        /// <summary>
-        /// Apply style to button.
-        /// </summary>
-        /// <param name="viewStyle">The style to apply.</param>
-        /// <since_tizen> 8 </since_tizen>
-        public override void ApplyStyle(ViewStyle viewStyle)
-        {
-            styleApplied = false;
-
-            base.ApplyStyle(viewStyle);
-
-            if (null != buttonStyle)
-            {
-                Extension = buttonStyle.CreateExtension();
-                if (buttonStyle.Text != null)
-                {
-                    Label?.ApplyStyle(buttonStyle.Text);
-                }
-
-                if (buttonStyle.Icon != null)
-                {
-                    Icon?.ApplyStyle(buttonStyle.Icon);
-                }
-            }
-
-            styleApplied = true;
-        }
-*/
-
 
         /// <summary>
         /// Creates Item's text part.
         /// </summary>
         /// <return>The created Item's text part.</return>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        protected virtual TextLabel CreateText()
+        protected virtual TextLabel CreateLabel()
         {
             return new TextLabel
             {
@@ -314,24 +223,23 @@ namespace Tizen.NUI.Components
                 PivotPoint = NUI.PivotPoint.Center
             };
         }
-
  
         /// <inheritdoc/>
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected override void MeasureChild()
         {
-            if (itemIcon == null || itemText == null)
+            if (itemIcon == null || itemLabel == null)
             {
                 return;
             }
-            itemText.WidthResizePolicy = ResizePolicyType.Fixed;
-            itemText.HeightResizePolicy = ResizePolicyType.Fixed;
+            itemLabel.WidthResizePolicy = ResizePolicyType.Fixed;
+            itemLabel.HeightResizePolicy = ResizePolicyType.Fixed;
 
-            var textPadding = TextPadding;
-            int textPaddingStart = textPadding.Start;
-            int textPaddingEnd = textPadding.End;
-            int textPaddingTop = textPadding.Top;
-            int textPaddingBottom = textPadding.Bottom;
+            var labelPadding = LabelPadding;
+            int labelPaddingStart = labelPadding.Start;
+            int labelPaddingEnd = labelPadding.End;
+            int labelPaddingTop = labelPadding.Top;
+            int labelPaddingBottom = labelPadding.Bottom;
 
             var iconPadding = IconPadding;
             int iconPaddingStart = iconPadding.Start;
@@ -339,25 +247,24 @@ namespace Tizen.NUI.Components
             int iconPaddingTop = iconPadding.Top;
             int iconPaddingBottom = iconPadding.Bottom;
 
-            itemText.SizeWidth = SizeWidth - textPaddingStart - textPaddingEnd - iconPaddingStart - iconPaddingEnd - itemIcon.SizeWidth;
-            itemText.SizeHeight = SizeHeight - textPaddingTop - textPaddingBottom;
+            itemLabel.SizeWidth = SizeWidth - labelPaddingStart - labelPaddingEnd - iconPaddingStart - iconPaddingEnd - itemIcon.SizeWidth;
+            itemLabel.SizeHeight = SizeHeight - labelPaddingTop - labelPaddingBottom;
         }
-
 
         /// <inheritdoc/>
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected override void LayoutChild()
         {
-            if (itemIcon == null || itemText == null)
+            if (itemIcon == null || itemLabel == null)
             {
                 return;
             }
 
-            var textPadding = TextPadding;
-            int textPaddingStart = textPadding.Start;
-            int textPaddingEnd = textPadding.End;
-            int textPaddingTop = textPadding.Top;
-            int textPaddingBottom = textPadding.Bottom;
+            var labelPadding = LabelPadding;
+            int labelPaddingStart = labelPadding.Start;
+            int labelPaddingEnd = labelPadding.End;
+            int labelPaddingTop = labelPadding.Top;
+            int labelPaddingBottom = labelPadding.Bottom;
 
             var iconPadding = IconPadding;
             int iconPaddingStart = iconPadding.Start;
@@ -365,65 +272,32 @@ namespace Tizen.NUI.Components
             int iconPaddingTop = iconPadding.Top;
             int iconPaddingBottom = iconPadding.Bottom;
 
-            switch (IconRelativeOrientation)
+            if (LayoutDirection == ViewLayoutDirectionType.LTR)
             {
-                case IconOrientation.Left:
-                    if (LayoutDirection == ViewLayoutDirectionType.LTR)
-                    {
-                        itemIcon.PositionUsesPivotPoint = true;
-                        itemIcon.ParentOrigin = NUI.ParentOrigin.CenterLeft;
-                        itemIcon.PivotPoint = NUI.PivotPoint.CenterLeft;
-                        itemIcon.Position2D = new Position2D(iconPaddingStart, 0);
+                itemIcon.PositionUsesPivotPoint = true;
+                itemIcon.ParentOrigin = NUI.ParentOrigin.CenterLeft;
+                itemIcon.PivotPoint = NUI.PivotPoint.CenterLeft;
+                itemIcon.Position2D = new Position2D(iconPaddingStart, 0);
 
-                        itemText.PositionUsesPivotPoint = true;
-                        itemText.ParentOrigin = NUI.ParentOrigin.CenterRight;
-                        itemText.PivotPoint = NUI.PivotPoint.CenterRight;
-                        itemText.Position2D = new Position2D(-textPaddingEnd, 0);
-                    }
-                    else
-                    {
-                        itemIcon.PositionUsesPivotPoint = true;
-                        itemIcon.ParentOrigin = NUI.ParentOrigin.CenterRight;
-                        itemIcon.PivotPoint = NUI.PivotPoint.CenterRight;
-                        itemIcon.Position2D = new Position2D(-iconPaddingStart, 0);
-
-                        itemText.PositionUsesPivotPoint = true;
-                        itemText.ParentOrigin = NUI.ParentOrigin.CenterLeft;
-                        itemText.PivotPoint = NUI.PivotPoint.CenterLeft;
-                        itemText.Position2D = new Position2D(textPaddingEnd, 0);
-                    }
-
-                    break;
-                case IconOrientation.Right:
-                    if (LayoutDirection == ViewLayoutDirectionType.RTL)
-                    {
-                        itemIcon.PositionUsesPivotPoint = true;
-                        itemIcon.ParentOrigin = NUI.ParentOrigin.CenterLeft;
-                        itemIcon.PivotPoint = NUI.PivotPoint.CenterLeft;
-                        itemIcon.Position2D = new Position2D(iconPaddingEnd, 0);
-
-                        itemText.PositionUsesPivotPoint = true;
-                        itemText.ParentOrigin = NUI.ParentOrigin.CenterRight;
-                        itemText.PivotPoint = NUI.PivotPoint.CenterRight;
-                        itemText.Position2D = new Position2D(-textPaddingStart, 0);
-                    }
-                    else
-                    {
-                        itemIcon.PositionUsesPivotPoint = true;
-                        itemIcon.ParentOrigin = NUI.ParentOrigin.CenterRight;
-                        itemIcon.PivotPoint = NUI.PivotPoint.CenterRight;
-                        itemIcon.Position2D = new Position2D(-iconPaddingEnd, 0);
-
-                        itemText.PositionUsesPivotPoint = true;
-                        itemText.ParentOrigin = NUI.ParentOrigin.CenterLeft;
-                        itemText.PivotPoint = NUI.PivotPoint.CenterLeft;
-                        itemText.Position2D = new Position2D(textPaddingStart, 0);
-                    }
-                    break;
-                default:
-                    break;
+                itemLabel.PositionUsesPivotPoint = true;
+                itemLabel.ParentOrigin = NUI.ParentOrigin.CenterRight;
+                itemLabel.PivotPoint = NUI.PivotPoint.CenterRight;
+                itemLabel.Position2D = new Position2D(-labelPaddingEnd, 0);
             }
-            if (string.IsNullOrEmpty(itemText.Text))
+            else
+            {
+                itemIcon.PositionUsesPivotPoint = true;
+                itemIcon.ParentOrigin = NUI.ParentOrigin.CenterRight;
+                itemIcon.PivotPoint = NUI.PivotPoint.CenterRight;
+                itemIcon.Position2D = new Position2D(-iconPaddingStart, 0);
+
+                itemLabel.PositionUsesPivotPoint = true;
+                itemLabel.ParentOrigin = NUI.ParentOrigin.CenterLeft;
+                itemLabel.PivotPoint = NUI.PivotPoint.CenterLeft;
+                itemLabel.Position2D = new Position2D(labelPaddingEnd, 0);
+            }
+
+            if (string.IsNullOrEmpty(itemLabel.Text))
             {
                 itemIcon.ParentOrigin = NUI.ParentOrigin.Center;
                 itemIcon.PivotPoint = NUI.PivotPoint.Center;
@@ -438,17 +312,11 @@ namespace Tizen.NUI.Components
             LayoutDirectionChanged += OnLayoutDirectionChanged;
         }
 
-        private void OnLayoutDirectionChanged(object sender, LayoutDirectionChangedEventArgs e)
-        {
-            MeasureChild();
-            LayoutChild();
-        }
-
         /// <summary>
         /// Dispose Item and all children on it.
         /// </summary>
         /// <param name="type">Dispose type.</param>
-        /// <since_tizen> 6 </since_tizen>
+        [EditorBrowsable(EditorBrowsableState.Never)]
         protected override void Dispose(DisposeTypes type)
         {
             if (disposed)
@@ -464,13 +332,19 @@ namespace Tizen.NUI.Components
                 {
                     Utility.Dispose(itemIcon);
                 }
-                if (itemText != null)
+                if (itemLabel != null)
                 {
-                    Utility.Dispose(itemText);
+                    Utility.Dispose(itemLabel);
                 }
             }
 
             base.Dispose(type);
+        }
+
+        private void OnLayoutDirectionChanged(object sender, LayoutDirectionChangedEventArgs e)
+        {
+            MeasureChild();
+            LayoutChild();
         }
 
         private void OnIconRelayout(object sender, EventArgs e)

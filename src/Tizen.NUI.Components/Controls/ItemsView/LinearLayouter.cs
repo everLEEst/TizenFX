@@ -24,8 +24,6 @@ namespace Tizen.NUI.Components
     /// <summary>
     /// [Draft] This class implements a linear box layout.
     /// </summary>
-    /// <since_tizen> 8 </since_tizen>
-    /// This may be public opened in tizen_6.0 after ACR done. Before ACR, need to be hidden as inhouse API
     [EditorBrowsable(EditorBrowsableState.Never)]
     public class LinearLayouter : ItemsLayouter
     {
@@ -34,79 +32,17 @@ namespace Tizen.NUI.Components
         private int ItemSizeChanged = -1;
         private CollectionView colView; 
 
-        private float GetItemSize(int index)
-        {
-            if (colView.SizingStrategy == ItemSizingStrategy.MeasureAll)
-            {
-                return ItemSize[index];
-            }
-            else
-            {
-                return StepCandidate;
-            }
-            
-        }
-        private void UpdatePosition(int Index)
-        {
-            bool IsGroup = (colView.InternalItemSource is IGroupableItemSource);
-            bool IsGroupHeader = false;
-            bool IsGroupFooter = false;
-
-            if (Index <= 0) return;
-            if (Index >= colView.InternalItemSource.Count)
-
-            if (IsGroup)
-            {
-                IsGroupHeader = (colView.InternalItemSource as IGroupableItemSource).IsGroupHeader(Index);
-                IsGroupFooter = (colView.InternalItemSource as IGroupableItemSource).IsGroupFooter(Index);
-                //Do Something
-            }
-
-            ItemPosition[Index] = ItemPosition[Index-1] + GetItemSize(Index);           
-        }
-
-        private void FindVisibleItems(Vector2 visibleArea)
-        {
-            int MaxIndex = colView.InternalItemSource.Count - 1;
-            if (colView.SizingStrategy == ItemSizingStrategy.MeasureAll)
-            {
-                //If Position is exist, need to find proper visible item!
-                FirstVisible = Convert.ToInt32(Math.Abs(visibleArea.X / StepCandidate)) - 3;
-                LastVisible = Convert.ToInt32(Math.Abs(visibleArea.Y / StepCandidate)) + 3;
-            }
-            else
-            {
-                //Need to Consider GroupHeight!!!!
-                FirstVisible = Convert.ToInt32(Math.Abs(visibleArea.X / StepCandidate)) - 3;
-                LastVisible = Convert.ToInt32(Math.Abs(visibleArea.Y / StepCandidate)) + 3;
-            }
-            if (FirstVisible < 0) FirstVisible = 0;
-            if (LastVisible > (MaxIndex)) LastVisible = MaxIndex;
-        }
-
-        private ViewItem GetVisibleItem(int index)
-        {
-            foreach (ViewItem item in VisibleItems)
-            {
-                if (item.Index == index) return item;
-            }
-
-            return null;
-        }
-
         /// <summary>
         /// Clean up ItemsLayouter.
         /// </summary>
         /// <param name="view"> ItemsView of layouter. </param>
-        /// <since_tizen> 8 </since_tizen>
-        /// This may be public opened in tizen_6.0 after ACR done. Before ACR, need to be hidden as inhouse API
         [EditorBrowsable(EditorBrowsableState.Never)]
         public override void Initialize(ItemsView view)
         {
             colView = view as CollectionView;
             if (colView == null)
             {
-                throw new NotSupportedException();
+                throw new ArgumentException("GridLayouter only can be applied CollectionView.", nameof(view));
             }
             // 1. Clean Up
             if (VisibleItems != null)
@@ -174,7 +110,7 @@ namespace Tizen.NUI.Components
             if (SizeDeligate == null)
             {
                 // error !
-                return;
+                throw new ArgumentException("Cannot create content from DatTemplate.", nameof(colView));
             }
             //FIXME: if header is exist, index must be changed.
 
@@ -184,7 +120,6 @@ namespace Tizen.NUI.Components
 
             if (SizeDeligate.Layout == null)
             {
-                Console.WriteLine("LSH: Layout is NULL!!!!!");
                 Width = SizeDeligate.Size.Width;
                 Height = SizeDeligate.Size.Height;
             }
@@ -247,8 +182,7 @@ namespace Tizen.NUI.Components
         /// </summary>
         /// <param name="scrollPosition">Scroll position which is calculated by ScrollableBase</param>
         /// <param name="force">boolean force flag to layouting forcely.</param>
-        /// <since_tizen> 8 </since_tizen>
-        /// This may be public opened in tizen_6.0 after ACR done. Before ACR, need to be hidden as inhouse API
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public override void RequestLayout(float scrollPosition, bool force = false)
         {
             // Layouting is only possible after once it intialized.
@@ -268,7 +202,7 @@ namespace Tizen.NUI.Components
             int prevFirstVisible = FirstVisible;
             int prevLastVisible = LastVisible;
 
-            Vector2 visibleArea = new Vector2(PrevScrollPosition,
+            (float X, float Y) visibleArea = (PrevScrollPosition,
                 PrevScrollPosition + ( isHorizontal ? colView.Size.Width : colView.Size.Height)
             );
 
@@ -330,14 +264,18 @@ namespace Tizen.NUI.Components
         }
 
         /// <inheritdoc/>
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public override void NotifyItemSizeChanged(ViewItem item)
         {
-            if (!IsInitialized) return;
-            if (colView.SizingStrategy == ItemSizingStrategy.MeasureFirst &&
-                item.Index != 0)
-              return;
+            if (item == null)
+                throw new ArgumentNullException(nameof(item));
 
-            if (item.Index < 0) return;
+            if (!IsInitialized ||
+                (colView.SizingStrategy == ItemSizingStrategy.MeasureFirst &&
+                item.Index != 0) ||
+                (item.Index < 0))
+                return;
+
             float PrevSize, CurrentSize;
             if (item.Index == (colView.InternalItemSource.Count-1))
             {
@@ -366,8 +304,6 @@ namespace Tizen.NUI.Components
         /// <summary>
         /// This is called to find out how much container size can be.
         /// </summary>
-        /// <since_tizen> 8 </since_tizen>
-        /// This may be public opened in tizen_6.0 after ACR done. Before ACR, need to be hidden as inhouse API
         [EditorBrowsable(EditorBrowsableState.Never)]
         public override float CalculateLayoutOrientationSize()
         {
@@ -379,8 +315,7 @@ namespace Tizen.NUI.Components
         /// Adjust scrolling position by own scrolling rules.
         /// </summary>
         /// <param name="scrollPosition">Scroll position which is calculated by ScrollableBase</param>
-        /// <since_tizen> 8 </since_tizen>
-        /// This may be public opened in tizen_6.0 after ACR done. Before ACR, need to be hidden as inhouse API
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public override float CalculateCandidateScrollPosition(float scrollPosition)
         {
             //Console.WriteLine("LSH :: Calculate Candidate ScrollContentSize {0}", ScrollContentSize);
@@ -395,8 +330,12 @@ namespace Tizen.NUI.Components
         /// <param name="direction">The direction to move the focus towards.</param>
         /// <param name="loopEnabled">Whether the focus movement should be looped within the control.</param>
         /// <returns>The next keyboard focusable view in this control or an empty handle if no view can be focused.</returns>
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public override View RequestNextFocusableView(View currentFocusedView, View.FocusDirection direction, bool loopEnabled)
         {
+            if (currentFocusedView == null)
+                throw new ArgumentNullException(nameof(currentFocusedView));
+
             View nextFocusedView = null;
             int targetSibling = -1;
 
@@ -435,5 +374,66 @@ namespace Tizen.NUI.Components
 
             return nextFocusedView;
         }
+
+        private float GetItemSize(int index)
+        {
+            if (colView.SizingStrategy == ItemSizingStrategy.MeasureAll)
+            {
+                return ItemSize[index];
+            }
+            else
+            {
+                return StepCandidate;
+            }
+            
+        }
+        private void UpdatePosition(int Index)
+        {
+            bool IsGroup = (colView.InternalItemSource is IGroupableItemSource);
+            bool IsGroupHeader = false;
+            bool IsGroupFooter = false;
+
+            if (Index <= 0) return;
+            if (Index >= colView.InternalItemSource.Count)
+
+            if (IsGroup)
+            {
+                IsGroupHeader = (colView.InternalItemSource as IGroupableItemSource).IsGroupHeader(Index);
+                IsGroupFooter = (colView.InternalItemSource as IGroupableItemSource).IsGroupFooter(Index);
+                //Do Something
+            }
+
+            ItemPosition[Index] = ItemPosition[Index-1] + GetItemSize(Index);           
+        }
+
+        private void FindVisibleItems((float X, float Y) visibleArea)
+        {
+            int MaxIndex = colView.InternalItemSource.Count - 1;
+            if (colView.SizingStrategy == ItemSizingStrategy.MeasureAll)
+            {
+                //If Position is exist, need to find proper visible item!
+                FirstVisible = Convert.ToInt32(Math.Abs(visibleArea.X / StepCandidate)) - 3;
+                LastVisible = Convert.ToInt32(Math.Abs(visibleArea.Y / StepCandidate)) + 3;
+            }
+            else
+            {
+                //Need to Consider GroupHeight!!!!
+                FirstVisible = Convert.ToInt32(Math.Abs(visibleArea.X / StepCandidate)) - 3;
+                LastVisible = Convert.ToInt32(Math.Abs(visibleArea.Y / StepCandidate)) + 3;
+            }
+            if (FirstVisible < 0) FirstVisible = 0;
+            if (LastVisible > (MaxIndex)) LastVisible = MaxIndex;
+        }
+
+        private ViewItem GetVisibleItem(int index)
+        {
+            foreach (ViewItem item in VisibleItems)
+            {
+                if (item.Index == index) return item;
+            }
+
+            return null;
+        }
+
     }
 }

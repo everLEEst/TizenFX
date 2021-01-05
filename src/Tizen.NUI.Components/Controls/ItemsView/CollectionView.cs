@@ -14,6 +14,7 @@
  *
  */
 using System;
+using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using System.Windows.Input;
@@ -24,205 +25,33 @@ using Tizen.NUI.Binding;
 namespace Tizen.NUI.Components
 {
     /// <summary>
-    /// [Draft] This class provides a View that can layouting items in list and grid with high performance.
+    /// This class provides a View that can layouting items in list and grid with high performance.
     /// </summary>
-    /// This may be public opened in tizen_6.0 after ACR done. Before ACR, need to be hidden as inhouse API.
     [EditorBrowsable(EditorBrowsableState.Never)]
     public class CollectionView : ItemsView
     {
-        private IEnumerable _itemsSource = null;
-        private bool NeedInitalizeLayouter = false;
-        /// <summary>
-        /// Item's source data.
-        /// </summary>
-        /// <since_tizen> 8 </since_tizen>
-        /// This may be public opened in tizen_6.0 after ACR done. Before ACR, need to be hidden as inhouse API
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public new IEnumerable ItemsSource
-        {
-            get
-            {
-                return _itemsSource;
-            }
-            set
-            {
-
-                _itemsSource = value;
-                base.ItemsSource = value;
-                if (value == null)
-                {
-                    if (InternalItemSource != null) InternalItemSource.Dispose();
-                    //layouter.Clear()
-                    return;
-                }
-
-                if (_itemsLayouter == null) return;
-
-                if (InternalItemSource != null) InternalItemSource.Dispose();
-                InternalItemSource = ItemsSourceFactory.Create(this, _itemsLayouter);
-                NeedInitalizeLayouter = true;
-
-                if (_itemsTemplate != null)
-                {
-                    _itemsLayouter.Initialize(this);
-                    _itemsLayouter.RequestLayout(0.0f, true);
-                    if (ScrollingDirection == Direction.Horizontal)
-                    {
-                        ContentContainer.SizeWidth =
-                            _itemsLayouter.CalculateLayoutOrientationSize();
-                    }
-                    else
-                    {
-                        ContentContainer.SizeHeight =
-                            _itemsLayouter.CalculateLayoutOrientationSize();
-                    }
-                    NeedInitalizeLayouter = false;
-                }
-            }
-        }
-
-        /// <summary>
-        /// Internal encapsulated items data source.
-        /// </summary>
-        /// This may be public opened in tizen_6.0 after ACR done. Before ACR, need to be hidden as inhouse API
-        internal new IGroupableItemSource InternalItemSource;
-
-        private DataTemplate _itemsTemplate = null;
-        /// <summary>
-        /// DataTemplate for items.
-        /// </summary>
-        /// <since_tizen> 8 </since_tizen>
-        /// This may be public opened in tizen_6.0 after ACR done. Before ACR, need to be hidden as inhouse API
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public new DataTemplate ItemsTemplate
-        {
-            get
-            {
-                return _itemsTemplate;
-            }
-            set
-            {
-                _itemsTemplate = value;
-                base.ItemsTemplate = value;
-                if (value == null)
-                {
-                    //layouter.clear()
-                    return;
-                }
-
-                NeedInitalizeLayouter = true;
-
-                if (_itemsLayouter != null && InternalItemSource != null)
-                {
-                    _itemsLayouter.Initialize(this);
-                    _itemsLayouter.RequestLayout(0.0f, true);
-                    if (ScrollingDirection == Direction.Horizontal)
-                    {
-                        ContentContainer.SizeWidth =
-                                _itemsLayouter.CalculateLayoutOrientationSize();
-                    }
-                    else
-                    {
-                        ContentContainer.SizeHeight =
-                            _itemsLayouter.CalculateLayoutOrientationSize();
-                    }
-                    NeedInitalizeLayouter = false;
-                }
-            }
-        }
-
-        private ItemsLayouter _itemsLayouter = null;
-        /// <summary>
-        /// Items Layouter.
-        /// </summary>
-        /// <since_tizen> 8 </since_tizen>
-        /// This may be public opened in tizen_6.0 after ACR done. Before ACR, need to be hidden as inhouse API
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public new ItemsLayouter ItemsLayouter
-        {
-            get
-            {
-                return _itemsLayouter;
-            }
-            set
-            {
-                _itemsLayouter = value;
-                base.ItemsLayouter = value;
-                if (value == null)
-                {
-                    NeedInitalizeLayouter = false;
-                    return;
-                }
-
-                if ((_itemsSource != null) && (_itemsTemplate != null))
-                {
-                    if (InternalItemSource == null)
-                    {
-                        InternalItemSource = ItemsSourceFactory.Create(this, _itemsLayouter);
-                    }
-
-                    _itemsLayouter.Initialize(this);
-                    _itemsLayouter.RequestLayout(0.0f, true);
-                    if (ScrollingDirection == Direction.Horizontal)
-                    {
-                        ContentContainer.SizeWidth =
-                            _itemsLayouter.CalculateLayoutOrientationSize();
-                    }
-                    else
-                    {
-                        ContentContainer.SizeHeight =
-                            _itemsLayouter.CalculateLayoutOrientationSize();
-                    }
-                    NeedInitalizeLayouter = false;
-                }
-                else NeedInitalizeLayouter = true;
-            }
-        }
-
-        /// <summary>
-        ///  DataTemplate of group header. Group feature is not supported yet.
-        /// </summary>
-        /// <since_tizen> 6.5 </since_tizen>
-        /// This may be public opened in tizen_6.0 after ACR done. Before ACR, need to be hidden as inhouse API
-        [EditorBrowsable(EditorBrowsableState.Never)]
-		public DataTemplate GroupHeaderTemplate;
-
-        /// <summary>
-        /// DataTemplate of group footer. Group feature is not supported yet.
-        /// </summary>
-        /// <since_tizen> 6.5 </since_tizen>
-        /// This may be public opened in tizen_6.0 after ACR done. Before ACR, need to be hidden as inhouse API
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public DataTemplate GroupFooterTemplate; 
-
         /// <summary>
         /// Binding Property of selected item in single selection.
         /// </summary>
-        /// <since_tizen> 6.5 </since_tizen>
-        /// This may be public opened in tizen_6.0 after ACR done. Before ACR, need to be hidden as inhouse API
         [EditorBrowsable(EditorBrowsableState.Never)]
-		public static readonly BindableProperty SelectedItemProperty =
-			BindableProperty.Create(nameof(SelectedItem), typeof(object), typeof(CollectionView), null,
-				propertyChanged: (bindable, oldValue, newValue)=>
+        public static readonly BindableProperty SelectedItemProperty =
+            BindableProperty.Create(nameof(SelectedItem), typeof(object), typeof(CollectionView), null,
+                propertyChanged: (bindable, oldValue, newValue)=>
                 {
-			        var colView = (CollectionView)bindable;
+                    var colView = (CollectionView)bindable;
                     var args = new SelectionChangedEventArgs(oldValue, newValue);
                     oldValue = colView.selectedItem;
                     
-                    foreach(View item in colView.ContentContainer.Children)
+                    foreach (ViewItem item in colView.ContentContainer.Children.Where((item) => item is ViewItem))
                     {
-                        if (item as ViewItem)
-                        {
-                            var vItem = item as ViewItem;
-                            if (vItem.BindingContext == null) continue;
-                            if (vItem.BindingContext == oldValue) vItem.IsSelected = false;
-                            else if (item.BindingContext == newValue) vItem.IsSelected = true;
-                        }
+                        if (item.BindingContext == null) continue;
+                        if (item.BindingContext == oldValue) item.IsSelected = false;
+                        else if (item.BindingContext == newValue) item.IsSelected = true;
                     }
 
                     SelectionPropertyChanged(colView, args);
-		        },
-				defaultValueCreator: (bindable)=>
+                },
+                defaultValueCreator: (bindable)=>
                 {
                     var colView = (CollectionView)bindable;
                     return colView.selectedItem;
@@ -231,35 +60,289 @@ namespace Tizen.NUI.Components
         /// <summary>
         /// Binding Property of selected items list in multiple selection.
         /// </summary>
-        /// <since_tizen> 6.5 </since_tizen>
-        /// This may be public opened in tizen_6.0 after ACR done. Before ACR, need to be hidden as inhouse API
         [EditorBrowsable(EditorBrowsableState.Never)]
-		public static readonly BindableProperty SelectedItemsProperty =
-			BindableProperty.Create(nameof(SelectedItems), typeof(IList<object>), typeof(CollectionView), null,
-				propertyChanged: (bindable, oldValue, newValue)=>
+        public static readonly BindableProperty SelectedItemsProperty =
+            BindableProperty.Create(nameof(SelectedItems), typeof(IList<object>), typeof(CollectionView), null,
+                propertyChanged: (bindable, oldValue, newValue)=>
                 {
                     var colView = (CollectionView)bindable;
-                    var oldSelection = (IList<object>)colView.selectedItems ?? s_empty;
+                    var oldSelection = colView.selectedItems ?? s_empty;
                     //FIXME : CoerceSelectedItems calls only isCreatedByXaml
                     var newSelection = (SelectionList)CoerceSelectedItems(colView, newValue);
                     colView.selectedItems = newSelection;
-			        colView.SelectedItemsPropertyChanged(oldSelection, newSelection);
+                    colView.SelectedItemsPropertyChanged(oldSelection, newSelection);
                 },
-				defaultValueCreator: (bindable) =>
+                defaultValueCreator: (bindable) =>
                 {
                     var colView = (CollectionView)bindable;
                     colView.selectedItems = colView.selectedItems ?? new SelectionList(colView);
                     return colView.selectedItems;
                 });
 
+        /// <summary>
+        /// Binding Property of selected items list in multiple selection.
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static readonly BindableProperty SelectionModeProperty =
+            BindableProperty.Create(nameof(SelectionMode), typeof(ItemSelectionMode), typeof(CollectionView), ItemSelectionMode.None,
+                propertyChanged: (bindable, oldValue, newValue)=>
+                {
+                    var colView = (CollectionView)bindable;
+                    oldValue = colView.selectionMode;
+                    colView.selectionMode = (ItemSelectionMode)newValue;
+                    SelectionModePropertyChanged(colView, oldValue, newValue);
+                },
+                defaultValueCreator: (bindable) =>
+                {
+                    var colView = (CollectionView)bindable;
+                    return colView.selectionMode;
+                });
+
+
+        private static readonly IList<object> s_empty = new List<object>(0);
+        private DataTemplate itemsTemplate = null;
+        private IEnumerable itemsSource = null;
+        private ItemsLayouter itemsLayouter = null;
+        private bool needInitalizeLayouter = false;
+        private object selectedItem;        
+        private SelectionList selectedItems;
+        private bool suppressSelectionChangeNotification;
+        private ItemSelectionMode selectionMode = ItemSelectionMode.None;
         private ViewItem header;
+        private ViewItem footer;
+        private View focusedView;
+        private int prevFocusedDataIndex = 0;
+        
+        /// <summary>
+        /// Base constructor.
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public CollectionView() : base()
+        {
+            FocusGroup = true;
+            Init();
+            SetKeyboardNavigationSupport(true);
+            Scrolling += OnScrolling;
+        }
+
+        /// <summary>
+        /// Event of Selection changed.
+        /// old selection list and new selection will be provided.
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public event EventHandler<SelectionChangedEventArgs> SelectionChanged;
+
+
+        /// <summary>
+        /// Item's source data.
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public new IEnumerable ItemsSource
+        {
+            get
+            {
+                return itemsSource;
+            }
+            set
+            {
+
+                itemsSource = value;
+                base.ItemsSource = value;
+                if (value == null)
+                {
+                    if (InternalItemSource != null) InternalItemSource.Dispose();
+                    //layouter.Clear()
+                    return;
+                }
+
+                if (itemsLayouter == null) return;
+
+                if (InternalItemSource != null) InternalItemSource.Dispose();
+                InternalItemSource = ItemsSourceFactory.Create(this, itemsLayouter);
+                needInitalizeLayouter = true;
+
+                if (itemsTemplate != null)
+                {
+                    itemsLayouter.Initialize(this);
+                    itemsLayouter.RequestLayout(0.0f, true);
+                    if (ScrollingDirection == Direction.Horizontal)
+                    {
+                        ContentContainer.SizeWidth =
+                            itemsLayouter.CalculateLayoutOrientationSize();
+                    }
+                    else
+                    {
+                        ContentContainer.SizeHeight =
+                            itemsLayouter.CalculateLayoutOrientationSize();
+                    }
+                    needInitalizeLayouter = false;
+                }
+            }
+        }
+
+        /// <summary>
+        /// DataTemplate for items.
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public new DataTemplate ItemsTemplate
+        {
+            get
+            {
+                return itemsTemplate;
+            }
+            set
+            {
+                itemsTemplate = value;
+                base.ItemsTemplate = value;
+                if (value == null)
+                {
+                    //layouter.clear()
+                    return;
+                }
+
+                needInitalizeLayouter = true;
+
+                if (itemsLayouter != null && InternalItemSource != null)
+                {
+                    itemsLayouter.Initialize(this);
+                    itemsLayouter.RequestLayout(0.0f, true);
+                    if (ScrollingDirection == Direction.Horizontal)
+                    {
+                        ContentContainer.SizeWidth =
+                                itemsLayouter.CalculateLayoutOrientationSize();
+                    }
+                    else
+                    {
+                        ContentContainer.SizeHeight =
+                            itemsLayouter.CalculateLayoutOrientationSize();
+                    }
+                    needInitalizeLayouter = false;
+                }
+            }
+        }        
+
+        /// <summary>
+        /// Items Layouter.
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public new ItemsLayouter ItemsLayouter
+        {
+            get
+            {
+                return itemsLayouter;
+            }
+            set
+            {
+                itemsLayouter = value;
+                base.ItemsLayouter = value;
+                if (value == null)
+                {
+                    needInitalizeLayouter = false;
+                    return;
+                }
+
+                if ((itemsSource != null) && (itemsTemplate != null))
+                {
+                    if (InternalItemSource == null)
+                    {
+                        InternalItemSource = ItemsSourceFactory.Create(this, itemsLayouter);
+                    }
+
+                    itemsLayouter.Initialize(this);
+                    itemsLayouter.RequestLayout(0.0f, true);
+                    if (ScrollingDirection == Direction.Horizontal)
+                    {
+                        ContentContainer.SizeWidth =
+                            itemsLayouter.CalculateLayoutOrientationSize();
+                    }
+                    else
+                    {
+                        ContentContainer.SizeHeight =
+                            itemsLayouter.CalculateLayoutOrientationSize();
+                    }
+                    needInitalizeLayouter = false;
+                }
+                else needInitalizeLayouter = true;
+            }
+        }
+
+        /// <summary>
+        /// Scrolling direction to display items layout.
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public new Direction ScrollingDirection
+        {
+            get
+            {
+                return base.ScrollingDirection;
+            }
+            set
+            {
+                base.ScrollingDirection = value;
+
+                if (ScrollingDirection == Direction.Horizontal)
+                {
+                    ContentContainer.SizeWidth = ItemsLayouter.CalculateLayoutOrientationSize();
+                }
+                else
+                {
+                    ContentContainer.SizeHeight = ItemsLayouter.CalculateLayoutOrientationSize();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Selected item in single selection.
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public object SelectedItem
+        {
+            get => GetValue(SelectedItemProperty);
+            set => SetValue(SelectedItemProperty, value);
+        }
+
+        /// <summary>
+        /// Selected items list in multiple selection.
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public IList<object> SelectedItems
+        {
+            get => (IList<object>)GetValue(SelectedItemsProperty);
+            set => SetValue(SelectedItemsProperty, new SelectionList(this, value));
+        }
+
+        /// <summary>
+        /// Selection mode to handle items selection. See ItemSelectionMode for details.
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public ItemSelectionMode SelectionMode
+        {
+            get => (ItemSelectionMode)GetValue(SelectionModeProperty);
+            set => SetValue(SelectionModeProperty, value);
+        }
+
+        /// <summary>
+        /// Command of selection changed.
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public ICommand SelectionChangedCommand { set; get; }
+
+        /// <summary>
+        /// Command parameter of selection changed.
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public object SelectionChangedCommandParameter { set; get; }
+
+        /// <summary>
+        /// Size strategy of measuring scroll content. see details in ItemSizingStrategy.
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public ItemSizingStrategy SizingStrategy { get; set; }
 
         /// <summary>
         /// Header item which placed in top-most position.
         /// note : internal index and count will be increased.
         /// </summary>
-        /// <since_tizen> 6.5 </since_tizen>
-        /// This may be public opened in tizen_6.0 after ACR done. Before ACR, need to be hidden as inhouse API
         [EditorBrowsable(EditorBrowsableState.Never)]
         public ViewItem Header
         {
@@ -283,14 +366,10 @@ namespace Tizen.NUI.Components
             }
         }
 
-        private ViewItem footer;
-
         /// <summary>
         /// Footer item which placed in bottom-most position.
         /// note : internal count will be increased.
         /// </summary>
-        /// <since_tizen> 6.5 </since_tizen>
-        /// This may be public opened in tizen_6.0 after ACR done. Before ACR, need to be hidden as inhouse API
         [EditorBrowsable(EditorBrowsableState.Never)]
         public ViewItem Footer
         {
@@ -304,7 +383,7 @@ namespace Tizen.NUI.Components
                 }  
                 if (value != null)
                 {
-                    value.Index = InternalItemSource != null ? InternalItemSource.Count : 0;
+                    value.Index = InternalItemSource?.Count ?? 0;
                     value.ParentItemsView = this;
                     value.IsFooter = true;
                     ContentContainer.Add(value);
@@ -317,385 +396,36 @@ namespace Tizen.NUI.Components
         /// <summary>
         /// Boolean flag of group feature existence.
         /// </summary>
-        /// <since_tizen> 6.5 </since_tizen>
-        /// This may be public opened in tizen_6.0 after ACR done. Before ACR, need to be hidden as inhouse API
         [EditorBrowsable(EditorBrowsableState.Never)]    
-        public bool IsGrouped = false;
+        public bool IsGrouped { get; set; }
 
         /// <summary>
-        /// Selection mode to handle items selection. See ItemSelectionMode for details.
+        ///  DataTemplate of group header. Group feature is not supported yet.
         /// </summary>
-        /// <since_tizen> 6.5 </since_tizen>
-        /// This may be public opened in tizen_6.0 after ACR done. Before ACR, need to be hidden as inhouse API
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public ItemSelectionMode SelectionMode;
-		static readonly IList<object> s_empty = new List<object>(0);
-        private object selectedItem;
-        
-        /// <summary>
-        /// Selected item in single selection.
-        /// </summary>
-        /// <since_tizen> 6.5 </since_tizen>
-        /// This may be public opened in tizen_6.0 after ACR done. Before ACR, need to be hidden as inhouse API
-        [EditorBrowsable(EditorBrowsableState.Never)]
-		public object SelectedItem
-		{
-			get => GetValue(SelectedItemProperty);
-			set => SetValue(SelectedItemProperty, value);
-		}
-
-        private SelectionList selectedItems;
+        public DataTemplate GroupHeaderTemplate { get; set; }
 
         /// <summary>
-        /// Selected items list in multiple selection.
+        /// DataTemplate of group footer. Group feature is not supported yet.
         /// </summary>
-        /// <since_tizen> 6.5 </since_tizen>
-        /// This may be public opened in tizen_6.0 after ACR done. Before ACR, need to be hidden as inhouse API
         [EditorBrowsable(EditorBrowsableState.Never)]
-		public IList<object> SelectedItems
-		{
-			get => (IList<object>)GetValue(SelectedItemsProperty);
-			set => SetValue(SelectedItemsProperty, new SelectionList(this, value));
-		}
+        public DataTemplate GroupFooterTemplate { get; set; }
 
         /// <summary>
-        /// Command of selection changed.
+        /// Internal encapsulated items data source.
         /// </summary>
-        /// <since_tizen> 6.5 </since_tizen>
-        /// This may be public opened in tizen_6.0 after ACR done. Before ACR, need to be hidden as inhouse API
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public ICommand SelectionChangedCommand;
-
-        /// <summary>
-        /// Command parameter of selection changed.
-        /// </summary>
-        /// <since_tizen> 6.5 </since_tizen>
-        /// This may be public opened in tizen_6.0 after ACR done. Before ACR, need to be hidden as inhouse API
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public object SelectionChangedCommandParameter;
-
-
-        /// <summary>
-        /// Event of Selection changed.
-        /// old selection list and new selection will be provided.
-        /// </summary>
-        /// <since_tizen> 6.5 </since_tizen>
-        /// This may be public opened in tizen_6.0 after ACR done. Before ACR, need to be hidden as inhouse API
-        [EditorBrowsable(EditorBrowsableState.Never)]
-		public event EventHandler<SelectionChangedEventArgs> SelectionChanged;
-
-		bool _suppressSelectionChangeNotification;
-
-        /// <summary>
-        /// Size strategy of measuring scroll content. see details in ItemSizingStrategy.
-        /// </summary>
-        /// <since_tizen> 6.5 </since_tizen>
-        /// This may be public opened in tizen_6.0 after ACR done. Before ACR, need to be hidden as inhouse API
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public ItemSizingStrategy SizingStrategy;
-        private List<PropertyNotification> notifications = new List<PropertyNotification>();
-        
-        /// <summary>
-        /// Base constructor.
-        /// </summary>
-        /// <since_tizen> 6.5 </since_tizen>
-        /// This may be public opened in tizen_6.0 after ACR done. Before ACR, need to be hidden as inhouse API
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public CollectionView() : base()
-        {
-            FocusGroup = true;
-            Init();
-            SetKeyboardNavigationSupport(true);
-            Scrolling += OnScrolling;
-        }
-
-        private void Init()
-        {
-            if (ItemsSource == null) return;
-            if (ItemsLayouter == null) return;
-            if (ItemsTemplate == null) return;
-
-            InternalItemSource.HasHeader = (header != null);
-            InternalItemSource.HasFooter = (footer != null);
-
-            ItemsLayouter.Initialize(this);
-            ItemsLayouter.RequestLayout(0.0f, true);
-
-            if (ScrollingDirection == Direction.Horizontal)
-            {
-                ContentContainer.SizeWidth = ItemsLayouter.CalculateLayoutOrientationSize();
-            }
-            else
-            {
-                ContentContainer.SizeHeight = ItemsLayouter.CalculateLayoutOrientationSize();
-            }
-        }
-
-        // Realize and Decorate the item.
-        internal override ViewItem RealizeItem(int Index)
-        {
-            if (Index == 0 && Header != null)
-            {
-                Console.WriteLine("Header is Showing!");
-                Header.Show();
-                return Header;
-            }
-
-            if (Index == InternalItemSource.Count - 1 && Footer != null)
-            {
-                Footer.Show();
-                return Footer;
-            }
-
-            ViewItem item = base.RealizeItem(Index);
-
-            item.Template = (ItemsTemplate is DataTemplateSelector ?
-                            (ItemsTemplate as DataTemplateSelector).SelectDataTemplate(InternalItemSource.GetItem(Index), this) :
-                             ItemsTemplate);
-
-            item.BindingContext = InternalItemSource.GetItem(Index);
-            item.BindingContext = InternalItemSource.GetItem(Index);
-
-            switch (SelectionMode)
-            {
-                case ItemSelectionMode.Single:
-                    if (item.BindingContext == SelectedItem) item.IsSelected = true;
-                    break;
-
-                case ItemSelectionMode.Multiple:
-                    if (SelectedItems!=null && SelectedItems.Contains(item.BindingContext)) item.IsSelected = true;
-                    break;
-                case ItemSelectionMode.None:
-                    item.IsSelectable = false;
-                    break;
-            }
-            
-            
-            return item;
-        }
-
-        // Unrealize and caching the item.
-        internal override void UnrealizeItem(ViewItem item, bool recycle = true)
-        {
-            if (item == Header)
-            {
-                item.Hide();
-                Console.WriteLine("Header is Hide!");
-                return;
-            }
-
-            if (item == Footer)
-            {
-                item.Hide();
-                return;
-            }
-
-            item.IsSelected = false;
-            base.UnrealizeItem(item, recycle);
-        }
-
-        /// <summary>
-        /// update selected items list in multiple selection.
-        /// </summary>
-        /// <since_tizen> 6.5 </since_tizen>
-        /// This may be public opened in tizen_6.0 after ACR done. Before ACR, need to be hidden as inhouse API
-        [EditorBrowsable(EditorBrowsableState.Never)]
-		public void UpdateSelectedItems(IList<object> newSelection)
-		{
-			var oldSelection = new List<object>(SelectedItems);
-
-			_suppressSelectionChangeNotification = true;
-
-			SelectedItems.Clear();
-
-			if (newSelection?.Count > 0)
-			{
-				for (int n = 0; n < newSelection.Count; n++)
-				{
-					SelectedItems.Add(newSelection[n]);
-				}
-			}
-
-			_suppressSelectionChangeNotification = false;
-
-			SelectedItemsPropertyChanged(oldSelection, newSelection);
-		}
-
-        /// <summary>
-        /// Internal selection callback.
-        /// </summary>
-        /// <since_tizen> 6.5 </since_tizen>
-        /// This may be public opened in tizen_6.0 after ACR done. Before ACR, need to be hidden as inhouse API
-        [EditorBrowsable(EditorBrowsableState.Never)]
-		protected virtual void OnSelectionChanged(SelectionChangedEventArgs args)
-		{
-            //Selection Callback
-		}
-
-		static object CoerceSelectedItems(BindableObject bindable, object value)
-		{
-			if (value == null)
-			{
-				return new SelectionList((CollectionView)bindable);
-			}
-
-			if (value is SelectionList)
-			{
-				return value;
-			}
-
-			return new SelectionList((CollectionView)bindable, value as IList<object>);
-		}
-
-		internal void SelectedItemsPropertyChanged(IList<object> oldSelection, IList<object> newSelection)
-		{
-			if (_suppressSelectionChangeNotification)
-			{
-				return;
-			}
-
-            foreach(View content in ContentContainer.Children)
-            {
-                if (content as ViewItem)
-                {
-                    var item = (ViewItem)content;
-                    var binding = item.BindingContext;
-                    if (binding == null) continue;
-                    if (newSelection.Contains(binding))
-                    {
-                        if (!item.IsSelected) item.IsSelected = true;
-                    }
-                    else
-                    {
-                        if (item.IsSelected) item.IsSelected = false;
-                    }
-                }
-            }
-			SelectionPropertyChanged(this, new SelectionChangedEventArgs(oldSelection, newSelection));
-
-			OnPropertyChanged(SelectedItemsProperty.PropertyName);
-		}
-
-		static void SelectionPropertyChanged(CollectionView colView, SelectionChangedEventArgs args)
-		{
-			var command = colView.SelectionChangedCommand;
-
-			if (command != null)
-			{
-				var commandParameter = colView.SelectionChangedCommandParameter;
-
-				if (command.CanExecute(commandParameter))
-				{
-					command.Execute(commandParameter);
-				}
-			}
-			colView.SelectionChanged?.Invoke(colView, args);
-			colView.OnSelectionChanged(args);
-		}
-
-		static void SelectionModePropertyChanged(BindableObject bindable, object oldValue, object newValue)
-		{
-			var colView = (CollectionView)bindable;
-
-			var oldMode = (ItemSelectionMode)oldValue;
-			var newMode = (ItemSelectionMode)newValue;
-
-			IList<object> previousSelection = new List<object>();
-			IList<object> newSelection = new List<object>();
-
-			switch (oldMode)
-			{
-				case ItemSelectionMode.None:
-					break;
-				case ItemSelectionMode.Single:
-					if (colView.SelectedItem != null)
-					{
-						previousSelection.Add(colView.SelectedItem);
-					}
-					break;
-				case ItemSelectionMode.Multiple:
-					previousSelection = colView.SelectedItems;
-					break;
-			}
-
-			switch (newMode)
-			{
-				case ItemSelectionMode.None:
-					break;
-				case ItemSelectionMode.Single:
-					if (colView.SelectedItem != null)
-					{
-						newSelection.Add(colView.SelectedItem);
-					}
-					break;
-				case ItemSelectionMode.Multiple:
-					newSelection = colView.SelectedItems;
-					break;
-			}
-
-			if (previousSelection.Count == newSelection.Count)
-			{
-				if (previousSelection.Count == 0 || (previousSelection[0] == newSelection[0]))
-				{
-					// Both selections are empty or have the same single item; no reason to signal a change
-					return;
-				}
-			}
-
-			var args = new SelectionChangedEventArgs(previousSelection, newSelection);
-			SelectionPropertyChanged(colView, args);
-		}
-
-        /// <summary>
-        /// Scrolling direction to display items layout.
-        /// </summary>
-        /// <since_tizen> 6.5 </since_tizen>
-        /// This may be public opened in tizen_6.0 after ACR done. Before ACR, need to be hidden as inhouse API
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public new Direction ScrollingDirection
+        internal new IGroupableItemSource InternalItemSource
         {
             get
             {
-                return base.ScrollingDirection;
+                return (base.InternalItemSource as IGroupableItemSource);
             }
             set
             {
-                base.ScrollingDirection = value;
-
-                if (ScrollingDirection == Direction.Horizontal)
-                {
-                    ContentContainer.SizeWidth = ItemsLayouter.CalculateLayoutOrientationSize();
-                }
-                else
-                {
-                    ContentContainer.SizeHeight = ItemsLayouter.CalculateLayoutOrientationSize();
-                }
+                base.InternalItemSource = value;
             }
         }
-
-        private void OnScrolling(object source, ScrollEventArgs args)
-        {
-            //ItemsLayouter.RequestLayout(ScrollingDirection == Direction.Horizontal ? args.Position.X : args.Position.Y);
-        }
-
-        /// <summary>
-        /// Adjust scrolling position by own scrolling rules.
-        /// Override this function when developer wants to change destination of flicking.(e.g. always snap to center of item)
-        /// </summary>
-        /// <param name="position">Scroll position which is calculated by ScrollableBase</param>
-        /// <returns>Adjusted scroll destination</returns>
-        /// <since_tizen> 8 </since_tizen>
-        /// This may be public opened in tizen_6.0 after ACR done. Before ACR, need to be hidden as inhouse API
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        protected override float AdjustTargetPositionOfScrollAnimation(float position)
-        {
-            // Destination is depending on implementation of layout manager.
-            // Get destination from layout manager.
-            return ItemsLayouter.CalculateCandidateScrollPosition(position);
-        }
-
-        private View focusedView;
-        private int prevFocusedDataIndex = 0;
 
         /// <inheritdoc/>
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -703,15 +433,15 @@ namespace Tizen.NUI.Components
         {
             View nextFocusedView = null;
 
-            if (!focusedView)
+            if (focusedView == null)
             {
                 // If focusedView is null, find child which has previous data index
-                if (Children.Count > 0 && InternalItemSource.Count > 0)
+                if (ContentContainer.Children.Count > 0 && InternalItemSource.Count > 0)
                 {
-                    for (int i = 0; i < Children.Count; i++)
+                    for (int i = 0; i < ContentContainer.Children.Count; i++)
                     {
-                        RecycleItem item = Children[i] as RecycleItem;
-                        if (item.DataIndex == prevFocusedDataIndex)
+                        ViewItem item = Children[i] as ViewItem;
+                        if (item?.Index == prevFocusedDataIndex)
                         {
                             nextFocusedView = item;
                             break;
@@ -725,7 +455,7 @@ namespace Tizen.NUI.Components
                 nextFocusedView = ItemsLayouter.RequestNextFocusableView(currentFocusedView, direction, loopEnabled);
             }
 
-            if (nextFocusedView)
+            if (nextFocusedView != null)
             {
                 // Check next focused view is inside of visible area.
                 // If it is not, move scroll position to make it visible.
@@ -766,7 +496,7 @@ namespace Tizen.NUI.Components
                 }
 
                 focusedView = nextFocusedView;
-                prevFocusedDataIndex = (nextFocusedView as RecycleItem).DataIndex;
+                prevFocusedDataIndex = (nextFocusedView is ViewItem) ? ((ViewItem)nextFocusedView).Index : -1;
 
                 ScrollTo(targetPosition, true);
             }
@@ -798,7 +528,7 @@ namespace Tizen.NUI.Components
                     }
                 }
 
-                if(nextFocusedView)
+                if(nextFocusedView != null)
                 {
                     focusedView = null;
                 }
@@ -810,6 +540,252 @@ namespace Tizen.NUI.Components
             }
 
             return nextFocusedView;
+        }
+
+        /// <summary>
+        /// update selected items list in multiple selection.
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public void UpdateSelectedItems(IList<object> newSelection)
+        {
+            var oldSelection = new List<object>(SelectedItems);
+
+            suppressSelectionChangeNotification = true;
+
+            SelectedItems.Clear();
+
+            if (newSelection?.Count > 0)
+            {
+                for (int n = 0; n < newSelection.Count; n++)
+                {
+                    SelectedItems.Add(newSelection[n]);
+                }
+            }
+
+            suppressSelectionChangeNotification = false;
+
+            SelectedItemsPropertyChanged(oldSelection, newSelection);
+        }
+
+        // Realize and Decorate the item.
+        internal override ViewItem RealizeItem(int Index)
+        {
+            if (Index == 0 && Header != null)
+            {
+                Header.Show();
+                return Header;
+            }
+
+            if (Index == InternalItemSource.Count - 1 && Footer != null)
+            {
+                Footer.Show();
+                return Footer;
+            }
+
+            ViewItem item = base.RealizeItem(Index);
+
+            switch (SelectionMode)
+            {
+                case ItemSelectionMode.SingleSelection:
+                    if (item.BindingContext == SelectedItem) item.IsSelected = true;
+                    break;
+
+                case ItemSelectionMode.MultipleSelections:
+                    if (SelectedItems?.Contains(item.BindingContext) ?? false) item.IsSelected = true;
+                    break;
+                case ItemSelectionMode.None:
+                    item.IsSelectable = false;
+                    break;
+            }
+
+            return item;
+        }
+
+        // Unrealize and caching the item.
+        internal override void UnrealizeItem(ViewItem item, bool recycle = true)
+        {
+            if (item == Header)
+            {
+                item.Hide();
+                return;
+            }
+
+            if (item == Footer)
+            {
+                item.Hide();
+                return;
+            }
+
+            item.IsSelected = false;
+            base.UnrealizeItem(item, recycle);
+        }
+
+        internal void SelectedItemsPropertyChanged(IList<object> oldSelection, IList<object> newSelection)
+        {
+            if (suppressSelectionChangeNotification)
+            {
+                return;
+            }
+
+            foreach (ViewItem item in ContentContainer.Children.Where((item) => item is ViewItem))
+            {
+                if (item.BindingContext == null) continue;
+                if (newSelection.Contains(item.BindingContext))
+                {
+                    if (!item.IsSelected) item.IsSelected = true;
+                }
+                else
+                {
+                    if (item.IsSelected) item.IsSelected = false;
+                }
+            }
+            SelectionPropertyChanged(this, new SelectionChangedEventArgs(oldSelection, newSelection));
+
+            OnPropertyChanged(SelectedItemsProperty.PropertyName);
+        }
+
+        /// <summary>
+        /// Internal selection callback.
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        protected virtual void OnSelectionChanged(SelectionChangedEventArgs args)
+        {
+            //Selection Callback
+        }
+
+        /// <summary>
+        /// Adjust scrolling position by own scrolling rules.
+        /// Override this function when developer wants to change destination of flicking.(e.g. always snap to center of item)
+        /// </summary>
+        /// <param name="position">Scroll position which is calculated by ScrollableBase</param>
+        /// <returns>Adjusted scroll destination</returns>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        protected override float AdjustTargetPositionOfScrollAnimation(float position)
+        {
+            // Destination is depending on implementation of layout manager.
+            // Get destination from layout manager.
+            return ItemsLayouter.CalculateCandidateScrollPosition(position);
+        }
+
+        private static void SelectionPropertyChanged(CollectionView colView, SelectionChangedEventArgs args)
+        {
+            var command = colView.SelectionChangedCommand;
+
+            if (command != null)
+            {
+                var commandParameter = colView.SelectionChangedCommandParameter;
+
+                if (command.CanExecute(commandParameter))
+                {
+                    command.Execute(commandParameter);
+                }
+            }
+            colView.SelectionChanged?.Invoke(colView, args);
+            colView.OnSelectionChanged(args);
+        }
+
+        private static object CoerceSelectedItems(BindableObject bindable, object value)
+        {
+            if (value == null)
+            {
+                return new SelectionList((CollectionView)bindable);
+            }
+
+            if (value is SelectionList)
+            {
+                return value;
+            }
+
+            return new SelectionList((CollectionView)bindable, value as IList<object>);
+        }
+
+        private static void SelectionModePropertyChanged(BindableObject bindable, object oldValue, object newValue)
+        {
+            var colView = (CollectionView)bindable;
+
+            var oldMode = (ItemSelectionMode)oldValue;
+            var newMode = (ItemSelectionMode)newValue;
+
+            IList<object> previousSelection = new List<object>();
+            IList<object> newSelection = new List<object>();
+
+            switch (oldMode)
+            {
+                case ItemSelectionMode.None:
+                    break;
+                case ItemSelectionMode.SingleSelection:
+                    if (colView.SelectedItem != null)
+                    {
+                        previousSelection.Add(colView.SelectedItem);
+                    }
+                    break;
+                case ItemSelectionMode.MultipleSelections:
+                    previousSelection = colView.SelectedItems;
+                    break;
+            }
+
+            switch (newMode)
+            {
+                case ItemSelectionMode.None:
+                    break;
+                case ItemSelectionMode.SingleSelection:
+                    if (colView.SelectedItem != null)
+                    {
+                        newSelection.Add(colView.SelectedItem);
+                    }
+                    break;
+                case ItemSelectionMode.MultipleSelections:
+                    newSelection = colView.SelectedItems;
+                    break;
+            }
+
+            if (previousSelection.Count == newSelection.Count)
+            {
+                if (previousSelection.Count == 0 || (previousSelection[0] == newSelection[0]))
+                {
+                    // Both selections are empty or have the same single item; no reason to signal a change
+                    return;
+                }
+            }
+
+            var args = new SelectionChangedEventArgs(previousSelection, newSelection);
+            SelectionPropertyChanged(colView, args);
+        }
+
+        private void Init()
+        {
+            if (ItemsSource == null) return;
+            if (ItemsLayouter == null) return;
+            if (ItemsTemplate == null) return;
+
+            InternalItemSource.HasHeader = (header != null);
+            InternalItemSource.HasFooter = (footer != null);
+
+            if (needInitalizeLayouter)
+            {
+                ItemsLayouter.Initialize(this);
+                needInitalizeLayouter = false;
+            }
+            ItemsLayouter.RequestLayout(0.0f, true);
+
+            if (ScrollingDirection == Direction.Horizontal)
+            {
+                ContentContainer.SizeWidth = ItemsLayouter.CalculateLayoutOrientationSize();
+            }
+            else
+            {
+                ContentContainer.SizeHeight = ItemsLayouter.CalculateLayoutOrientationSize();
+            }
+        }
+
+        private void OnScrolling(object source, ScrollEventArgs args)
+        {
+            if (needInitalizeLayouter)
+            {
+                ItemsLayouter.Initialize(this);
+                needInitalizeLayouter = false;
+            }
+            //ItemsLayouter.RequestLayout(ScrollingDirection == Direction.Horizontal ? args.Position.X : args.Position.Y);
         }
     }
 }

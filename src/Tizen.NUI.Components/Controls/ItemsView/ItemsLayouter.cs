@@ -13,6 +13,7 @@
  * limitations under the License.
  *
  */
+using System;
 using Tizen.NUI.BaseComponents;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -21,89 +22,75 @@ using Tizen.NUI.Binding;
 namespace Tizen.NUI.Components
 {
     /// <summary>
-    /// [Draft] Defalt layout manager for CollectionView.
+    /// Default layout manager for CollectionView.
     /// Lay out ViewItem and recycle ViewItem.
     /// </summary>
-    /// <since_tizen> 8 </since_tizen>
-    /// This may be public opened in tizen_6.0 after ACR done. Before ACR, need to be hidden as inhouse API
     [EditorBrowsable(EditorBrowsableState.Never)]
     public abstract class ItemsLayouter : ICollectionChangedNotifier
     {
+
         /// <summary>
         /// Container which contains ViewItems.
         /// </summary>
-        /// <since_tizen> 8 </since_tizen>
-        /// This may be public opened in tizen_6.0 after ACR done. Before ACR, need to be hidden as inhouse API
         [EditorBrowsable(EditorBrowsableState.Never)]
-        protected View Container{get;set;}
+        protected View Container{ get ; set; }
+
         /// <summary>
         /// Parent ItemsView.
         /// </summary>
-        /// <since_tizen> 8 </since_tizen>
-        /// This may be public opened in tizen_6.0 after ACR done. Before ACR, need to be hidden as inhouse API
-        protected ItemsView ItemsView{get;set;}
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        protected ItemsView ItemsView{ get; set; }
 
         /// <summary>
         /// The last scrolled position which is calculated by ScrollableBase. The value should be updated in the Recycle() method.
         /// </summary>
-        /// This may be public opened in tizen_6.0 after ACR done. Before ACR, need to be hidden as inhouse API
         [EditorBrowsable(EditorBrowsableState.Never)]
-        protected float PrevScrollPosition{get;set;}
+        protected float PrevScrollPosition { get; set; }
 
         /// <summary>
         /// First index of visible items.
         /// </summary>
-        /// This may be public opened in tizen_6.0 after ACR done. Before ACR, need to be hidden as inhouse API
         [EditorBrowsable(EditorBrowsableState.Never)]
-        protected int FirstVisible = -1;
+        protected int FirstVisible { get; set; } = -1;
 
         /// <summary>
         /// Last index of visible items.
         /// </summary>
-        /// This may be public opened in tizen_6.0 after ACR done. Before ACR, need to be hidden as inhouse API
-        protected int LastVisible = -1;
+        protected int LastVisible { get; set; } = -1;
 
         /// <summary>
         /// Visible ViewItem.
         /// </summary>
-        /// This may be public opened in tizen_6.0 after ACR done. Before ACR, need to be hidden as inhouse API
-        protected List<ViewItem> VisibleItems = new List<ViewItem>();
+        protected List<ViewItem> VisibleItems { get; set; } = new List<ViewItem>();
 
         /// <summary>
         /// Flag of layouter initialization.
         /// </summary>
-        /// This may be public opened in tizen_6.0 after ACR done. Before ACR, need to be hidden as inhouse API
-        protected bool IsInitialized = false;
-
+        protected bool IsInitialized { get; set; } = false;
 
         /// <summary>
         /// Candidate item step size for scroll size measure.
         /// </summary>
-        /// This may be public opened in tizen_6.0 after ACR done. Before ACR, need to be hidden as inhouse API
-        protected float StepCandidate;
+        protected float StepCandidate { get; set; }
 
         /// <summary>
         /// Content size of scrollable.
         /// </summary>
-        /// This may be public opened in tizen_6.0 after ACR done. Before ACR, need to be hidden as inhouse API
-        protected float ScrollContentSize;
+        protected float ScrollContentSize { get; set; }
     
         /// <summary>
         /// boolean flag of scrollable horizontal direction.
         /// </summary>
-        /// This may be public opened in tizen_6.0 after ACR done. Before ACR, need to be hidden as inhouse API
-        protected bool isHorizontal;
+        protected bool isHorizontal { get; set; }
 
         /// <summary>
         /// Clean up ItemsLayouter.
         /// </summary>
         /// <param name="view"> ItemsView of layouter. </param>
-        /// <since_tizen> 8 </since_tizen>
-        /// This may be public opened in tizen_6.0 after ACR done. Before ACR, need to be hidden as inhouse API
         [EditorBrowsable(EditorBrowsableState.Never)]
         public virtual void Initialize(ItemsView view)
         {
-            ItemsView = view;
+            ItemsView = view ?? throw new ArgumentNullException(nameof(view));
             Container = view.ContentContainer;            
             PrevScrollPosition = 0.0f;
 
@@ -118,35 +105,15 @@ namespace Tizen.NUI.Components
         /// </summary>
         /// <param name="scrollPosition">Scroll position which is calculated by ScrollableBase</param>
         /// <param name="force">boolean force flag to layouting forcely.</param>
-        /// <since_tizen> 8 </since_tizen>
-        /// This may be public opened in tizen_6.0 after ACR done. Before ACR, need to be hidden as inhouse API
         [EditorBrowsable(EditorBrowsableState.Never)]
         public virtual void RequestLayout(float scrollPosition, bool force = false)
         {
            // Layouting Items in scrollPosition.
         }
-/*
-List? or int{start,end}?
-        /// <summary>
-        /// </summary>
-        /// <param name="start">Scroll position which is calculated by ScrollableBase</param>
-        /// <param name="end">Scroll position which is calculated by ScrollableBase</param>
-        /// <since_tizen> 8 </since_tizen>
-        /// This may be public opened in tizen_6.0 after ACR done. Before ACR, need to be hidden as inhouse API
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public virtual List<ViewItem> GetVisibleCandidates(float scrollPosition)
-        {
-           // Implement below as their layout visible ways.
-           List<ViewItem> candidates = new List<ViewItem>();
-           return candidates;
-        }
-*/
 
         /// <summary>
         /// This is called to find out how much container size can be.
         /// </summary>
-        /// <since_tizen> 8 </since_tizen>
-        /// This may be public opened in tizen_6.0 after ACR done. Before ACR, need to be hidden as inhouse API
         [EditorBrowsable(EditorBrowsableState.Never)]
         public virtual float CalculateLayoutOrientationSize()
         {
@@ -157,8 +124,6 @@ List? or int{start,end}?
         /// Adjust scrolling position by own scrolling rules.
         /// </summary>
         /// <param name="scrollPosition">Scroll position which is calculated by ScrollableBase</param>
-        /// <since_tizen> 8 </since_tizen>
-        /// This may be public opened in tizen_6.0 after ACR done. Before ACR, need to be hidden as inhouse API
         [EditorBrowsable(EditorBrowsableState.Never)]
         public virtual float CalculateCandidateScrollPosition(float scrollPosition)
         {
@@ -167,17 +132,13 @@ List? or int{start,end}?
 
         /// <summary>
         /// </summary>
-        /// <since_tizen> 8 </since_tizen>
-        /// This may be public opened in tizen_6.0 after ACR done. Before ACR, need to be hidden as inhouse API
         public virtual void NotifyItemSizeChanged(ViewItem item)
         {
         }
 
         /// <summary>
         /// </summary>
-        /// <since_tizen> 8 </since_tizen>
-        /// This may be public opened in tizen_6.0 after ACR done. Before ACR, need to be hidden as inhouse API
-		public void NotifyDataSetChanged()
+        public void NotifyDataSetChanged()
         {
             Initialize(ItemsView);
         }
@@ -186,9 +147,7 @@ List? or int{start,end}?
         /// </summary>
         /// <param name="source"></param>
         /// <param name="startIndex"></param>
-        /// <since_tizen> 8 </since_tizen>
-        /// This may be public opened in tizen_6.0 after ACR done. Before ACR, need to be hidden as inhouse API
-		public void NotifyItemChanged(IItemSource source, int startIndex)
+        public void NotifyItemChanged(IItemSource source, int startIndex)
         {
 
         }
@@ -197,9 +156,7 @@ List? or int{start,end}?
         /// </summary>
         /// <param name="source"></param>
         /// <param name="startIndex"></param>
-        /// <since_tizen> 8 </since_tizen>
-        /// This may be public opened in tizen_6.0 after ACR done. Before ACR, need to be hidden as inhouse API
-		public void NotifyItemInserted(IItemSource source, int startIndex)
+        public void NotifyItemInserted(IItemSource source, int startIndex)
         {
 
         }
@@ -209,9 +166,7 @@ List? or int{start,end}?
         /// <param name="source"></param>
         /// <param name="fromPosition"></param>
         /// <param name="toPosition"></param>
-        /// <since_tizen> 8 </since_tizen>
-        /// This may be public opened in tizen_6.0 after ACR done. Before ACR, need to be hidden as inhouse API
-		public void NotifyItemMoved(IItemSource source, int fromPosition, int toPosition)
+        public void NotifyItemMoved(IItemSource source, int fromPosition, int toPosition)
         {
 
         }
@@ -221,9 +176,7 @@ List? or int{start,end}?
         /// <param name="source"></param>
         /// <param name="start"></param>
         /// <param name="end"></param>
-        /// <since_tizen> 8 </since_tizen>
-        /// This may be public opened in tizen_6.0 after ACR done. Before ACR, need to be hidden as inhouse API
-		public void NotifyItemRangeChanged(IItemSource source, int start, int end)
+        public void NotifyItemRangeChanged(IItemSource source, int start, int end)
         {
 
         }
@@ -233,9 +186,7 @@ List? or int{start,end}?
         /// <param name="source"></param>
         /// <param name="startIndex"></param>
         /// <param name="count"></param>
-        /// <since_tizen> 8 </since_tizen>
-        /// This may be public opened in tizen_6.0 after ACR done. Before ACR, need to be hidden as inhouse API
-		public void NotifyItemRangeInserted(IItemSource source, int startIndex, int count)
+        public void NotifyItemRangeInserted(IItemSource source, int startIndex, int count)
         {
 
         }
@@ -245,9 +196,7 @@ List? or int{start,end}?
         /// <param name="source"></param>
         /// <param name="startIndex"></param>
         /// <param name="count"></param>
-        /// <since_tizen> 8 </since_tizen>
-        /// This may be public opened in tizen_6.0 after ACR done. Before ACR, need to be hidden as inhouse API
-		public void NotifyItemRangeRemoved(IItemSource source, int startIndex, int count)
+        public void NotifyItemRangeRemoved(IItemSource source, int startIndex, int count)
         {
 
         }
@@ -256,9 +205,7 @@ List? or int{start,end}?
         /// </summary>
         /// <param name="source"></param>
         /// <param name="startIndex"></param>
-        /// <since_tizen> 8 </since_tizen>
-        /// This may be public opened in tizen_6.0 after ACR done. Before ACR, need to be hidden as inhouse API
-		public void NotifyItemRemoved(IItemSource source, int startIndex)
+        public void NotifyItemRemoved(IItemSource source, int startIndex)
         {
 
         }

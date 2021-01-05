@@ -3,7 +3,7 @@ using Tizen.NUI.Binding.Internals;
 
 namespace Tizen.NUI.Binding
 {
-    public interface IElement
+    internal interface IElement
     {
         Element Parent { get; set; }
 

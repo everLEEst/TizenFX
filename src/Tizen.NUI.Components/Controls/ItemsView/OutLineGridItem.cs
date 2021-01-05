@@ -23,24 +23,15 @@ using Tizen.NUI.Accessibility;
 namespace Tizen.NUI.Components
 {
     /// <summary>
-    /// Button is one kind of common component, a button clearly describes what action will occur when the user selects it.
-    /// Button may contain text or an icon.
+    /// OutLineGridItem is one kind of common component, a OutLineGridItem clearly describes what action will occur when the user selects it.
+    /// OutLineGridItem may contain text or an icon.
     /// </summary>
-    /// <since_tizen> 6 </since_tizen>
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public class OutLineGridItem : ViewItem
     {
-        static OutLineGridItem() {}
-
         /// <summary>
-        /// Creates a new instance of OutLineGridItem.
+        /// Extents padding around Icon
         /// </summary>
-        /// <since_tizen> 6 </since_tizen>
-        public OutLineGridItem() : base()
-        {
-            Layout = new RelativeLayout();
-        }
-
-        /// This will be public opened in tizen_6.0 after ACR done. Before ACR, need to be hidden as inhouse API.
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly BindableProperty IconPaddingProperty = BindableProperty.Create(nameof(IconPadding), typeof(Extents), typeof(OutLineGridItem), null, propertyChanged: (bindable, oldValue, newValue) =>
         {
@@ -50,39 +41,45 @@ namespace Tizen.NUI.Components
         },
         defaultValueCreator: (bindable) => ((OutLineGridItem)bindable).iconPadding);
 
-        /// This will be public opened in tizen_6.0 after ACR done. Before ACR, need to be hidden as inhouse API.
+        /// <summary>
+        /// Extents padding around Label
+        /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public static readonly BindableProperty TextPaddingProperty = BindableProperty.Create(nameof(TextPadding), typeof(Extents), typeof(OutLineGridItem), null, propertyChanged: (bindable, oldValue, newValue) =>
+        public static readonly BindableProperty LabelPaddingProperty = BindableProperty.Create(nameof(LabelPadding), typeof(Extents), typeof(OutLineGridItem), null, propertyChanged: (bindable, oldValue, newValue) =>
         {
             var instance = (OutLineGridItem)bindable;
-            instance.textPadding = (Extents)((Extents)newValue).Clone();
+            instance.labelPadding = (Extents)((Extents)newValue).Clone();
             instance.UpdateContent();
         },
-        defaultValueCreator: (bindable) => ((OutLineGridItem)bindable).textPadding);
+        defaultValueCreator: (bindable) => ((OutLineGridItem)bindable).labelPadding);
 
         private TextLabel itemText;
         private ImageView itemIcon;
         private Extents iconPadding;
-        private Extents textPadding;
+        private Extents labelPadding;
+        static OutLineGridItem() {}
 
         /// <summary>
-        /// Button's icon part.
+        /// Creates a new instance of OutLineGridItem.
         /// </summary>
-        /// <since_tizen> 8 </since_tizen>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public OutLineGridItem() : base()
+        {
+            Layout = new RelativeLayout();
+        }
+
+        /// <summary>
+        /// OutLineGridItem's icon part.
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public ImageView Icon
         {
             get
             {
-                if (null == itemIcon)
+                if ( itemIcon == null)
                 {
                     itemIcon = CreateIcon();
-                    /*
-                    if (null != Extension)
-                    {
-                        itemIcon = Extension.OnCreateIcon(this, itemIcon);
-                    }
-                    */
-                    if (null != itemIcon)
+                    if (itemIcon != null)
                     {
                         Add(itemIcon);
                         itemIcon.Relayout += OnIconRelayout;
@@ -97,9 +94,9 @@ namespace Tizen.NUI.Components
         }
 
         /// <summary>
-        /// Icon image's resource url in Button.
+        /// Icon image's resource url in OutLineGridItem.
         /// </summary>
-        /// <since_tizen> 6 </since_tizen>
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public string IconURL
         {
             get
@@ -113,23 +110,17 @@ namespace Tizen.NUI.Components
         }
 
         /// <summary>
-        /// Button's text part.
+        /// OutLineGridItem's text part.
         /// </summary>
-        /// <since_tizen> 8 </since_tizen>
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public TextLabel Label
         {
             get
             {
-                if (null == itemText)
+                if (itemText == null)
                 {
-                    itemText = CreateText();
-                    /*
-                    if (null != Extension)
-                    {
-                        itemText = Extension.OnCreateText(this, itemText);
-                    }
-                    */
-                    if (null != itemText)
+                    itemText = CreateLabel();
+                    if (itemText != null)
                     {
                         Add(itemText);
                     }
@@ -144,9 +135,9 @@ namespace Tizen.NUI.Components
         }
 
         /// <summary>
-        /// The text of Button.
+        /// The text of OutLineGridItem.
         /// </summary>
-        /// <since_tizen> 6 </since_tizen>
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public string Text
         {
             get
@@ -162,7 +153,7 @@ namespace Tizen.NUI.Components
         /// <summary>
         /// Icon padding in ViewItem, work only when show icon and text.
         /// </summary>
-        /// <since_tizen> 6 </since_tizen>
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public Extents IconPadding
         {
             get => (Extents)GetValue(IconPaddingProperty) ?? new Extents();
@@ -172,50 +163,19 @@ namespace Tizen.NUI.Components
         /// <summary>
         /// Text padding in ViewItem, work only when show icon and text.
         /// </summary>
-        /// <since_tizen> 6 </since_tizen>
-        public Extents TextPadding
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public Extents LabelPadding
         {
-            get => (Extents)GetValue(TextPaddingProperty) ?? new Extents();
-            set => SetValue(TextPaddingProperty, value);
+            get => (Extents)GetValue(LabelPaddingProperty) ?? new Extents();
+            set => SetValue(LabelPaddingProperty, value);
         }
-
-/* Style :
-        /// <summary>
-        /// Apply style to button.
-        /// </summary>
-        /// <param name="viewStyle">The style to apply.</param>
-        /// <since_tizen> 8 </since_tizen>
-        public override void ApplyStyle(ViewStyle viewStyle)
-        {
-            styleApplied = false;
-
-            base.ApplyStyle(viewStyle);
-
-            if (null != buttonStyle)
-            {
-                Extension = buttonStyle.CreateExtension();
-                if (buttonStyle.Text != null)
-                {
-                    Label?.ApplyStyle(buttonStyle.Text);
-                }
-
-                if (buttonStyle.Icon != null)
-                {
-                    Icon?.ApplyStyle(buttonStyle.Icon);
-                }
-            }
-
-            styleApplied = true;
-        }
-*/
-
 
         /// <summary>
         /// Creates Item's text part.
         /// </summary>
         /// <return>The created Item's text part.</return>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        protected virtual TextLabel CreateText()
+        protected virtual TextLabel CreateLabel()
         {
             return new TextLabel
             {
@@ -244,8 +204,7 @@ namespace Tizen.NUI.Components
             };
         }
 
- 
-        /// <inheritdoc/>
+         /// <inheritdoc/>
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected override void MeasureChild()
         {
@@ -256,11 +215,11 @@ namespace Tizen.NUI.Components
             itemText.WidthResizePolicy = ResizePolicyType.Fixed;
             itemText.HeightResizePolicy = ResizePolicyType.Fixed;
 
-            var textPadding = TextPadding;
-            int textPaddingStart = textPadding.Start;
-            int textPaddingEnd = textPadding.End;
-            int textPaddingTop = textPadding.Top;
-            int textPaddingBottom = textPadding.Bottom;
+            var labelPadding = LabelPadding;
+            int labelPaddingStart = labelPadding.Start;
+            int labelPaddingEnd = labelPadding.End;
+            int labelPaddingTop = labelPadding.Top;
+            int labelPaddingBottom = labelPadding.Bottom;
 
             var iconPadding = IconPadding;
             int iconPaddingStart = iconPadding.Start;
@@ -268,10 +227,9 @@ namespace Tizen.NUI.Components
             int iconPaddingTop = iconPadding.Top;
             int iconPaddingBottom = iconPadding.Bottom;
 
-            itemText.SizeWidth = SizeWidth - textPaddingStart - textPaddingEnd;
-            itemText.SizeHeight = SizeHeight - textPaddingTop - textPaddingBottom - iconPaddingTop - iconPaddingBottom - itemIcon.SizeHeight;
+            itemText.SizeWidth = SizeWidth - labelPaddingStart - labelPaddingEnd;
+            itemText.SizeHeight = SizeHeight - labelPaddingTop - labelPaddingBottom - iconPaddingTop - iconPaddingBottom - itemIcon.SizeHeight;
         }
-
 
         /// <inheritdoc/>
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -282,11 +240,11 @@ namespace Tizen.NUI.Components
                 return;
             }
 
-            var textPadding = TextPadding;
-            int textPaddingStart = textPadding.Start;
-            int textPaddingEnd = textPadding.End;
-            int textPaddingTop = textPadding.Top;
-            int textPaddingBottom = textPadding.Bottom;
+            var labelPadding = LabelPadding;
+            int labelPaddingStart = labelPadding.Start;
+            int labelPaddingEnd = labelPadding.End;
+            int labelPaddingTop = labelPadding.Top;
+            int labelPaddingBottom = labelPadding.Bottom;
 
             var iconPadding = IconPadding;
             int iconPaddingStart = iconPadding.Start;
@@ -302,7 +260,7 @@ namespace Tizen.NUI.Components
             itemText.PositionUsesPivotPoint = true;
             itemText.ParentOrigin = NUI.ParentOrigin.BottomCenter;
             itemText.PivotPoint = NUI.PivotPoint.BottomCenter;
-            itemText.Position2D = new Position2D(0, -textPaddingBottom);
+            itemText.Position2D = new Position2D(0, -labelPaddingBottom);
 
            if (string.IsNullOrEmpty(itemText.Text))
             {
@@ -319,17 +277,11 @@ namespace Tizen.NUI.Components
             LayoutDirectionChanged += OnLayoutDirectionChanged;
         }
 
-        private void OnLayoutDirectionChanged(object sender, LayoutDirectionChangedEventArgs e)
-        {
-            MeasureChild();
-            LayoutChild();
-        }
-
         /// <summary>
         /// Dispose Item and all children on it.
         /// </summary>
         /// <param name="type">Dispose type.</param>
-        /// <since_tizen> 6 </since_tizen>
+        [EditorBrowsable(EditorBrowsableState.Never)]
         protected override void Dispose(DisposeTypes type)
         {
             if (disposed)
@@ -354,6 +306,11 @@ namespace Tizen.NUI.Components
             base.Dispose(type);
         }
 
+        private void OnLayoutDirectionChanged(object sender, LayoutDirectionChangedEventArgs e)
+        {
+            MeasureChild();
+            LayoutChild();
+        }
         private void OnIconRelayout(object sender, EventArgs e)
         {
             MeasureChild();

@@ -23,14 +23,14 @@ using Tizen.NUI.Accessibility;
 namespace Tizen.NUI.Components
 {
     /// <summary>
-    /// [Draft] This class provides a basic item for CollectionView.
+    /// This class provides a basic item for CollectionView.
     /// </summary>
-    /// <since_tizen> 6.5 </since_tizen>
-    /// This may be public opened in tizen_6.0 after ACR done. Before ACR, need to be hidden as inhouse API
     [EditorBrowsable(EditorBrowsableState.Never)]
     public partial class ViewItem : Control
     {
-        /// This will be public opened in tizen_6.0 after ACR done. Before ACR, need to be hidden as inhouse API.
+        /// <summary>
+        /// Property of boolean Enable flag.
+        /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly BindableProperty IsEnabledProperty = BindableProperty.Create(nameof(IsEnabled), typeof(bool), typeof(ViewItem), true, propertyChanged: (bindable, oldValue, newValue) =>
         {
@@ -50,7 +50,10 @@ namespace Tizen.NUI.Components
             }
         },
         defaultValueCreator: (bindable) => ((ViewItem)bindable).isEnabled);
-        /// This will be public opened in tizen_6.0 after ACR done. Before ACR, need to be hidden as inhouse API.
+
+        /// <summary>
+        /// Property of boolean Selected flag.
+        /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly BindableProperty IsSelectedProperty = BindableProperty.Create(nameof(IsSelected), typeof(bool), typeof(ViewItem), true, propertyChanged: (bindable, oldValue, newValue) =>
         {
@@ -79,7 +82,10 @@ namespace Tizen.NUI.Components
             var instance = (ViewItem)bindable;
             return instance.isSelectable && instance.isSelected;
         });
-        /// This will be public opened in tizen_6.0 after ACR done. Before ACR, need to be hidden as inhouse API.
+
+        /// <summary>
+        /// Property of boolean Selectable flag.
+        /// </summary>      
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly BindableProperty IsSelectableProperty = BindableProperty.Create(nameof(IsSelectable), typeof(bool), typeof(ViewItem), true, propertyChanged: (bindable, oldValue, newValue) =>
         {
@@ -102,36 +108,16 @@ namespace Tizen.NUI.Components
         },
         defaultValueCreator: (bindable) => ((ViewItem)bindable).isSelectable);
 
-        /// <summary>
-        /// Internal boolean flag for select state.
-        /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        protected bool isSelected = false;
-        
-        /// <summary>
-        /// Internal boolean flag for seletable.
-        /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        protected bool isSelectable = true;
-        
-        /// <summary>
-        /// Internal boolean flag for enabled state.
-        /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        protected bool isEnabled = true;
+        private bool isSelected = false;
+        private bool isSelectable = true;        
+        private bool isEnabled = true;
 
-        /// <summary>
-        /// Internal boolean flag for pressed state.
-        /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        internal bool isPressed = false;
 
         static ViewItem() {}
 
         /// <summary>
         /// Creates a new instance of ViewItem.
         /// </summary>
-        /// <since_tizen> 6.5 </since_tizen>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public ViewItem() : base()
         {
@@ -145,7 +131,6 @@ namespace Tizen.NUI.Components
         /// Creates a new instance of ViewItem with style.
         /// </summary>
         /// <param name="style">Create ViewItem by special style defined in UX.</param>
-        /// <since_tizen> 6.5 </since_tizen>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public ViewItem(string style) : base(style)
         {
@@ -159,7 +144,6 @@ namespace Tizen.NUI.Components
         /// Creates a new instance of a ViewItem with style.
         /// </summary>
         /// <param name="viewItemStyle">Create ViewItem by style customized by user.</param>
-        /// <since_tizen> 6.5 </since_tizen>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public ViewItem(ViewItemStyle viewItemStyle) : base(viewItemStyle)
         {
@@ -173,7 +157,6 @@ namespace Tizen.NUI.Components
         /// Creates a new instance of a ViewItem with View content.
         /// </summary>
         /// <param name="content">Create ViewItem with given content</param>
-        /// <since_tizen> 6.5 </since_tizen>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public ViewItem(View content)
         {
@@ -187,61 +170,60 @@ namespace Tizen.NUI.Components
         /// <summary>
         /// An event for the ViewItem clicked signal which can be used to subscribe or unsubscribe the event handler provided by the user.
         /// </summary>
-        /// <since_tizen> 6.5 </since_tizen>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public event EventHandler<ClickedEventArgs> Clicked;
 
         /// <summary>
         /// Flag to decide ViewItem can be selected or not.
         /// </summary>
-        /// <since_tizen> 6.5 </since_tizen>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public bool IsSelectable
         {
-            get
-            {
-                return (bool)GetValue(IsSelectableProperty);
-            }
-            set
-            {
-                SetValue(IsSelectableProperty, value);
-            }
+            get => (bool)GetValue(IsSelectableProperty);
+            set => SetValue(IsSelectableProperty, value);
         }
 
         /// <summary>
         /// Flag to decide selected state in ViewItem.
         /// </summary>
-        /// <since_tizen> 6.5 </since_tizen>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public bool IsSelected
         {
-            get
-            {
-                return (bool)GetValue(IsSelectedProperty);
-            }
-            set
-            {
-                SetValue(IsSelectedProperty, value);
-            }
+            get => (bool)GetValue(IsSelectedProperty);
+            set => SetValue(IsSelectedProperty, value);
         }
 
         /// <summary>
         /// Flag to decide enable or disable in ViewItem.
         /// </summary>
-        /// <since_tizen> 6.5 </since_tizen>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public bool IsEnabled
         {
-            get
-            {
-                return (bool)GetValue(IsEnabledProperty);
-            }
-            set
-            {
-                SetValue(IsEnabledProperty, value);
-            }
+            get =>  (bool)GetValue(IsEnabledProperty);
+            set =>  SetValue(IsEnabledProperty, value);
         }
 
+        /// <summary>
+        /// Data index which is binded to item.
+        /// Can access to data using this index.
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public int Index { get; internal set; } = 0;
+
+        /// <summary>
+        /// DataTemplate of this view object
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public DataTemplate Template { get; internal set; }
+
+        /// <summary>
+        /// State of Realization
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public bool IsRealized { get; internal set; }
+        internal bool IsHeader { get; set; }
+        internal bool IsFooter { get; set; }
+        internal bool isPressed  { get; set; } = false;
         private ViewItemStyle viewItemStyle => ViewStyle as ViewItemStyle;
 
         /// <summary>
@@ -249,7 +231,6 @@ namespace Tizen.NUI.Components
         /// </summary>
         /// <param name="key">The key event.</param>
         /// <returns>True if the key event should be consumed.</returns>
-        /// <since_tizen> 6.5 </since_tizen>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public override bool OnKey(Key key)
         {
@@ -282,10 +263,10 @@ namespace Tizen.NUI.Components
                             CollectionView colView = ParentItemsView as CollectionView;
                             switch (colView.SelectionMode)
                             {
-                                case ItemSelectionMode.Single :
+                                case ItemSelectionMode.SingleSelection :
                                     colView.SelectedItem = IsSelected ? null : BindingContext;
                                     break;
-                                case ItemSelectionMode.Multiple :
+                                case ItemSelectionMode.MultipleSelections :
                                     var selectedItems = colView.SelectedItems;
                                     if (selectedItems.Contains(BindingContext)) selectedItems.Remove(BindingContext);
                                     else selectedItems.Add(BindingContext);
@@ -313,7 +294,6 @@ namespace Tizen.NUI.Components
         /// <summary>
         /// Called when the control gain key input focus. Should be overridden by derived classes if they need to customize what happens when the focus is gained.
         /// </summary>
-        /// <since_tizen> 6.5 </since_tizen>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public override void OnFocusGained()
         {
@@ -326,7 +306,6 @@ namespace Tizen.NUI.Components
         /// Should be overridden by derived classes if they need to customize
         /// what happens when the focus is lost.
         /// </summary>
-        /// <since_tizen> 6.5 </since_tizen>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public override void OnFocusLost()
         {
@@ -338,47 +317,18 @@ namespace Tizen.NUI.Components
         /// Apply style to ViewItem.
         /// </summary>
         /// <param name="viewStyle">The style to apply.</param>
-        /// <since_tizen> 6.5 </since_tizen>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public override void ApplyStyle(ViewStyle viewStyle)
         {
             styleApplied = false;
 
             base.ApplyStyle(viewStyle);
-            if (null != viewStyle)
+            if (viewStyle != null)
             {
                 //Extension = viewItemStyle.CreateExtension();
             }
 
             styleApplied = true;
         }
-
-        /// <summary>
-        /// Data index which is binded to item.
-        /// Can access to data using this index.
-        /// </summary>
-        /// <since_tizen> 6.5 </since_tizen>
-        /// This may be public opened in tizen_6.0 after ACR done. Before ACR, need to be hidden as inhouse API
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public int Index { get; internal set; } = 0;
-
-        /// <summary>
-        /// DataTemplate of this view object
-        /// </summary>
-        /// <since_tizen> 6.5 </since_tizen>
-        /// This may be public opened in tizen_6.0 after ACR done. Before ACR, need to be hidden as inhouse API
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public DataTemplate Template { get; internal set; }
-
-        /// <summary>
-        /// State of Realization
-        /// </summary>
-        /// <since_tizen> 6.5 </since_tizen>
-        /// This may be public opened in tizen_6.0 after ACR done. Before ACR, need to be hidden as inhouse API
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public bool IsRealized {get; internal set;}
-        internal bool IsMeasured;
-        internal bool IsHeader;
-        internal bool IsFooter;
     }
 }

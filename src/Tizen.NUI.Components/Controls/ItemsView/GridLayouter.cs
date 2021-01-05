@@ -22,114 +22,29 @@ using Tizen.NUI.Binding;
 namespace Tizen.NUI.Components
 {
     /// <summary>
-    /// [Draft] This class implements a grid box layout.
+    /// This class implements a grid box layout.
     /// </summary>
-    /// <since_tizen> 8 </since_tizen>
-    /// This may be public opened in tizen_6.0 after ACR done. Before ACR, need to be hidden as inhouse API
     [EditorBrowsable(EditorBrowsableState.Never)]
     public class GridLayouter : ItemsLayouter
     {
-        private int spanSize = 1;
-        private int userSpanSize;
-        private int itemSizeChanged = -1;
-        private float align = 0.5f;
+        private CollectionView colView; 
         private Size2D sizeCandidate;
+        private int spanSize = 1;
+        private float align = 0.5f;
         private float headerSize;
         private float footerSize;
-        private CollectionView colView; 
-        private Position GetPosition(ViewItem item)
-        {
-            if (sizeCandidate == null) return null;
-            bool isHorizontal = (colView.ScrollingDirection == ScrollableBase.Direction.Horizontal);
-            bool hasHeader = (colView.Header != null);
-            bool hasFooter = (colView.Footer != null);
-            float xPos, yPos;
-
-            if (hasHeader && item == colView.Header)
-            {
-                return new Position(0, 0);
-            }
-            if (hasFooter && item == colView.Footer)
-            {
-                xPos = isHorizontal ? ScrollContentSize - footerSize : 0;
-                yPos = isHorizontal ? 0 : ScrollContentSize - footerSize;
-                return new Position(xPos, yPos);
-            }
-
-            int pureIndex = item.Index - (colView.Header ? 1 : 0);
-            // int convert must be truncate value.
-            int division = pureIndex / spanSize;
-            int remainder = pureIndex % spanSize;
-            int emptyArea = isHorizontal ? (int)(colView.Size.Height - (sizeCandidate.Height * spanSize)) :
-                                            (int)(colView.Size.Width - (sizeCandidate.Width * spanSize));
-            if (division < 0) division = 0;
-            if (remainder < 0) remainder = 0;
-
-            xPos = isHorizontal ? division * sizeCandidate.Width + (hasHeader ? headerSize : 0) : emptyArea * align + remainder * sizeCandidate.Width;
-            yPos = isHorizontal ? emptyArea * align + remainder * sizeCandidate.Height : division * sizeCandidate.Height + (hasHeader ? headerSize : 0);
-
-            return new Position(xPos, yPos);
-        }
-
-        private void FindVisibleItems(Vector2 visibleArea)
-        {
-            bool hasHeader = (colView.Header != null);
-            bool hasFooter = (colView.Footer != null);
-            int MaxIndex = colView.InternalItemSource.Count - 1 - (hasFooter ? 1 : 0);
-
-            // Header is Showing
-            if (hasHeader && visibleArea.X < headerSize)
-            {
-                FirstVisible = 0;
-
-            }
-            else
-            {
-                float visibleAreaX = visibleArea.X - (hasHeader ? headerSize : 0);
-                FirstVisible = (Convert.ToInt32(Math.Abs(visibleAreaX / StepCandidate)) - 1) * spanSize;
-
-                if (FirstVisible < 0) FirstVisible = 0;
-                if (hasHeader) FirstVisible += 1;
-            }
-            
-            if (hasFooter && visibleArea.Y > ScrollContentSize - footerSize)
-            {
-                LastVisible = MaxIndex + 1;
-            }
-            else
-            {
-                float visibleAreaY = visibleArea.Y - (hasHeader ? headerSize : 0);
-                //Need to Consider GroupHeight!!!!
-                LastVisible = (Convert.ToInt32(Math.Abs(visibleAreaY / StepCandidate)) + 1) * spanSize;
-
-                if (hasHeader) LastVisible += 1;
-                if (LastVisible > (MaxIndex)) LastVisible = MaxIndex;
-            }
-        }
-
-        private ViewItem GetVisibleItem(int index)
-        {
-            foreach (ViewItem item in VisibleItems)
-            {
-                if (item.Index == index) return item;
-            }
-
-            return null;
-        }
 
         /// <summary>
         /// Clean up ItemsLayouter.
         /// </summary>
         /// <param name="view"> ItemsView of layouter. </param>
-        /// <since_tizen> 8 </since_tizen>
-        /// This may be public opened in tizen_6.0 after ACR done. Before ACR, need to be hidden as inhouse API
         [EditorBrowsable(EditorBrowsableState.Never)]
         public override void Initialize(ItemsView view)
         {
             colView = view as CollectionView;
             if (colView == null)
             {
-                throw new NotSupportedException();
+                throw new ArgumentException("GridLayouter only can be applied CollectionView.", nameof(view));
             }
 
             // 1. Clean Up
@@ -197,8 +112,7 @@ namespace Tizen.NUI.Components
             ViewItem sizeDeligate = colView.RealizeItem(firstIndex);   
             if (sizeDeligate == null)
             {
-                // error !
-                return;
+                throw new ArgumentException("Cannot create content from DatTemplate.", nameof(colView));
             }
             sizeDeligate.BindingContext = colView.InternalItemSource.GetItem(firstIndex);
 
@@ -253,8 +167,6 @@ namespace Tizen.NUI.Components
         /// </summary>
         /// <param name="scrollPosition">Scroll position which is calculated by ScrollableBase</param>
         /// <param name="force">boolean force flag to layouting forcely.</param>
-        /// <since_tizen> 8 </since_tizen>
-        /// This may be public opened in tizen_6.0 after ACR done. Before ACR, need to be hidden as inhouse API
         public override void RequestLayout(float scrollPosition, bool force = false)
         {
             // Layouting is only possible after once it intialized.
@@ -269,7 +181,7 @@ namespace Tizen.NUI.Components
             bool isHorizontal = (colView.ScrollingDirection == ScrollableBase.Direction.Horizontal);
 
           
-            Vector2 visibleArea = new Vector2(PrevScrollPosition,
+            (float X, float Y) visibleArea = (PrevScrollPosition,
                 PrevScrollPosition + ( isHorizontal ? colView.Size.Width : colView.Size.Height)
             );
 
@@ -331,8 +243,6 @@ namespace Tizen.NUI.Components
         /// <summary>
         /// This is called to find out how much container size can be.
         /// </summary>
-        /// <since_tizen> 8 </since_tizen>
-        /// This may be public opened in tizen_6.0 after ACR done. Before ACR, need to be hidden as inhouse API
         [EditorBrowsable(EditorBrowsableState.Never)]
         public override float CalculateLayoutOrientationSize()
         {
@@ -344,8 +254,6 @@ namespace Tizen.NUI.Components
         /// Adjust scrolling position by own scrolling rules.
         /// </summary>
         /// <param name="scrollPosition">Scroll position which is calculated by ScrollableBase</param>
-        /// <since_tizen> 8 </since_tizen>
-        /// This may be public opened in tizen_6.0 after ACR done. Before ACR, need to be hidden as inhouse API
         public override float CalculateCandidateScrollPosition(float scrollPosition)
         {
             //Console.WriteLine("LSH :: Calculate Candidate ScrollContentSize {0}", ScrollContentSize);
@@ -362,11 +270,14 @@ namespace Tizen.NUI.Components
         /// <returns>The next keyboard focusable view in this control or an empty handle if no view can be focused.</returns>
         public override View RequestNextFocusableView(View currentFocusedView, View.FocusDirection direction, bool loopEnabled)
         {
+            if (currentFocusedView == null)
+                throw new ArgumentNullException(nameof(currentFocusedView));
+
             View nextFocusedView = null;
             int targetSibling = -1;
             bool isHorizontal = colView.ScrollingDirection == ScrollableBase.Direction.Horizontal;
 
-            switch(direction)
+            switch (direction)
             {
                 case View.FocusDirection.Left :
                 {
@@ -393,7 +304,7 @@ namespace Tizen.NUI.Components
             if(targetSibling > -1 && targetSibling < Container.Children.Count)
             {
                 ViewItem candidate = Container.Children[targetSibling] as ViewItem;
-                if(candidate.Index >= 0 && candidate.Index < colView.InternalItemSource.Count)
+                if (candidate.Index >= 0 && candidate.Index < colView.InternalItemSource.Count)
                 {
                     nextFocusedView = candidate;
                 }
@@ -401,5 +312,86 @@ namespace Tizen.NUI.Components
 
             return nextFocusedView;
         }
+
+        private Position GetPosition(ViewItem item)
+        {
+            if (sizeCandidate == null) return null;
+            bool isHorizontal = (colView.ScrollingDirection == ScrollableBase.Direction.Horizontal);
+            bool hasHeader = (colView.Header != null);
+            bool hasFooter = (colView.Footer != null);
+            float xPos, yPos;
+
+            if (hasHeader && item == colView.Header)
+            {
+                return new Position(0, 0);
+            }
+            if (hasFooter && item == colView.Footer)
+            {
+                xPos = isHorizontal ? ScrollContentSize - footerSize : 0;
+                yPos = isHorizontal ? 0 : ScrollContentSize - footerSize;
+                return new Position(xPos, yPos);
+            }
+
+            int pureIndex = item.Index - (colView.Header ? 1 : 0);
+            // int convert must be truncate value.
+            int division = pureIndex / spanSize;
+            int remainder = pureIndex % spanSize;
+            int emptyArea = isHorizontal ? (int)(colView.Size.Height - (sizeCandidate.Height * spanSize)) :
+                                            (int)(colView.Size.Width - (sizeCandidate.Width * spanSize));
+            if (division < 0) division = 0;
+            if (remainder < 0) remainder = 0;
+
+            xPos = isHorizontal ? division * sizeCandidate.Width + (hasHeader ? headerSize : 0) : emptyArea * align + remainder * sizeCandidate.Width;
+            yPos = isHorizontal ? emptyArea * align + remainder * sizeCandidate.Height : division * sizeCandidate.Height + (hasHeader ? headerSize : 0);
+
+            return new Position(xPos, yPos);
+        }
+
+        private void FindVisibleItems((float X, float Y)visibleArea)
+        {
+            bool hasHeader = (colView.Header != null);
+            bool hasFooter = (colView.Footer != null);
+            int MaxIndex = colView.InternalItemSource.Count - 1 - (hasFooter ? 1 : 0);
+
+            // Header is Showing
+            if (hasHeader && visibleArea.X < headerSize)
+            {
+                FirstVisible = 0;
+
+            }
+            else
+            {
+                float visibleAreaX = visibleArea.X - (hasHeader ? headerSize : 0);
+                FirstVisible = (Convert.ToInt32(Math.Abs(visibleAreaX / StepCandidate)) - 1) * spanSize;
+
+                if (FirstVisible < 0) FirstVisible = 0;
+                if (hasHeader) FirstVisible += 1;
+            }
+            
+            if (hasFooter && visibleArea.Y > ScrollContentSize - footerSize)
+            {
+                LastVisible = MaxIndex + 1;
+            }
+            else
+            {
+                float visibleAreaY = visibleArea.Y - (hasHeader ? headerSize : 0);
+                //Need to Consider GroupHeight!!!!
+                LastVisible = (Convert.ToInt32(Math.Abs(visibleAreaY / StepCandidate)) + 1) * spanSize;
+
+                if (hasHeader) LastVisible += 1;
+                if (LastVisible > (MaxIndex)) LastVisible = MaxIndex;
+            }
+        }
+
+        private ViewItem GetVisibleItem(int index)
+        {
+            foreach (ViewItem item in VisibleItems)
+            {
+                if (item.Index == index) return item;
+            }
+
+            return null;
+        }
+
     }
 }

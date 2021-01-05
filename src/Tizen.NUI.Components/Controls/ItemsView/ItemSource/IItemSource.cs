@@ -1,76 +1,77 @@
 using System;
+using System.ComponentModel;
 
 namespace Tizen.NUI.Components
 {
-	/// <summary>
+    /// <summary>
     /// Base interface for encapsulated data source in ItemsView.
     /// </summary>
-    /// <since_tizen> 8 </since_tizen>
-	public interface IItemSource : IDisposable
-	{
-	    /// <summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public interface IItemSource : IDisposable
+    {
+        /// <summary>
         /// Count of data source.
         /// </summary>
-        /// <since_tizen> 8 </since_tizen>
-		int Count { get; }
+       [EditorBrowsable(EditorBrowsableState.Never)]
+        int Count { get; }
 
-	    /// <summary>
+        /// <summary>
         /// Position integer value of data object.
         /// </summary>
-        /// <since_tizen> 8 </since_tizen>
-		int GetPosition(object item);
+       [EditorBrowsable(EditorBrowsableState.Never)]
+        int GetPosition(object item);
 
-	    /// <summary>
+        /// <summary>
         /// Item object in position.
         /// </summary>
-        /// <since_tizen> 8 </since_tizen>
-		object GetItem(int position);
+       [EditorBrowsable(EditorBrowsableState.Never)]
+        object GetItem(int position);
 
-	    /// <summary>
+        /// <summary>
         /// Flag of header existence.
         /// </summary>
-        /// <since_tizen> 8 </since_tizen>
-		bool HasHeader { get; set; }
+       [EditorBrowsable(EditorBrowsableState.Never)]
+        bool HasHeader { get; set; }
 
-	    /// <summary>
+        /// <summary>
         /// Flag of Footer existence.
         /// </summary>
-        /// <since_tizen> 8 </since_tizen>
-		bool HasFooter { get; set; }
+       [EditorBrowsable(EditorBrowsableState.Never)]
+        bool HasFooter { get; set; }
 
-	    /// <summary>
+        /// <summary>
         /// Boolean checker for position is header or not.
-		/// 0 index will be header if header exist.
-		/// warning: if header exist, all item index will be increased.
+        /// 0 index will be header if header exist.
+        /// warning: if header exist, all item index will be increased.
         /// </summary>
-        /// <since_tizen> 8 </since_tizen>
-		bool IsHeader(int position);
+       [EditorBrowsable(EditorBrowsableState.Never)]
+        bool IsHeader(int position);
 
-	    /// <summary>
+        /// <summary>
         /// Boolean checker for position is footer or not.
-		/// last index will be footer if footer exist.
-		/// warning: footer will be place original data count or data count + 1.
+        /// last index will be footer if footer exist.
+        /// warning: footer will be place original data count or data count + 1.
         /// </summary>
-        /// <since_tizen> 8 </since_tizen>
-		bool IsFooter(int position);
-	}
+       [EditorBrowsable(EditorBrowsableState.Never)]
+        bool IsFooter(int position);
+    }
 
-	/// <summary>
+    /// <summary>
     /// Base interface for encapsulated data source with group structure in CollectionView.
     /// </summary>
-    /// <since_tizen> 8 </since_tizen>
-	public interface IGroupableItemSource : IItemSource
-	{
-	    /// <summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public interface IGroupableItemSource : IItemSource
+    {
+        /// <summary>
         /// Boolean checker for position is group header or not
-		/// </summary>
-        /// <since_tizen> 8 </since_tizen>
-		bool IsGroupHeader(int position);
+        /// </summary>
+       [EditorBrowsable(EditorBrowsableState.Never)]
+        bool IsGroupHeader(int position);
 
-	    /// <summary>
+        /// <summary>
         /// Boolean checker for position is group footer or not
         /// </summary>
-		/// <since_tizen> 8 </since_tizen>
-		bool IsGroupFooter(int position);
-	}
+       [EditorBrowsable(EditorBrowsableState.Never)]
+        bool IsGroupFooter(int position);
+    }
 }

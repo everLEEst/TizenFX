@@ -5,7 +5,7 @@ using System.ComponentModel;
 namespace Tizen.NUI.Binding
 {
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public class ResourcesChangedEventArgs : EventArgs
+    internal class ResourcesChangedEventArgs : EventArgs
     {
         public static readonly ResourcesChangedEventArgs StyleSheets = new ResourcesChangedEventArgs(null);
 

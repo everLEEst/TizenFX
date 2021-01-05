@@ -24,7 +24,7 @@ namespace Tizen.NUI.Components
     /// <summary>
     /// ViewItemStyle is a class which saves ViewItem's ux data.
     /// </summary>
-    /// <since_tizen> 8 </since_tizen>
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public class ViewItemStyle : ControlStyle
     {
         /// This will be public opened in tizen_6.0 after ACR done. Before ACR, need to be hidden as inhouse API.
@@ -82,7 +82,7 @@ namespace Tizen.NUI.Components
         /// Creates a new instance of a ViewItemStyle with style.
         /// </summary>
         /// <param name="style">Create ViewItemStyle by style customized by user.</param>
-        /// <since_tizen> 8 </since_tizen>
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public ViewItemStyle(ViewItemStyle style) : base(style)
         {
         }
@@ -90,7 +90,7 @@ namespace Tizen.NUI.Components
         /// <summary>
         /// Flag to decide ViewItem can be selected or not.
         /// </summary>
-        /// <since_tizen> 8 </since_tizen>
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public bool? IsSelectable
         {
             get => (bool?)GetValue(IsSelectableProperty);
@@ -100,7 +100,7 @@ namespace Tizen.NUI.Components
         /// <summary>
         /// Flag to decide selected state in ViewItem.
         /// </summary>
-        /// <since_tizen> 8 </since_tizen>
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public bool? IsSelected
         {
             get => (bool?)GetValue(IsSelectedProperty);
@@ -110,7 +110,7 @@ namespace Tizen.NUI.Components
         /// <summary>
         /// Flag to decide viewItem can be selected or not.
         /// </summary>
-        /// <since_tizen> 8 </since_tizen>
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public bool? IsEnabled
         {
             get => (bool?)GetValue(IsEnabledProperty);
@@ -121,7 +121,7 @@ namespace Tizen.NUI.Components
         /// Style's clone function.
         /// </summary>
         /// <param name="bindableObject">The style that need to copy.</param>
-        /// <since_tizen> 8 </since_tizen>
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public override void CopyFrom(BindableObject bindableObject)
         {
             base.CopyFrom(bindableObject);
