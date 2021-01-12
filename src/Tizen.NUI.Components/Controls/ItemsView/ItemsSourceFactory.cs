@@ -27,20 +27,20 @@ namespace Tizen.NUI.Components
             return new ListSource(itemsSource);
         }
 
-        public static IItemSource Create(ItemsView itemsView, ItemsLayouter layouter)//RecyclerView.Adapter adapter) Recycler ?
+        public static IItemSource Create(ItemsView itemsView)
         {
-            return Create(itemsView.ItemsSource, layouter);
+            return Create(itemsView.ItemsSource, itemsView);
         }
 
-        public static IGroupableItemSource Create(CollectionView colView, ItemsLayouter layouter)//RecyclerView.Adapter adapter)
+        public static IGroupableItemSource Create(CollectionView colView)
         {
             var source = colView.ItemsSource;
 
             if (colView.IsGrouped && source != null)
-                return new ObservableGroupedSource(colView, layouter);
+                return new ObservableGroupedSource(colView, colView);
 
             else
-                return new UngroupedItemSource(Create(colView.ItemsSource, layouter));
+                return new UngroupedItemSource(Create(colView.ItemsSource, colView));
         }
     }
 }

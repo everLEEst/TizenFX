@@ -26,8 +26,9 @@ namespace Tizen.NUI.Components
     /// Lay out ViewItem and recycle ViewItem.
     /// </summary>
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public abstract class ItemsLayouter : ICollectionChangedNotifier
+    public abstract class ItemsLayouter : ICollectionChangedNotifier, IDisposable
     {
+        private bool disposed = false;
 
         /// <summary>
         /// Container which contains ViewItems.
@@ -111,6 +112,25 @@ namespace Tizen.NUI.Components
         }
 
         /// <summary>
+        /// Clear the current screen and all properties.
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public virtual void Clear()
+        {
+            if (VisibleItems != null)
+            {
+                foreach (ViewItem item in VisibleItems)
+                {
+                    if (ItemsView != null) ItemsView.UnrealizeItem(item, false);
+                }
+                VisibleItems.Clear();
+                VisibleItems = null;
+            }
+            ItemsView = null;
+            Container = null;
+        }
+
+        /// <summary>
         /// 
         /// </summary>
         /// <param name="item"></param>
@@ -164,7 +184,6 @@ namespace Tizen.NUI.Components
         public virtual void NotifyDataSetChanged()
         {
             Initialize(ItemsView);
-            //ItemsView.NotifyDataSetChanged();
         }
 
         /// <summary>
@@ -173,7 +192,6 @@ namespace Tizen.NUI.Components
         /// <param name="startIndex"></param>
         public virtual void NotifyItemChanged(IItemSource source, int startIndex)
         {
-            //ItemsView.NotifyItemChanged(source, startIndex);
         }
 
         /// <summary>
@@ -182,7 +200,6 @@ namespace Tizen.NUI.Components
         /// <param name="startIndex"></param>
         public virtual void NotifyItemInserted(IItemSource source, int startIndex)
         {
-            //ItemsView.NotifyItemInserted(source, startIndex);
         }
 
         /// <summary>
@@ -192,7 +209,6 @@ namespace Tizen.NUI.Components
         /// <param name="toPosition"></param>
         public void NotifyItemMoved(IItemSource source, int fromPosition, int toPosition)
         {
-            //ItemsView.NotifyItemMoved(source, fromPosition, toPosition);
         }
 
         /// <summary>
@@ -202,7 +218,6 @@ namespace Tizen.NUI.Components
         /// <param name="end"></param>
         public void NotifyItemRangeChanged(IItemSource source, int start, int end)
         {
-            //ItemsView.NotifyItemRangeChanged(source, start, end);
         }
 
         /// <summary>
@@ -212,7 +227,6 @@ namespace Tizen.NUI.Components
         /// <param name="count"></param>
         public void NotifyItemRangeInserted(IItemSource source, int startIndex, int count)
         {
-            //ItemsView.NotifyItemRangeInserted(source, startIndex, count);
         }
 
         /// <summary>
@@ -222,7 +236,6 @@ namespace Tizen.NUI.Components
         /// <param name="count"></param>
         public void NotifyItemRangeRemoved(IItemSource source, int startIndex, int count)
         {
-            //ItemsView.NotifyItemRangeRemoved(source, startIndex, count);
         }
 
         /// <summary>
@@ -231,7 +244,6 @@ namespace Tizen.NUI.Components
         /// <param name="startIndex"></param>
         public void NotifyItemRemoved(IItemSource source, int startIndex)
         {
-            //ItemsView.NotifyItemRemoved(source, startIndex);
         }
 
         /// <summary>
@@ -246,6 +258,16 @@ namespace Tizen.NUI.Components
         public virtual View RequestNextFocusableView(View currentFocusedView, View.FocusDirection direction, bool loopEnabled)
         {
             return null;
+        }
+
+
+        /// <summary>
+        /// Dispose ItemsLayouter and all children on it.
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public virtual void Dispose()
+        {
+            Dispose(true);
         }
 
         /// <summary>
@@ -284,5 +306,20 @@ namespace Tizen.NUI.Components
             return (0, 0);
         }
 
+        /// <summary>
+        /// Dispose ItemsLayouter and all children on it.
+        /// </summary>
+        /// <param name="disposing">true when it disposed by Dispose(). </param>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposed)
+            {
+                return;
+            }
+
+            disposed = true;
+            Clear();
+        }
     }
 }

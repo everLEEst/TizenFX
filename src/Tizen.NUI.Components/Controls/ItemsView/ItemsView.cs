@@ -26,7 +26,7 @@ namespace Tizen.NUI.Components
     /// [Draft] This class provides a View that can layouting items in list and grid with high performance.
     /// </summary>
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public abstract class ItemsView : ScrollableBase//, ICollectionChangedNotifier
+    public abstract class ItemsView : ScrollableBase, ICollectionChangedNotifier
     {
         /// <summary>
         /// Base Constructor
@@ -145,7 +145,7 @@ namespace Tizen.NUI.Components
             //Need to update view.
             if (ItemsLayouter != null)
             {
-                ItemsLayouter.Initialize(this);
+                ItemsLayouter.NotifyDataSetChanged();
                 if (ScrollingDirection == Direction.Horizontal)
                 {
                     ContentContainer.SizeWidth =
@@ -166,7 +166,10 @@ namespace Tizen.NUI.Components
         [EditorBrowsable(EditorBrowsableState.Never)]
         public void NotifyItemChanged(IItemSource source, int startIndex)
         {
-
+            if (ItemsLayouter != null)
+            {
+                ItemsLayouter.NotifyItemChanged(source, startIndex);
+            }
         }
 
         /// <summary>
@@ -176,7 +179,10 @@ namespace Tizen.NUI.Components
         [EditorBrowsable(EditorBrowsableState.Never)]
         public void NotifyItemInserted(IItemSource source, int startIndex)
         {
-
+            if (ItemsLayouter != null)
+            {
+                ItemsLayouter.NotifyItemInserted(source, startIndex);
+            }
         }
 
         /// <summary>
@@ -187,7 +193,10 @@ namespace Tizen.NUI.Components
         [EditorBrowsable(EditorBrowsableState.Never)]
         public void NotifyItemMoved(IItemSource source, int fromPosition, int toPosition)
         {
-
+            if (ItemsLayouter != null)
+            {
+                ItemsLayouter.NotifyItemMoved(source, fromPosition, toPosition);
+            }
         }
 
         /// <summary>
@@ -198,7 +207,10 @@ namespace Tizen.NUI.Components
         [EditorBrowsable(EditorBrowsableState.Never)]
         public void NotifyItemRangeChanged(IItemSource source, int start, int end)
         {
-
+            if (ItemsLayouter != null)
+            {
+                ItemsLayouter.NotifyItemRangeChanged(source, start, end);
+            }
         }
 
         /// <summary>
@@ -209,7 +221,10 @@ namespace Tizen.NUI.Components
         [EditorBrowsable(EditorBrowsableState.Never)]
         public void NotifyItemRangeInserted(IItemSource source, int startIndex, int count)
         {
-
+            if (ItemsLayouter != null)
+            {
+                ItemsLayouter.NotifyItemRangeInserted(source, startIndex, count);
+            }
         }
 
         /// <summary>
@@ -220,7 +235,10 @@ namespace Tizen.NUI.Components
         [EditorBrowsable(EditorBrowsableState.Never)]
         public void NotifyItemRangeRemoved(IItemSource source, int startIndex, int count)
         {
-
+            if (ItemsLayouter != null)
+            {
+                ItemsLayouter.NotifyItemRangeRemoved(source, startIndex, count);
+            }
         }
 
         /// <summary>
@@ -230,7 +248,10 @@ namespace Tizen.NUI.Components
         [EditorBrowsable(EditorBrowsableState.Never)]
         public void NotifyItemRemoved(IItemSource source, int startIndex)
         {
-
+            if (ItemsLayouter != null)
+            {
+                ItemsLayouter.NotifyItemRemoved(source, startIndex);
+            }
         }
 
         /// <summary>
@@ -263,6 +284,7 @@ namespace Tizen.NUI.Components
                 curItemSize = itemSize.Y;
             }
 
+            //Console.WriteLine("LSH :: ScrollTo [{0}], curPos{1}, itemPos{2}, curSize{3}, itemSize{4}", curPos, scrollPos, curSize, curItemSize);
             switch (align)
             {
                 case ItemScrollTo.Front:
@@ -301,7 +323,6 @@ namespace Tizen.NUI.Components
         /// <param name="index"> Index position of realizing item </param>
         internal virtual ViewItem RealizeItem(int index)
         {
-            object a = new object();
             // Check DataTemplate is Same!
             if (ItemTemplate is DataTemplateSelector)
             {
@@ -322,6 +343,7 @@ namespace Tizen.NUI.Components
             if (content is ViewItem)
             {
                 ViewItem item = (ViewItem)content;
+                ContentContainer.Add(item);
                 DecorateItem(item, index);
                 return item;
             }
@@ -348,10 +370,10 @@ namespace Tizen.NUI.Components
             //Update Style UI
             item.UpdateState();
             item.Relayout -= OnItemRelayout;
-            ContentContainer.Remove(item);
 
             if (!recycle || !PushRecycleCache(item))
             {
+                ContentContainer.Remove(item);
                 item.Dispose();
             }
         }
@@ -435,6 +457,17 @@ namespace Tizen.NUI.Components
             if (type == DisposeTypes.Explicit)
             {
                 disposed = true;
+                // call the clear!
+                if (RecycleCache != null)
+                {
+                    foreach (ViewItem item in RecycleCache)
+                    {
+                        ContentContainer.Remove(item);
+                        item.Dispose();
+                    }
+                    RecycleCache.Clear();
+                }
+                ItemsLayouter.Clear();
                 ItemsLayouter = null;
                 ItemsSource = null;
                 ItemTemplate = null;
@@ -458,7 +491,6 @@ namespace Tizen.NUI.Components
             item.Template = (ItemTemplate as DataTemplateSelector)?.SelectDataTemplate(InternalItemSource.GetItem(index), this) ?? ItemTemplate;
             item.BindingContext = InternalItemSource.GetItem(index);
             item.Relayout += OnItemRelayout;
-            ContentContainer.Add(item);
         }
     }
 }

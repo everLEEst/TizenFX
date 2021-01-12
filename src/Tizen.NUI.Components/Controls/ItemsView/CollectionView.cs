@@ -121,7 +121,6 @@ namespace Tizen.NUI.Components
         public CollectionView() : base()
         {
             FocusGroup = true;
-            Init();
             SetKeyboardNavigationSupport(true);
         }
 
@@ -133,7 +132,6 @@ namespace Tizen.NUI.Components
         public CollectionView(IEnumerable itemsSource) : base(itemsSource)
         {
             FocusGroup = true;
-            Init();
             SetKeyboardNavigationSupport(true);
         }
 
@@ -147,7 +145,6 @@ namespace Tizen.NUI.Components
         public CollectionView(IEnumerable itemsSource, ItemsLayouter layouter, DataTemplate template) : base(itemsSource, layouter, template)
         {
             FocusGroup = true;
-            Init();
             SetKeyboardNavigationSupport(true);
         }
 
@@ -173,36 +170,19 @@ namespace Tizen.NUI.Components
             {
 
                 itemsSource = value;
-                base.ItemsSource = value;
                 if (value == null)
                 {
                     if (InternalItemSource != null) InternalItemSource.Dispose();
                     //layouter.Clear()
                     return;
                 }
+                if (InternalItemSource != null) InternalItemSource.Dispose();
+                InternalItemSource = ItemsSourceFactory.Create(this);
 
                 if (itemsLayouter == null) return;
 
-                if (InternalItemSource != null) InternalItemSource.Dispose();
-                InternalItemSource = ItemsSourceFactory.Create(this, itemsLayouter);
                 needInitalizeLayouter = true;
-
-                if (itemTemplate != null)
-                {
-                    itemsLayouter.Initialize(this);
-                    itemsLayouter.RequestLayout(0.0f, true);
-                    if (ScrollingDirection == Direction.Horizontal)
-                    {
-                        ContentContainer.SizeWidth =
-                            itemsLayouter.CalculateLayoutOrientationSize();
-                    }
-                    else
-                    {
-                        ContentContainer.SizeHeight =
-                            itemsLayouter.CalculateLayoutOrientationSize();
-                    }
-                    needInitalizeLayouter = false;
-                }
+                Init();
             }
         }
 
@@ -219,7 +199,6 @@ namespace Tizen.NUI.Components
             set
             {
                 itemTemplate = value;
-                base.ItemTemplate = value;
                 if (value == null)
                 {
                     //layouter.clear()
@@ -227,27 +206,7 @@ namespace Tizen.NUI.Components
                 }
 
                 needInitalizeLayouter = true;
-
-                if (itemsLayouter != null && InternalItemSource != null)
-                {
-                    itemsLayouter.Initialize(this);
-                    itemsLayouter.RequestLayout(0.0f, true);
-                    if (ScrollingDirection == Direction.Horizontal)
-                    {
-                        ContentContainer.SizeWidth =
-                                itemsLayouter.CalculateLayoutOrientationSize();
-                    }
-                    else
-                    {
-                        ContentContainer.SizeHeight =
-                            itemsLayouter.CalculateLayoutOrientationSize();
-                    }
-                    needInitalizeLayouter = false;
-                }
-                else if (itemsLayouter != null && itemsSource != null && InternalItemSource == null)
-                {
-                    InternalItemSource = ItemsSourceFactory.Create(this, itemsLayouter);
-                }
+                Init();
             }
         }        
 
@@ -264,35 +223,14 @@ namespace Tizen.NUI.Components
             set
             {
                 itemsLayouter = value;
-                base.ItemsLayouter = value;
                 if (value == null)
                 {
                     needInitalizeLayouter = false;
                     return;
                 }
 
-                if ((itemsSource != null) && (itemTemplate != null))
-                {
-                    if (InternalItemSource == null)
-                    {
-                        InternalItemSource = ItemsSourceFactory.Create(this, itemsLayouter);
-                    }
-
-                    itemsLayouter.Initialize(this);
-                    itemsLayouter.RequestLayout(0.0f, true);
-                    if (ScrollingDirection == Direction.Horizontal)
-                    {
-                        ContentContainer.SizeWidth =
-                            itemsLayouter.CalculateLayoutOrientationSize();
-                    }
-                    else
-                    {
-                        ContentContainer.SizeHeight =
-                            itemsLayouter.CalculateLayoutOrientationSize();
-                    }
-                    needInitalizeLayouter = false;
-                }
-                else needInitalizeLayouter = true;
+                needInitalizeLayouter = true;
+                Init();
             }
         }
 
@@ -846,8 +784,7 @@ namespace Tizen.NUI.Components
 
             if (needInitalizeLayouter)
             {
-                if (InternalItemSource == null)
-                    InternalItemSource = ItemsSourceFactory.Create(this, ItemsLayouter);
+                if (InternalItemSource == null) return;
 
                 InternalItemSource.HasHeader = (header != null);
                 InternalItemSource.HasFooter = (footer != null);
