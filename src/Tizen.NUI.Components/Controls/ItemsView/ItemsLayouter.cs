@@ -164,7 +164,7 @@ namespace Tizen.NUI.Components
         public virtual void NotifyDataSetChanged()
         {
             Initialize(ItemsView);
-            ItemsView.NotifyDataSetChanged();
+            //ItemsView.NotifyDataSetChanged();
         }
 
         /// <summary>
@@ -173,7 +173,7 @@ namespace Tizen.NUI.Components
         /// <param name="startIndex"></param>
         public virtual void NotifyItemChanged(IItemSource source, int startIndex)
         {
-            ItemsView.NotifyItemChanged(source, startIndex);
+            //ItemsView.NotifyItemChanged(source, startIndex);
         }
 
         /// <summary>
@@ -182,7 +182,7 @@ namespace Tizen.NUI.Components
         /// <param name="startIndex"></param>
         public virtual void NotifyItemInserted(IItemSource source, int startIndex)
         {
-            ItemsView.NotifyItemInserted(source, startIndex);
+            //ItemsView.NotifyItemInserted(source, startIndex);
         }
 
         /// <summary>
@@ -192,7 +192,7 @@ namespace Tizen.NUI.Components
         /// <param name="toPosition"></param>
         public void NotifyItemMoved(IItemSource source, int fromPosition, int toPosition)
         {
-            ItemsView.NotifyItemMoved(source, fromPosition, toPosition);
+            //ItemsView.NotifyItemMoved(source, fromPosition, toPosition);
         }
 
         /// <summary>
@@ -202,7 +202,7 @@ namespace Tizen.NUI.Components
         /// <param name="end"></param>
         public void NotifyItemRangeChanged(IItemSource source, int start, int end)
         {
-            ItemsView.NotifyItemRangeChanged(source, start, end);
+            //ItemsView.NotifyItemRangeChanged(source, start, end);
         }
 
         /// <summary>
@@ -212,7 +212,7 @@ namespace Tizen.NUI.Components
         /// <param name="count"></param>
         public void NotifyItemRangeInserted(IItemSource source, int startIndex, int count)
         {
-            ItemsView.NotifyItemRangeInserted(source, startIndex, count);
+            //ItemsView.NotifyItemRangeInserted(source, startIndex, count);
         }
 
         /// <summary>
@@ -222,7 +222,7 @@ namespace Tizen.NUI.Components
         /// <param name="count"></param>
         public void NotifyItemRangeRemoved(IItemSource source, int startIndex, int count)
         {
-            ItemsView.NotifyItemRangeRemoved(source, startIndex, count);
+            //ItemsView.NotifyItemRangeRemoved(source, startIndex, count);
         }
 
         /// <summary>
@@ -231,7 +231,7 @@ namespace Tizen.NUI.Components
         /// <param name="startIndex"></param>
         public void NotifyItemRemoved(IItemSource source, int startIndex)
         {
-            ItemsView.NotifyItemRemoved(source, startIndex);
+            //ItemsView.NotifyItemRemoved(source, startIndex);
         }
 
         /// <summary>

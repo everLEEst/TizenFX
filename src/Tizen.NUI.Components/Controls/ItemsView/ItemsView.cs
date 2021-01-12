@@ -26,7 +26,7 @@ namespace Tizen.NUI.Components
     /// [Draft] This class provides a View that can layouting items in list and grid with high performance.
     /// </summary>
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public abstract class ItemsView : ScrollableBase, ICollectionChangedNotifier
+    public abstract class ItemsView : ScrollableBase//, ICollectionChangedNotifier
     {
         /// <summary>
         /// Base Constructor
