@@ -65,7 +65,7 @@ namespace Tizen.NUI.Components
         [EditorBrowsable(EditorBrowsableState.Never)]
         public OutLineGridItem() : base()
         {
-            Layout = new RelativeLayout();
+            Layout = new AbsoluteLayout();
         }
 
         /// <summary>

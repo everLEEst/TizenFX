@@ -16,7 +16,6 @@ namespace Tizen.NUI.Components
         /// <summary>
         /// Update ViewItem State.
         /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never)]
         internal void UpdateState()
         {
             if (!styleApplied) return;
@@ -181,7 +180,7 @@ namespace Tizen.NUI.Components
         }
 
         /// <summary>
-        /// Dispose Button and all children on it.
+        /// Dispose Item and all children on it.
         /// </summary>
         /// <param name="type">Dispose type.</param>
         protected override void Dispose(DisposeTypes type)

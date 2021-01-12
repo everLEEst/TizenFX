@@ -42,7 +42,7 @@ namespace Tizen.NUI.Components
         /// </summary>
         /// <param name="itemsSource">item's data source</param>
        [EditorBrowsable(EditorBrowsableState.Never)]
-        public ItemsView(IEnumerable itemsSource) : base()
+        public ItemsView(IEnumerable itemsSource) : this()
         {
             ItemsSource = itemsSource;
         }
@@ -54,42 +54,69 @@ namespace Tizen.NUI.Components
         /// <param name="layouter">item's layout manager</param>
         /// <param name="template">item's view template with data bindings</param>
        [EditorBrowsable(EditorBrowsableState.Never)]
-        public ItemsView(IEnumerable itemsSource, ItemsLayouter layouter, DataTemplate template) : base()
+        public ItemsView(IEnumerable itemsSource, ItemsLayouter layouter, DataTemplate template) : this()
         {
             ItemsSource = itemsSource;
-            ItemsTemplate = template;
+            ItemTemplate = template;
             ItemsLayouter = layouter;
+
+            Scrolling += OnScrolling;
+        }
+
+        /// <summary>
+        /// Align item in the viewport when ScrollTo() calls.
+        /// </summary>
+       [EditorBrowsable(EditorBrowsableState.Never)]
+        public enum ItemScrollTo
+        {
+            /// <summary>
+            /// Scroll to show item in nearest viewport on scroll direction.
+            /// item is above the scroll viewport, item will be came into front,
+            /// item is under the scroll viewport, item will be came into end,
+            /// item is in the scroll viewport, no scroll.
+            /// </summary>
+            Nearest,
+            /// <summary>
+            /// Scroll to show item in front of the viewport.
+            /// </summary>
+            Front,
+            /// <summary>
+            /// Scroll to show item in center of the viewport.
+            /// </summary>
+            Center,
+            /// <summary>
+            /// Scroll to show item in end of the viewport.
+            /// </summary>
+            End,
         }
 
         /// <summary>
         /// Item's source data.
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public IEnumerable ItemsSource { get; set; }
+        public virtual IEnumerable ItemsSource { get; set; }
         
         /// <summary>
         /// DataTemplate for items.
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public DataTemplate ItemsTemplate { get; set; }
+        public virtual DataTemplate ItemTemplate { get; set; }
 
         /// <summary>
         /// Items Layouter.
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public ItemsLayouter ItemsLayouter { get; set; }
+        public virtual ItemsLayouter ItemsLayouter { get; set; }
 
         /// <summary>
         /// Internal encapsulated items data source.
         /// </summary>
-       [EditorBrowsable(EditorBrowsableState.Never)]
         internal IItemSource InternalItemSource { get; set;}
 
         /// <summary>
         /// RecycleCache of ViewItem.
         /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        protected List<ViewItem> RecycleCache {get; set; } = new List<ViewItem>();
+        protected List<ViewItem> RecycleCache { get; } = new List<ViewItem>();
             
         /// <summary>
         /// Max size of RecycleCache. Default is 50.
@@ -103,7 +130,7 @@ namespace Tizen.NUI.Components
         {
             //Console.WriteLine("LSH :: On ReLayout [{0} {0}]", size.X, size.Y);
             base.OnRelayout(size, container);
-            if (ItemsLayouter != null && ItemsSource != null && ItemsTemplate != null) 
+            if (ItemsLayouter != null && ItemsSource != null && ItemTemplate != null) 
             {
                 ItemsLayouter.Initialize(this);
                 ItemsLayouter.RequestLayout(ScrollingDirection == Direction.Horizontal ? ContentContainer.CurrentPosition.X : ContentContainer.CurrentPosition.Y, true);
@@ -207,33 +234,95 @@ namespace Tizen.NUI.Components
         }
 
         /// <summary>
+        /// Scroll to item
+        /// </summary>
+        /// <param name="item"></param>
+        /// <param name="animate"></param>
+        /// <param name="align"></param>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public virtual void ScrollTo(object item, bool animate = false, ItemScrollTo align = ItemScrollTo.Nearest)
+        {
+            if (item == null) throw new ArgumentNullException(nameof(item));
+            if (ItemsLayouter == null) throw new ArgumentNullException(nameof(ItemsLayouter));
+
+            float scrollPos, curPos, curSize, curItemSize;
+            (float X, float Y) itemPos = ItemsLayouter.GetItemPosition(item);
+            (float X, float Y) itemSize = ItemsLayouter.GetItemSize(item);
+            if (ScrollingDirection == Direction.Horizontal)
+            {
+                scrollPos = itemPos.X;
+                curPos = ScrollPosition.X;
+                curSize = Size.Width;
+                curItemSize = itemSize.X;
+            }
+            else
+            {
+                scrollPos = itemPos.Y;
+                curPos = ScrollPosition.Y;
+                curSize = Size.Height;
+                curItemSize = itemSize.Y;
+            }
+
+            switch (align)
+            {
+                case ItemScrollTo.Front:
+                    //nothing necessary.
+                break;
+                case ItemScrollTo.Center:
+                    scrollPos = scrollPos + (curSize / 2) - (curItemSize / 2);
+                break;
+                case ItemScrollTo.End:
+                    scrollPos = scrollPos + curSize - curItemSize;
+                break;
+                case ItemScrollTo.Nearest:
+                    if (scrollPos < curPos - curItemSize)
+                    {
+                        // item is placed before the current screen. scrollTo.Top
+                    }
+                    else if (scrollPos >= curPos + curItemSize)
+                    {
+                        // item is placed after the current screen. scrollTo.End
+                        scrollPos = scrollPos + curSize - curItemSize;
+                    }
+                    else
+                    {
+                        // item is in the scroller. ScrollTo() is ignored.
+                        return;
+                    }
+                break;
+            }
+
+            base.ScrollTo(scrollPos, animate);
+        }        
+
+        /// <summary>
         /// Realize indexed item.
         /// </summary>
-        /// <param name="Index"> Index position of realizing item </param>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        internal virtual ViewItem RealizeItem(int Index)
+        /// <param name="index"> Index position of realizing item </param>
+        internal virtual ViewItem RealizeItem(int index)
         {
+            object a = new object();
             // Check DataTemplate is Same!
-            if (ItemsTemplate is DataTemplateSelector)
+            if (ItemTemplate is DataTemplateSelector)
             {
                 // Need to implements
             }
             else
             {
                // pop item
-               ViewItem item = PopRecycleCache(ItemsTemplate);
+               ViewItem item = PopRecycleCache(ItemTemplate);
                if (item != null)
                {
-                    DecorateItem(item, Index);
+                    DecorateItem(item, index);
                     return item;
                }
             }
 
-            object content = ItemsTemplate.CreateContent() ?? throw new ArgumentNullException(nameof(content));
+            object content = ItemTemplate.CreateContent() ?? throw new ArgumentNullException(nameof(content));
             if (content is ViewItem)
             {
                 ViewItem item = (ViewItem)content;
-                DecorateItem(item, Index);
+                DecorateItem(item, index);
                 return item;
             }
             else
@@ -248,7 +337,6 @@ namespace Tizen.NUI.Components
         /// </summary>
         /// <param name="item"> Target item for unrealizing </param>
         /// <param name="recycle"> Allow recycle. default is true </param>
-        [EditorBrowsable(EditorBrowsableState.Never)]
         internal virtual void UnrealizeItem(ViewItem item, bool recycle = true)
         {
             item.Index = -1;
@@ -319,27 +407,56 @@ namespace Tizen.NUI.Components
            return null;
         }
 
-        private void OnScrolling(object source, ScrollEventArgs args)
+
+        /// <summary>
+        /// On scroll event callback.
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        protected virtual void OnScrolling(object source, ScrollEventArgs args)
         {
-            if (ItemsLayouter != null && ItemsSource != null && ItemsTemplate != null)
+            if (!disposed && ItemsLayouter != null && ItemsSource != null && ItemTemplate != null)
             {
-            //Console.WriteLine("LSH :: On Scrolling! {0} => {1}", ScrollPosition.Y, args.Position.Y);
+                //Console.WriteLine("LSH :: On Scrolling! {0} => {1}", ScrollPosition.Y, args.Position.Y);
                 ItemsLayouter.RequestLayout(ScrollingDirection == Direction.Horizontal ? args.Position.X : args.Position.Y);
             }
-        }        
+        }
+
+        /// <summary>
+        /// Dispose ItemsView and all children on it.
+        /// </summary>
+        /// <param name="type">Dispose type.</param>
+        protected override void Dispose(DisposeTypes type)
+        {
+            if (disposed)
+            {
+                return;
+            }
+
+            if (type == DisposeTypes.Explicit)
+            {
+                disposed = true;
+                ItemsLayouter = null;
+                ItemsSource = null;
+                ItemTemplate = null;
+                if (InternalItemSource != null) InternalItemSource.Dispose();
+                //
+            }
+
+            base.Dispose(type);
+        }   
 
         private void OnItemRelayout(object sender, EventArgs e)
         {
-            ItemsLayouter.NotifyItemSizeChanged((sender as ViewItem));
+            //ItemsLayouter.NotifyItemSizeChanged((sender as ViewItem));
             //ItemsLayouter.RequestLayout(ScrollingDirection == Direction.Horizontal ? ContentContainer.CurrentPosition.X : ContentContainer.CurrentPosition.Y);
         }
 
-        private void DecorateItem(ViewItem item, int Index)
+        private void DecorateItem(ViewItem item, int index)
         {
-            item.Index = Index;
+            item.Index = index;
             item.ParentItemsView = this;
-            item.Template = (ItemsTemplate as DataTemplateSelector)?.SelectDataTemplate(InternalItemSource.GetItem(Index), this) ?? ItemsTemplate;
-            item.BindingContext = InternalItemSource.GetItem(Index);
+            item.Template = (ItemTemplate as DataTemplateSelector)?.SelectDataTemplate(InternalItemSource.GetItem(index), this) ?? ItemTemplate;
+            item.BindingContext = InternalItemSource.GetItem(index);
             item.Relayout += OnItemRelayout;
             ContentContainer.Add(item);
         }

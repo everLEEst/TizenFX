@@ -99,7 +99,6 @@ namespace Tizen.NUI.Components
             IsInitialized = true;
         }
 
-
         /// <summary>
         /// This is called to find out where items are lain out according to current scroll position.
         /// </summary>
@@ -109,6 +108,30 @@ namespace Tizen.NUI.Components
         public virtual void RequestLayout(float scrollPosition, bool force = false)
         {
            // Layouting Items in scrollPosition.
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="item"></param>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public virtual (float X, float Y) GetItemPosition(object item)
+        {
+           if (item == null) throw new ArgumentNullException(nameof(item));
+           // Layouting Items in scrollPosition.
+           return (0, 0);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="item"></param>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public virtual (float X, float Y) GetItemSize(object item)
+        {
+           if (item == null) throw new ArgumentNullException(nameof(item));
+           // Layouting Items in scrollPosition.
+           return (0, 0);
         }
 
         /// <summary>
@@ -138,27 +161,28 @@ namespace Tizen.NUI.Components
 
         /// <summary>
         /// </summary>
-        public void NotifyDataSetChanged()
+        public virtual void NotifyDataSetChanged()
         {
             Initialize(ItemsView);
+            ItemsView.NotifyDataSetChanged();
         }
 
         /// <summary>
         /// </summary>
         /// <param name="source"></param>
         /// <param name="startIndex"></param>
-        public void NotifyItemChanged(IItemSource source, int startIndex)
+        public virtual void NotifyItemChanged(IItemSource source, int startIndex)
         {
-
+            ItemsView.NotifyItemChanged(source, startIndex);
         }
 
         /// <summary>
         /// </summary>
         /// <param name="source"></param>
         /// <param name="startIndex"></param>
-        public void NotifyItemInserted(IItemSource source, int startIndex)
+        public virtual void NotifyItemInserted(IItemSource source, int startIndex)
         {
-
+            ItemsView.NotifyItemInserted(source, startIndex);
         }
 
         /// <summary>
@@ -168,7 +192,7 @@ namespace Tizen.NUI.Components
         /// <param name="toPosition"></param>
         public void NotifyItemMoved(IItemSource source, int fromPosition, int toPosition)
         {
-
+            ItemsView.NotifyItemMoved(source, fromPosition, toPosition);
         }
 
         /// <summary>
@@ -178,7 +202,7 @@ namespace Tizen.NUI.Components
         /// <param name="end"></param>
         public void NotifyItemRangeChanged(IItemSource source, int start, int end)
         {
-
+            ItemsView.NotifyItemRangeChanged(source, start, end);
         }
 
         /// <summary>
@@ -188,7 +212,7 @@ namespace Tizen.NUI.Components
         /// <param name="count"></param>
         public void NotifyItemRangeInserted(IItemSource source, int startIndex, int count)
         {
-
+            ItemsView.NotifyItemRangeInserted(source, startIndex, count);
         }
 
         /// <summary>
@@ -198,7 +222,7 @@ namespace Tizen.NUI.Components
         /// <param name="count"></param>
         public void NotifyItemRangeRemoved(IItemSource source, int startIndex, int count)
         {
-
+            ItemsView.NotifyItemRangeRemoved(source, startIndex, count);
         }
 
         /// <summary>
@@ -207,7 +231,7 @@ namespace Tizen.NUI.Components
         /// <param name="startIndex"></param>
         public void NotifyItemRemoved(IItemSource source, int startIndex)
         {
-
+            ItemsView.NotifyItemRemoved(source, startIndex);
         }
 
         /// <summary>
@@ -222,6 +246,42 @@ namespace Tizen.NUI.Components
         public virtual View RequestNextFocusableView(View currentFocusedView, View.FocusDirection direction, bool loopEnabled)
         {
             return null;
+        }
+
+        /// <summary>
+        /// Measure the size of chlid ViewItem manually.
+        /// </summary>
+        /// <param name="parent">Parent ItemsView.</param>
+        /// <param name="child">Child ViewItem to Measure()</param>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        protected virtual void MeasureChild(ItemsView parent, ViewItem child)
+        {
+            if (child.Layout == null) return;
+
+            View realParent = parent.ContentContainer;
+
+            MeasureSpecification childWidthMeasureSpec = LayoutGroup.GetChildMeasureSpecification(
+                        new MeasureSpecification(new LayoutLength(parent.MeasureSpecificationWidth.Size), parent.MeasureSpecificationWidth.Mode),
+                        new LayoutLength(0),
+                        new LayoutLength(child.WidthSpecification));
+
+            MeasureSpecification childHeightMeasureSpec = LayoutGroup.GetChildMeasureSpecification(
+                        new MeasureSpecification(new LayoutLength(parent.MeasureSpecificationHeight.Size), parent.MeasureSpecificationHeight.Mode),
+                        new LayoutLength(0),
+                        new LayoutLength(child.HeightSpecification));
+
+            child.Layout.Measure(childWidthMeasureSpec, childHeightMeasureSpec);
+        }
+
+        /// <summary>
+        /// Find consecutive visible items index.
+        /// </summary>
+        /// <param name="visibleArea">float turple of visible area start position to end position. </param>
+        /// <return>int turple of start index to end index</return>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        protected virtual (int start, int end) FindVisibleItems((float X, float Y) visibleArea)
+        {
+            return (0, 0);
         }
 
     }

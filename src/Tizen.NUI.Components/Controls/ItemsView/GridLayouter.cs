@@ -64,43 +64,27 @@ namespace Tizen.NUI.Components
 
             ViewItem header = colView?.Header;
             ViewItem footer = colView?.Footer;
-            float width, height, fingerSize = 30.0f;
+            float width, height;
             int count = colView.InternalItemSource.Count;
             int pureCount = count - (header ? 1 : 0) - (footer? 1 : 0);
 
             // 2. Get the header / footer and size deligated item and measure the size.
             if (header)
             {
-                header.Layout?.Measure(new MeasureSpecification(new LayoutLength(isHorizontal ? fingerSize : colView.Size.Width), 
-                                        ( isHorizontal ? MeasureSpecification.ModeType.Unspecified :
-                                                        MeasureSpecification.ModeType.Exactly)),
-                                        new MeasureSpecification(new LayoutLength(isHorizontal ? colView.Size.Height : fingerSize),
-                                        ( isHorizontal ? MeasureSpecification.ModeType.Exactly :
-                                                        MeasureSpecification.ModeType.Unspecified)));
+                MeasureChild(colView, header);
                                                               
                 width = header.Layout != null ? header.Layout.MeasuredWidth.Size.AsRoundedValue() : 0;
-                height = header.Layout != null ? header.Layout.MeasuredHeight.Size.AsRoundedValue() : 0;              
-
-                width = header.Size.Width == 0 ? width : header.Size.Width;
-                height = header.Size.Height == 0 ? height : header.Size.Height;
+                height = header.Layout != null ? header.Layout.MeasuredHeight.Size.AsRoundedValue() : 0;
 
                 headerSize = isHorizontal ? width : height;
             }
 
             if (footer)
             {
-                footer.Layout?.Measure(new MeasureSpecification(new LayoutLength(isHorizontal ? fingerSize : colView.Size.Width), 
-                                        ( isHorizontal ? MeasureSpecification.ModeType.Unspecified :
-                                                        MeasureSpecification.ModeType.Exactly)),
-                                        new MeasureSpecification(new LayoutLength(isHorizontal ? colView.Size.Height : fingerSize),
-                                        ( isHorizontal ? MeasureSpecification.ModeType.Exactly :
-                                                        MeasureSpecification.ModeType.Unspecified)));
+                MeasureChild(colView, footer);
                                                               
                 width = footer.Layout != null ? footer.Layout.MeasuredWidth.Size.AsRoundedValue() : 0;
-                height = footer.Layout != null ? footer.Layout.MeasuredHeight.Size.AsRoundedValue() : 0;              
-
-                width = footer.Size.Width == 0 ? width : footer.Size.Width;
-                height = footer.Size.Height == 0 ? height : footer.Size.Height;
+                height = footer.Layout != null ? footer.Layout.MeasuredHeight.Size.AsRoundedValue() : 0;
 
                 footerSize = isHorizontal ? width : height;
                 footer.Index = count - 1;
@@ -117,26 +101,20 @@ namespace Tizen.NUI.Components
             sizeDeligate.BindingContext = colView.InternalItemSource.GetItem(firstIndex);
 
             // Need to Set proper hieght or width on scroll direciton.
-
-            if (sizeDeligate.Size.Width != 0 &&
-                sizeDeligate.Size.Height != 0)
+            if (sizeDeligate.Layout == null)
             {
-                width = sizeDeligate.Size.Width;
-                height = sizeDeligate.Size.Height;
+                width = sizeDeligate.WidthSpecification;
+                height = sizeDeligate.HeightSpecification;
             }
             else
-            {                 
-                sizeDeligate.Layout.Measure(new MeasureSpecification(new LayoutLength(fingerSize), MeasureSpecification.ModeType.Unspecified),
-                                            new MeasureSpecification(new LayoutLength(fingerSize), MeasureSpecification.ModeType.Unspecified));
+            {
+                MeasureChild(colView, sizeDeligate);
 
                 width = sizeDeligate.Layout.MeasuredWidth.Size.AsRoundedValue();
                 height = sizeDeligate.Layout.MeasuredHeight.Size.AsRoundedValue();
-
-                width = Math.Max(width, sizeDeligate.Size.Width);
-                height = Math.Max(height, sizeDeligate.Size.Height);
             }
             
-            //Console.WriteLine("LSH : item Size {0} :{1}", Width, Height);
+            //Console.WriteLine("LSH : item Size {0} :{1}", width, height);
 
             // pick the StepCandidate.
             StepCandidate = isHorizontal ? width : height;
@@ -188,7 +166,10 @@ namespace Tizen.NUI.Components
             //Console.WriteLine("LSH :: itemsView [{0},{1}] [{2},{3}]", colView.Size.Width, colView.Size.Height, colView.ContentContainer.Size.Width, colView.ContentContainer.Size.Height);
 
             // 1. Set First/Last Visible Item Index. 
-            FindVisibleItems(visibleArea);
+            (int start, int end) found = FindVisibleItems(visibleArea);
+            FirstVisible = found.start;
+            LastVisible = found.end;
+
             //Console.WriteLine("LSH :: {0} :visibleArea before [{1},{2}] after [{3},{4}]", scrollPosition, prevFirstVisible, prevLastVisible, FirstVisible, LastVisible);
 
             // 2. Unrealize invisible items.
@@ -225,11 +206,50 @@ namespace Tizen.NUI.Components
                     return;
                 }
                 VisibleItems.Add(item);
+
+                (float X, float Y) pos = GetItemPosition(i);
                 // 5. Placing item.
-                item.Position = GetPosition(item);
+                item.Position = new Position(pos.X, pos.Y);
                 // Console.WriteLine("LSH :: ["+item.Index+"] ["+item.Position.X+", "+item.Position.Y+" ==== \n");
             }
             //Console.WriteLine("Realize Done");
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="item"></param>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public override (float X, float Y) GetItemPosition(object item)
+        {
+           if (item == null) throw new ArgumentNullException(nameof(item));
+           if (colView == null) return (0, 0);
+          /*
+           is group?
+           is Header? - it cannot be a header
+           is Footer? - it cannot be a footer
+           */
+
+           return GetItemPosition(colView.InternalItemSource.GetPosition(item));
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="item"></param>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public override (float X, float Y) GetItemSize(object item)
+        {
+           if (item == null) throw new ArgumentNullException(nameof(item));
+           if (sizeCandidate == null) return (0, 0);
+           /*
+           is group?
+           is Header? - it cannot be a header
+           is Footer? - it cannot be a footer
+           */
+           // gengrid item has to be all same size.
+
+           return (sizeCandidate.Width, sizeCandidate.Height);
         }
 
         /// <inheritdoc/>
@@ -313,26 +333,65 @@ namespace Tizen.NUI.Components
             return nextFocusedView;
         }
 
-        private Position GetPosition(ViewItem item)
+        /// <inheritdoc/>
+        protected override (int start, int end) FindVisibleItems((float X, float Y)visibleArea)
         {
-            if (sizeCandidate == null) return null;
+            bool hasHeader = (colView.Header != null);
+            bool hasFooter = (colView.Footer != null);
+            int MaxIndex = colView.InternalItemSource.Count - 1 - (hasFooter ? 1 : 0);
+            (int start, int end) found;
+
+            // Header is Showing
+            if (hasHeader && visibleArea.X < headerSize)
+            {
+                found.start = 0;
+            }
+            else
+            {
+                float visibleAreaX = visibleArea.X - (hasHeader ? headerSize : 0);
+                found.start = (Convert.ToInt32(Math.Abs(visibleAreaX / StepCandidate)) - 1) * spanSize;
+
+                if (found.start < 0) found.start = 0;
+                if (hasHeader) found.start += 1;
+            }
+            
+            if (hasFooter && visibleArea.Y > ScrollContentSize - footerSize)
+            {
+                found.end = MaxIndex + 1;
+            }
+            else
+            {
+                float visibleAreaY = visibleArea.Y - (hasHeader ? headerSize : 0);
+                //Need to Consider GroupHeight!!!!
+                found.end = (Convert.ToInt32(Math.Abs(visibleAreaY / StepCandidate)) + 1) * spanSize;
+
+                if (hasHeader) found.end += 1;
+                if (found.end > (MaxIndex)) found.end = MaxIndex;
+            }
+
+            return found;
+        }
+
+        private (float X, float Y) GetItemPosition(int index)
+        {
+            if (sizeCandidate == null) return (0, 0);
             bool isHorizontal = (colView.ScrollingDirection == ScrollableBase.Direction.Horizontal);
             bool hasHeader = (colView.Header != null);
             bool hasFooter = (colView.Footer != null);
             float xPos, yPos;
 
-            if (hasHeader && item == colView.Header)
+            if (hasHeader && index == 0)
             {
-                return new Position(0, 0);
+                return (0, 0);
             }
-            if (hasFooter && item == colView.Footer)
+            if (hasFooter && index == colView.InternalItemSource.Count)
             {
                 xPos = isHorizontal ? ScrollContentSize - footerSize : 0;
                 yPos = isHorizontal ? 0 : ScrollContentSize - footerSize;
-                return new Position(xPos, yPos);
+                return (xPos, yPos);
             }
 
-            int pureIndex = item.Index - (colView.Header ? 1 : 0);
+            int pureIndex = index - (colView.Header ? 1 : 0);
             // int convert must be truncate value.
             int division = pureIndex / spanSize;
             int remainder = pureIndex % spanSize;
@@ -344,43 +403,7 @@ namespace Tizen.NUI.Components
             xPos = isHorizontal ? division * sizeCandidate.Width + (hasHeader ? headerSize : 0) : emptyArea * align + remainder * sizeCandidate.Width;
             yPos = isHorizontal ? emptyArea * align + remainder * sizeCandidate.Height : division * sizeCandidate.Height + (hasHeader ? headerSize : 0);
 
-            return new Position(xPos, yPos);
-        }
-
-        private void FindVisibleItems((float X, float Y)visibleArea)
-        {
-            bool hasHeader = (colView.Header != null);
-            bool hasFooter = (colView.Footer != null);
-            int MaxIndex = colView.InternalItemSource.Count - 1 - (hasFooter ? 1 : 0);
-
-            // Header is Showing
-            if (hasHeader && visibleArea.X < headerSize)
-            {
-                FirstVisible = 0;
-
-            }
-            else
-            {
-                float visibleAreaX = visibleArea.X - (hasHeader ? headerSize : 0);
-                FirstVisible = (Convert.ToInt32(Math.Abs(visibleAreaX / StepCandidate)) - 1) * spanSize;
-
-                if (FirstVisible < 0) FirstVisible = 0;
-                if (hasHeader) FirstVisible += 1;
-            }
-            
-            if (hasFooter && visibleArea.Y > ScrollContentSize - footerSize)
-            {
-                LastVisible = MaxIndex + 1;
-            }
-            else
-            {
-                float visibleAreaY = visibleArea.Y - (hasHeader ? headerSize : 0);
-                //Need to Consider GroupHeight!!!!
-                LastVisible = (Convert.ToInt32(Math.Abs(visibleAreaY / StepCandidate)) + 1) * spanSize;
-
-                if (hasHeader) LastVisible += 1;
-                if (LastVisible > (MaxIndex)) LastVisible = MaxIndex;
-            }
+            return (xPos, yPos);
         }
 
         private ViewItem GetVisibleItem(int index)

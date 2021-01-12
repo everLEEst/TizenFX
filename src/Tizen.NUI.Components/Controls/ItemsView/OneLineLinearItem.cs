@@ -66,7 +66,7 @@ namespace Tizen.NUI.Components
         [EditorBrowsable(EditorBrowsableState.Never)]
         public OneLineLinearItem() : base()
         {
-            Layout = new LinearLayout();
+            Layout = new AbsoluteLayout();
         }
          
         /// <summary>
