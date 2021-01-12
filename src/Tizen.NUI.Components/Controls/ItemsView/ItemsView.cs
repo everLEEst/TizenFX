@@ -284,27 +284,27 @@ namespace Tizen.NUI.Components
                 curItemSize = itemSize.Y;
             }
 
-            //Console.WriteLine("LSH :: ScrollTo [{0}], curPos{1}, itemPos{2}, curSize{3}, itemSize{4}", curPos, scrollPos, curSize, curItemSize);
+            //Console.WriteLine("LSH :: ScrollTo [{0}:{1}], curPos{2}, itemPos{3}, curSize{4}, itemSize{5}", InternalItemSource.GetPosition(item), align, curPos, scrollPos, curSize, curItemSize);
             switch (align)
             {
                 case ItemScrollTo.Front:
                     //nothing necessary.
                 break;
                 case ItemScrollTo.Center:
-                    scrollPos = scrollPos + (curSize / 2) - (curItemSize / 2);
+                    scrollPos = scrollPos - (curSize / 2) + (curItemSize / 2);
                 break;
                 case ItemScrollTo.End:
-                    scrollPos = scrollPos + curSize - curItemSize;
+                    scrollPos = scrollPos - curSize + curItemSize;
                 break;
                 case ItemScrollTo.Nearest:
                     if (scrollPos < curPos - curItemSize)
                     {
                         // item is placed before the current screen. scrollTo.Top
                     }
-                    else if (scrollPos >= curPos + curItemSize)
+                    else if (scrollPos >= curPos + curSize + curItemSize)
                     {
                         // item is placed after the current screen. scrollTo.End
-                        scrollPos = scrollPos + curSize - curItemSize;
+                        scrollPos = scrollPos - curSize + curItemSize;
                     }
                     else
                     {
@@ -314,6 +314,7 @@ namespace Tizen.NUI.Components
                 break;
             }
 
+            //Console.WriteLine("LSH :: ScrollTo [{0}]-------------------", scrollPos);
             base.ScrollTo(scrollPos, animate);
         }        
 
