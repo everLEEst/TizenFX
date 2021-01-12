@@ -14,6 +14,7 @@
  *
  */
 using System;
+using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -77,9 +78,9 @@ namespace Tizen.NUI.Components
             /// </summary>
             Nearest,
             /// <summary>
-            /// Scroll to show item in front of the viewport.
+            /// Scroll to show item in start of the viewport.
             /// </summary>
-            Front,
+            Start,
             /// <summary>
             /// Scroll to show item in center of the viewport.
             /// </summary>
@@ -255,6 +256,15 @@ namespace Tizen.NUI.Components
         }
 
         /// <summary>
+        /// Scroll to position.
+        /// </summary>
+        /// <param name="position"></param>
+        /// <param name="animate"></param>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public new void ScrollTo(float position, bool animate) => base.ScrollTo(position, animate);
+        
+
+        /// <summary>
         /// Scroll to item
         /// </summary>
         /// <param name="item"></param>
@@ -265,6 +275,11 @@ namespace Tizen.NUI.Components
         {
             if (item == null) throw new ArgumentNullException(nameof(item));
             if (ItemsLayouter == null) throw new ArgumentNullException(nameof(ItemsLayouter));
+
+            if (InternalItemSource.GetPosition(item) == -1)
+            {
+                throw new ArgumentException("ScrollTo parameter item is not a member of ItemsSource", nameof(item));
+            }
 
             float scrollPos, curPos, curSize, curItemSize;
             (float X, float Y) itemPos = ItemsLayouter.GetItemPosition(item);
@@ -287,7 +302,7 @@ namespace Tizen.NUI.Components
             //Console.WriteLine("LSH :: ScrollTo [{0}:{1}], curPos{2}, itemPos{3}, curSize{4}, itemSize{5}", InternalItemSource.GetPosition(item), align, curPos, scrollPos, curSize, curItemSize);
             switch (align)
             {
-                case ItemScrollTo.Front:
+                case ItemScrollTo.Start:
                     //nothing necessary.
                 break;
                 case ItemScrollTo.Center:
@@ -429,7 +444,6 @@ namespace Tizen.NUI.Components
            }
            return null;
         }
-
 
         /// <summary>
         /// On scroll event callback.
