@@ -379,12 +379,13 @@ namespace Tizen.NUI.Components
         {
             item.Index = -1;
             item.ParentItemsView = null;
-            item.BindingContext = null;
+            // Remove BindingContext null set for performance improving.
+            //item.BindingContext = null; 
             item.isPressed = false;
             item.IsSelected = false;
             item.IsEnabled = true;
-            //Update Style UI
-            item.UpdateState();
+            // Remove Update Style on default for performance improving.
+            //item.UpdateState();
             item.Relayout -= OnItemRelayout;
 
             if (!recycle || !PushRecycleCache(item))
@@ -451,6 +452,7 @@ namespace Tizen.NUI.Components
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected virtual void OnScrolling(object source, ScrollEventArgs args)
         {
+            if (args == null) throw new ArgumentNullException(nameof(args));
             if (!disposed && ItemsLayouter != null && ItemsSource != null && ItemTemplate != null)
             {
                 //Console.WriteLine("LSH :: On Scrolling! {0} => {1}", ScrollPosition.Y, args.Position.Y);

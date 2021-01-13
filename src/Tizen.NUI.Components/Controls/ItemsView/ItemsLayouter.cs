@@ -26,7 +26,7 @@ namespace Tizen.NUI.Components
     /// Lay out ViewItem and recycle ViewItem.
     /// </summary>
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public abstract class ItemsLayouter : ICollectionChangedNotifier, IDisposable
+    public abstract class ItemsLayouter : IDisposable
     {
         private bool disposed = false;
 
@@ -171,12 +171,14 @@ namespace Tizen.NUI.Components
 
         /// <summary>
         /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public virtual void NotifyItemSizeChanged(ViewItem item)
         {
         }
 
         /// <summary>
         /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public virtual void NotifyDataSetChanged()
         {
             Initialize(ItemsView);
@@ -186,6 +188,7 @@ namespace Tizen.NUI.Components
         /// </summary>
         /// <param name="source"></param>
         /// <param name="startIndex"></param>
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public virtual void NotifyItemChanged(IItemSource source, int startIndex)
         {
         }
@@ -194,6 +197,7 @@ namespace Tizen.NUI.Components
         /// </summary>
         /// <param name="source"></param>
         /// <param name="startIndex"></param>
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public virtual void NotifyItemInserted(IItemSource source, int startIndex)
         {
         }
@@ -203,25 +207,18 @@ namespace Tizen.NUI.Components
         /// <param name="source"></param>
         /// <param name="fromPosition"></param>
         /// <param name="toPosition"></param>
-        public void NotifyItemMoved(IItemSource source, int fromPosition, int toPosition)
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public virtual void NotifyItemMoved(IItemSource source, int fromPosition, int toPosition)
         {
         }
 
         /// <summary>
         /// </summary>
         /// <param name="source"></param>
-        /// <param name="start"></param>
-        /// <param name="end"></param>
-        public void NotifyItemRangeChanged(IItemSource source, int start, int end)
-        {
-        }
-
-        /// <summary>
-        /// </summary>
-        /// <param name="source"></param>
-        /// <param name="startIndex"></param>
-        /// <param name="count"></param>
-        public void NotifyItemRangeInserted(IItemSource source, int startIndex, int count)
+        /// <param name="startRange"></param>
+        /// <param name="endRange"></param>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public virtual void NotifyItemRangeChanged(IItemSource source, int startRange, int endRange)
         {
         }
 
@@ -230,7 +227,8 @@ namespace Tizen.NUI.Components
         /// <param name="source"></param>
         /// <param name="startIndex"></param>
         /// <param name="count"></param>
-        public void NotifyItemRangeRemoved(IItemSource source, int startIndex, int count)
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public virtual void NotifyItemRangeInserted(IItemSource source, int startIndex, int count)
         {
         }
 
@@ -238,7 +236,18 @@ namespace Tizen.NUI.Components
         /// </summary>
         /// <param name="source"></param>
         /// <param name="startIndex"></param>
-        public void NotifyItemRemoved(IItemSource source, int startIndex)
+        /// <param name="count"></param>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public virtual void NotifyItemRangeRemoved(IItemSource source, int startIndex, int count)
+        {
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <param name="source"></param>
+        /// <param name="startIndex"></param>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public virtual void NotifyItemRemoved(IItemSource source, int startIndex)
         {
         }
 
@@ -275,6 +284,9 @@ namespace Tizen.NUI.Components
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected virtual void MeasureChild(ItemsView parent, ViewItem child)
         {
+            if (parent == null) throw new ArgumentNullException(nameof(parent));
+            if (child == null) throw new ArgumentNullException(nameof(child));
+
             if (child.Layout == null) return;
 
             View realParent = parent.ContentContainer;

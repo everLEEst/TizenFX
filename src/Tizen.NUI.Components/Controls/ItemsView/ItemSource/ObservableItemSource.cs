@@ -120,7 +120,7 @@ namespace Tizen.NUI.Components
                     _notifier.NotifyDataSetChanged();
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException();
+                    throw new ArgumentOutOfRangeException(nameof(args));
             }
             CollectionItemsSourceChanged?.Invoke(this, args);
         }

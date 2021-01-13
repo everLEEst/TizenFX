@@ -65,7 +65,27 @@ namespace Tizen.NUI.Components
         [EditorBrowsable(EditorBrowsableState.Never)]
         public OutLineGridItem() : base()
         {
-            Layout = new AbsoluteLayout();
+            Initialize();
+        }
+
+        /// <summary>
+        /// Creates a new instance of OutLineGridItem with style
+        /// </summary>
+        /// <param name="style=">Create OutLineGridItem by special style defined in UX.</param>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public OutLineGridItem(string style) : base(style)
+        {
+            Initialize();
+        }
+
+        /// <summary>
+        /// Creates a new instance of OutLineGridItem with style
+        /// </summary>
+        /// <param name="itemStyle=">Create OutLineGridItem by style customized by user.</param>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public OutLineGridItem(ViewItemStyle itemStyle) : base(itemStyle)
+        {
+            Initialize();
         }
 
         /// <summary>
@@ -93,6 +113,7 @@ namespace Tizen.NUI.Components
             }
         }
 
+/* open when ImageView using Uri not string
         /// <summary>
         /// Icon image's resource url in OutLineGridItem.
         /// </summary>
@@ -108,6 +129,7 @@ namespace Tizen.NUI.Components
                 Icon.ResourceUrl = value;
             }
         }
+*/
 
         /// <summary>
         /// OutLineGridItem's text part.
@@ -271,9 +293,8 @@ namespace Tizen.NUI.Components
 
         /// <inheritdoc/>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        protected override void Initialize()
+        private void Initialize()
         {
-            base.OnInitialize();
             LayoutDirectionChanged += OnLayoutDirectionChanged;
         }
 

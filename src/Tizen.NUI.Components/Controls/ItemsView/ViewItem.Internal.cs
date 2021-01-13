@@ -202,6 +202,7 @@ namespace Tizen.NUI.Components
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected override void OnControlStateChanged(ControlStateChangedEventArgs controlStateChangedInfo)
         {
+            if (controlStateChangedInfo == null) throw new ArgumentNullException(nameof(controlStateChangedInfo));
             base.OnControlStateChanged(controlStateChangedInfo);
 
             var stateEnabled = !controlStateChangedInfo.CurrentState.Contains(ControlState.Disabled);
@@ -223,7 +224,7 @@ namespace Tizen.NUI.Components
         /// It is hijack by using protected, style copy problem when class inherited from Button.
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        protected virtual void Initialize()
+        private void Initialize()
         {
             EnableControlStatePropagation = true;
             UpdateState();

@@ -204,6 +204,7 @@ namespace Tizen.NUI.Components
                 {
                     notifyCollectionChanged.CollectionChanged -= CollectionChanged;
                 }
+                if (_groupSource is IDisposable dispoableSource) dispoableSource.Dispose();
             }
         }
 
@@ -262,7 +263,7 @@ namespace Tizen.NUI.Components
                     Reload();
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException();
+                    throw new ArgumentOutOfRangeException(nameof(args));
             }
         }
 

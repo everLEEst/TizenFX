@@ -66,7 +66,7 @@ namespace Tizen.NUI.Components
         [EditorBrowsable(EditorBrowsableState.Never)]
         public OneLineLinearItem() : base()
         {
-            Layout = new AbsoluteLayout();
+            Initialize();
         }
          
         /// <summary>
@@ -76,15 +76,17 @@ namespace Tizen.NUI.Components
         [EditorBrowsable(EditorBrowsableState.Never)]
         public OneLineLinearItem(string style) : base(style)
         {
+            Initialize();
         }
-         
+
         /// <summary>
         /// Creates a new instance of a OneLineLinearItem with style.
         /// </summary>
-        /// <param name="viewItemStyle">Create ViewItem by style customized by user.</param>
+        /// <param name="itemStyle">Create ViewItem by style customized by user.</param>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public OneLineLinearItem(ViewItemStyle viewItemStyle) : base(viewItemStyle)
+        public OneLineLinearItem(ViewItemStyle itemStyle) : base(itemStyle)
         {
+            Initialize();
         }
 
         /// <summary>
@@ -112,6 +114,7 @@ namespace Tizen.NUI.Components
             }
         }
 
+        /* open when imageView using Uri not string.
         /// <summary>
         /// Icon image's resource url. Only activatable for icon as ImageView.
         /// </summary>
@@ -132,6 +135,7 @@ namespace Tizen.NUI.Components
                 (Icon as ImageView).ResourceUrl = value; 
             }
         }
+        */
 
         /// <summary>
         /// OneLineLinearItem's text part of OneLineLinearItem
@@ -310,7 +314,7 @@ namespace Tizen.NUI.Components
 
         /// <inheritdoc/>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        protected override void Initialize()
+        private void Initialize()
         {
             base.OnInitialize();
             LayoutDirectionChanged += OnLayoutDirectionChanged;

@@ -124,6 +124,7 @@ namespace Tizen.NUI.Components
             //FIXME!
             IsCreateByXaml = true;
             Layout = new AbsoluteLayout();
+            ViewItem viewItem = this;
             Initialize();
         }
 
@@ -139,32 +140,18 @@ namespace Tizen.NUI.Components
             Layout = new AbsoluteLayout();
             Initialize();
         }
- 
+
         /// <summary>
         /// Creates a new instance of a ViewItem with style.
         /// </summary>
-        /// <param name="viewItemStyle">Create ViewItem by style customized by user.</param>
+        /// <param name="itemStyle">Create ViewItem by style customized by user.</param>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public ViewItem(ViewItemStyle viewItemStyle) : base(viewItemStyle)
+        public ViewItem(ViewItemStyle itemStyle) : base(itemStyle)
         {
             //FIXME!
             IsCreateByXaml = true;
             Layout = new AbsoluteLayout();
             Initialize();
-        }
-
-        /// <summary>
-        /// Creates a new instance of a ViewItem with View content.
-        /// </summary>
-        /// <param name="content">Create ViewItem with given content</param>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public ViewItem(View content)
-        {
-            //FIXME!
-            IsCreateByXaml = true;
-            Layout = new AbsoluteLayout();
-            Initialize();
-            Children.Add(content);
         }
 
         /// <summary>

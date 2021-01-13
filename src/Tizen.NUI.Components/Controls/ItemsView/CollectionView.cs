@@ -276,7 +276,7 @@ namespace Tizen.NUI.Components
         public IList<object> SelectedItems
         {
             get => (IList<object>)GetValue(SelectedItemsProperty);
-            set => SetValue(SelectedItemsProperty, new SelectionList(this, value));
+            // set => SetValue(SelectedItemsProperty, new SelectionList(this, value));
         }
 
         /// <summary>
