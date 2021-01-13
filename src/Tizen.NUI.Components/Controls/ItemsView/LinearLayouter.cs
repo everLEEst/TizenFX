@@ -49,14 +49,11 @@ namespace Tizen.NUI.Components
                 throw new ArgumentException("LinearLayouter only can be applied CollectionView.", nameof(view));
             }
             // 1. Clean Up
-            if (VisibleItems != null)
+            foreach (ViewItem item in VisibleItems)
             {
-                foreach (ViewItem item in VisibleItems)
-                {
-                    colView.UnrealizeItem(item, false);
-                }
-                VisibleItems.Clear();
+                colView.UnrealizeItem(item, false);
             }
+            VisibleItems.Clear();
 
             FirstVisible = 0;
             LastVisible = 0;
@@ -101,7 +98,7 @@ namespace Tizen.NUI.Components
             if (sizeDeligate == null)
             {
                 // error !
-                throw new ArgumentException("Cannot create content from DatTemplate.", nameof(colView));
+                throw new Exception("Cannot create content from DatTemplate.");
             }
             //FIXME: if header is exist, index must be changed.
 
@@ -223,11 +220,6 @@ namespace Tizen.NUI.Components
                 }
                 if (item == null) item = colView.RealizeItem(i);                
 
-                //if (item is not calced) do measure!   
-                if (item == null)
-                {
-                    throw new ArgumentException("Cannot create content from DatTemplate.", nameof(colView));
-                }
                 VisibleItems.Add(item);
 
                 // 5. Placing item.

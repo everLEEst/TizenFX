@@ -116,7 +116,7 @@ namespace Tizen.NUI.Components
         /// Icon image's resource url. Only activatable for icon as ImageView.
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public string IconURL
+        public string IconUrl
         {
             get
             {
@@ -124,7 +124,11 @@ namespace Tizen.NUI.Components
             }
             set
             {
-                if (itemIcon != null && !(itemIcon is ImageView)) throw new ArgumentException("Icon is not ImageView.", (nameof(itemIcon)));
+                if (itemIcon != null && !(itemIcon is ImageView))
+                {
+                    // Tizen.Log.Error("IconUrl only can set Icon is ImageView");
+                    return;
+                }
                 (Icon as ImageView).ResourceUrl = value; 
             }
         }

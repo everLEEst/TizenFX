@@ -48,14 +48,11 @@ namespace Tizen.NUI.Components
             }
 
             // 1. Clean Up
-            if (VisibleItems != null)
+            foreach (ViewItem item in VisibleItems)
             {
-                foreach (ViewItem item in VisibleItems)
-                {
-                    colView.UnrealizeItem(item, false);
-                }
-                VisibleItems.Clear();          
+                colView.UnrealizeItem(item, false);
             }
+            VisibleItems.Clear();
 
             FirstVisible = 0;
             LastVisible = 0;
@@ -96,7 +93,7 @@ namespace Tizen.NUI.Components
             ViewItem sizeDeligate = colView.RealizeItem(firstIndex);   
             if (sizeDeligate == null)
             {
-                throw new ArgumentException("Cannot create content from DatTemplate.", nameof(colView));
+                throw new Exception("Cannot create content from DatTemplate.");
             }
             sizeDeligate.BindingContext = colView.InternalItemSource.GetItem(firstIndex);
 

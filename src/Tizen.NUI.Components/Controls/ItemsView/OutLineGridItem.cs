@@ -97,7 +97,7 @@ namespace Tizen.NUI.Components
         /// Icon image's resource url in OutLineGridItem.
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public string IconURL
+        public string IconUrl
         {
             get
             {

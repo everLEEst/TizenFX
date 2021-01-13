@@ -62,7 +62,7 @@ namespace Tizen.NUI.Components
         /// <summary>
         /// Visible ViewItem.
         /// </summary>
-        protected List<ViewItem> VisibleItems { get; set; } = new List<ViewItem>();
+        protected List<ViewItem> VisibleItems { get; } = new List<ViewItem>();
 
         /// <summary>
         /// Flag of layouter initialization.
@@ -117,15 +117,11 @@ namespace Tizen.NUI.Components
         [EditorBrowsable(EditorBrowsableState.Never)]
         public virtual void Clear()
         {
-            if (VisibleItems != null)
+            foreach (ViewItem item in VisibleItems)
             {
-                foreach (ViewItem item in VisibleItems)
-                {
-                    if (ItemsView != null) ItemsView.UnrealizeItem(item, false);
-                }
-                VisibleItems.Clear();
-                VisibleItems = null;
+                if (ItemsView != null) ItemsView.UnrealizeItem(item, false);
             }
+            VisibleItems.Clear();
             ItemsView = null;
             Container = null;
         }

@@ -274,11 +274,11 @@ namespace Tizen.NUI.Components
         public virtual void ScrollTo(object item, bool animate = false, ItemScrollTo align = ItemScrollTo.Nearest)
         {
             if (item == null) throw new ArgumentNullException(nameof(item));
-            if (ItemsLayouter == null) throw new ArgumentNullException(nameof(ItemsLayouter));
+            if (ItemsLayouter == null) throw new Exception("Item Layouter must exist.");
 
             if (InternalItemSource.GetPosition(item) == -1)
             {
-                throw new ArgumentException("ScrollTo parameter item is not a member of ItemsSource", nameof(item));
+                throw new Exception("ScrollTo parameter item is not a member of ItemsSource");
             }
 
             float scrollPos, curPos, curSize, curItemSize;
@@ -355,7 +355,7 @@ namespace Tizen.NUI.Components
                }
             }
 
-            object content = ItemTemplate.CreateContent() ?? throw new ArgumentNullException(nameof(content));
+            object content = ItemTemplate.CreateContent() ?? throw new Exception("Template return null object.");
             if (content is ViewItem)
             {
                 ViewItem item = (ViewItem)content;
@@ -365,7 +365,7 @@ namespace Tizen.NUI.Components
             }
             else
             {
-                throw new ArgumentException("Template content must be type of ViewItem", nameof(content));
+                throw new Exception("Template content must be type of ViewItem");
             }
 
         }
