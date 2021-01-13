@@ -261,9 +261,10 @@ namespace Tizen.NUI.Components
         /// Dispose ItemsLayouter and all children on it.
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public virtual void Dispose()
+        public void Dispose()
         {
             Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         /// <summary>
@@ -315,7 +316,7 @@ namespace Tizen.NUI.Components
             }
 
             disposed = true;
-            Clear();
+            if (disposing) Clear();
         }
     }
 }
