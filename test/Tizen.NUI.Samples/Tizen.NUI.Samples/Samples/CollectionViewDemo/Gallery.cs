@@ -5,14 +5,14 @@ using Tizen.NUI.Binding;
 
 class Gallery
 {
-    string sourceDir = Tizen.NUI.Samples.CommonResource.GetDaliResourcePath()+"ItemViewDemo/gallery/gallery-medium-";
-    public string Name { get; set; }
+    string _sourceDir = Tizen.NUI.Samples.CommonResource.GetDaliResourcePath()+"ItemViewDemo/gallery/gallery-medium-";
     private int _index;
     public Gallery(int index, string name)
     {
         _index = index;
         Name = name;
     }
+    public string Name { get; set; }
     public string ViewLabel
     {
         get
@@ -25,9 +25,11 @@ class Gallery
     {
         get
         {
-            return sourceDir+(_index%20)+".jpg";
+            return _sourceDir+(_index%20)+".jpg";
         }
     }
+
+    public bool Selected { set; get; }
 
 }
 class GalleryViewModel

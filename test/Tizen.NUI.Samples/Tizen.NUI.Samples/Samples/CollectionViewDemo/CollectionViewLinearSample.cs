@@ -8,6 +8,9 @@ namespace Tizen.NUI.Samples
     public class CollectionViewLinearSample : IExample
     {
         CollectionView colView;
+        int itemCount = 500;
+        string selectedItem;
+        ItemSelectionMode selMode;
         ViewItemStyle titleStyle = new ViewItemStyle()
         {
             Name = "titleStyle",
@@ -41,31 +44,42 @@ namespace Tizen.NUI.Samples
         {
             Window window = NUIApplication.GetDefaultWindow();
 
-            List<Gallery> myViewModelSource = new GalleryViewModel().CreateData(500);
+            List<Gallery> myViewModelSource = new GalleryViewModel().CreateData(itemCount);
+            selMode = ItemSelectionMode.SingleSelection;
+            SampleLinearTitleItem myTitle = new SampleLinearTitleItem(titleStyle);
+            myTitle.Text = "Linear Sample Count["+itemCount+"]";
+            myTitle.Label.PointSize = 20;
 
             colView = new CollectionView()
             {
                 ItemsSource = myViewModelSource,
                 ItemsLayouter = new LinearLayouter(),
-                ItemTemplate = new DataTemplate(() => {
+                ItemTemplate = new DataTemplate(() =>
+                {
                     SampleLinearItem item = new SampleLinearItem();
-                        item.Label.SetBinding(TextLabel.TextProperty, "ViewLabel");
-						item.Label.HorizontalAlignment=HorizontalAlignment.Begin;
-						item.LabelPadding = new Extents(5, 5, 5, 5);
-						item.Icon.SetBinding(ImageView.ResourceUrlProperty, "ImageUrl");
-						item.Icon.WidthSpecification = 90;
-						item.Icon.HeightSpecification = 90;
-						item.IconPadding = new Extents(4, 4, 4, 4);
+                    //Decorate Label
+                    item.Label.SetBinding(TextLabel.TextProperty, "ViewLabel");
+                    item.Label.HorizontalAlignment = HorizontalAlignment.Begin;
+                    item.LabelPadding = new Extents(10, 10, 10, 10);
+                    //Decorate Icon
+                    item.Icon.SetBinding(ImageView.ResourceUrlProperty, "ImageUrl");
+                    item.Icon.WidthSpecification = 90;
+                    item.Icon.HeightSpecification = 90;
+                    item.IconPadding = new Extents(20, 10, 10, 10);
+                    //Decorate Extra Radio Button
+                    item.Extra = new RadioButton();
+                    item.Extra.SetBinding(RadioButton.IsSelectedProperty, "Selected");
+                    item.Extra.WidthSpecification = 70;
+                    item.Extra.HeightSpecification = 70;
+                    item.ExtraPadding = new Extents(10, 20, 10, 10);
+
                     return item;
                 }),
-                Header = new SampleLinearTitleItem(titleStyle)
-                {
-                    Text = "Linear Layout Sample : [" + myViewModelSource.Count +"]"
-                },
+                Header = myTitle,
                 ScrollingDirection = ScrollableBase.Direction.Vertical,
                 WidthSpecification = LayoutParamPolicies.MatchParent,
                 HeightSpecification = LayoutParamPolicies.MatchParent,
-				SelectionMode = ItemSelectionMode.SingleSelection
+				SelectionMode = selMode
             };
             colView.SelectionChanged += SelectionEvt;
 
@@ -77,11 +91,27 @@ namespace Tizen.NUI.Samples
         {
             foreach (object item in ev.PreviousSelection)
             {
-                Tizen.Log.Debug("Unselected: {0}", (item as Gallery)?.ViewLabel);
+                if (item is Gallery galItem)
+                {
+                    galItem.Selected = false;
+                    selectedItem = null;
+                    Tizen.Log.Debug("Unselected: {0}", galItem.ViewLabel);
+                }
+                else continue;
             }
             foreach (object item in ev.CurrentSelection)
             {
-                Tizen.Log.Debug("Selected: {0}", (item as Gallery)?.ViewLabel);
+                if (item is Gallery galItem)
+                {
+                    galItem.Selected = true;
+                    selectedItem = galItem.Name;
+                    Tizen.Log.Debug("Selected: {0}", galItem.ViewLabel);
+                }
+                else continue;
+            }
+            if (colView.Header != null && colView.Header is SampleLinearTitleItem title)
+            {
+                title.Text = "Linear Sample Count["+itemCount+(selectedItem!=null ? "] Selected ["+selectedItem +"]" : "]");
             }
         }
         public void Deactivate()

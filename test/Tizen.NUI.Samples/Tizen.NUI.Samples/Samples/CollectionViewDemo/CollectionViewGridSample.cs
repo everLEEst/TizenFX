@@ -8,6 +8,9 @@ namespace Tizen.NUI.Samples
     public class CollectionViewGridSample : IExample
     {
         CollectionView colView;
+        int itemCount = 500;
+        int selectedCount;
+        ItemSelectionMode selMode;
         ViewItemStyle titleStyle = new ViewItemStyle()
         {
             Name = "titleStyle",
@@ -41,49 +44,88 @@ namespace Tizen.NUI.Samples
         {
             Window window = NUIApplication.GetDefaultWindow();
 
-            List<Gallery> myViewModelSource = new GalleryViewModel().CreateData(500);
+            List<Gallery> myViewModelSource = new GalleryViewModel().CreateData(itemCount);
+            selMode = ItemSelectionMode.MultipleSelections;
+            SampleGridTitleItem myTitle = new SampleGridTitleItem(titleStyle);
+            myTitle.Text = "Grid Sample Count["+itemCount+"] Selected["+selectedCount+"]";
+            myTitle.Label.PointSize = 20;
 
             colView = new CollectionView()
             {
                 ItemsSource = myViewModelSource,
                 ItemsLayouter = new GridLayouter(),
-                ItemTemplate = new DataTemplate(() => {
+                ItemTemplate = new DataTemplate(() =>
+                {
                     SampleGridItem item = new SampleGridItem();
-                        item.Label.SetBinding(TextLabel.TextProperty, "ViewLabel");
-						item.Label.HorizontalAlignment=HorizontalAlignment.Center;
-						item.LabelPadding = new Extents(5, 5, 5, 5);
-						item.Icon.SetBinding(ImageView.ResourceUrlProperty, "ImageUrl");
-						item.Icon.WidthSpecification = 170;
-						item.Icon.HeightSpecification = 170;
-						item.IconPadding = new Extents(5, 5, 5, 5);
+                    //Decorate Label
+                    item.Label.SetBinding(TextLabel.TextProperty, "ViewLabel");
+                    item.Label.HorizontalAlignment = HorizontalAlignment.Center;
+                    item.LabelPadding = new Extents(5, 5, 5, 5);
+                    //Decorate Image
+                    item.Image.SetBinding(ImageView.ResourceUrlProperty, "ImageUrl");
+                    item.Image.WidthSpecification = 170;
+                    item.Image.HeightSpecification = 170;
+                    item.ImagePadding = new Extents(5, 5, 5, 5);
+                    //Decorate Badge checkbox.
+                    //[NOTE] This is sample of CheckBox usage in CollectionView.
+                    // Checkbox change their selection by IsSelectedProperty bindings with
+                    // SelectionChanged event with MulitpleSelections ItemSelectionMode of CollectionView.
+                    item.Badge = new CheckBox();
+                    item.Badge.SetBinding(CheckBox.IsSelectedProperty, "Selected");
+                    item.Badge.WidthSpecification = 30;
+                    item.Badge.HeightSpecification = 30;
+                    item.BadgePadding = new Extents(2, 2, 2, 2);
+
                     return item;
                 }),
-                Header = new SampleGridTitleItem(titleStyle)
-                {
-                    Text = "Grid Layout Sample : [" + myViewModelSource.Count +"]"
-                },
+                Header = myTitle,
                 ScrollingDirection = ScrollableBase.Direction.Vertical,
                 WidthSpecification = LayoutParamPolicies.MatchParent,
                 HeightSpecification = LayoutParamPolicies.MatchParent,
-				SelectionMode = ItemSelectionMode.SingleSelection
+				SelectionMode = selMode
             };
             colView.SelectionChanged += SelectionEvt;
 
             window.Add(colView);
-
         }
 
         public void SelectionEvt(object sender, SelectionChangedEventArgs ev)
         {
-            foreach (object item in ev.PreviousSelection)
+            List<object> oldSel = new List<object>(ev.PreviousSelection);
+            List<object> newSel = new List<object>(ev.CurrentSelection);
+
+            foreach (object item in oldSel)
             {
-                Tizen.Log.Debug("Unselected: {0}", (item as Gallery)?.ViewLabel);
+                if (item is Gallery galItem)
+                {
+                    if (!(newSel.Contains(item)))
+                    {
+                        galItem.Selected = false;
+                        Tizen.Log.Debug("Unselected: {0}", galItem.ViewLabel);
+                        selectedCount--;
+                    }
+                }
+                else continue;
             }
-            foreach (object item in ev.CurrentSelection)
+            foreach (object item in newSel)
             {
-                Tizen.Log.Debug("Selected: {0}", (item as Gallery)?.ViewLabel);
+                if (item is Gallery galItem)
+                {
+                    if (!(oldSel.Contains(item)))
+                    {
+                        galItem.Selected = true;
+                        Tizen.Log.Debug("Selected: {0}", galItem.ViewLabel);
+                        selectedCount++;
+                    }
+                }
+                else continue;
+            }
+            if (colView.Header != null && colView.Header is SampleGridTitleItem title)
+            {
+                title.Text = "Grid Sample Count["+itemCount+"] Selected["+selectedCount+"]";
             }
         }
+
         public void Deactivate()
         {
             if (colView != null)

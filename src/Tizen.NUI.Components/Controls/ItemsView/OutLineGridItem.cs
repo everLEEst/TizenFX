@@ -30,16 +30,28 @@ namespace Tizen.NUI.Components
     public class OutLineGridItem : ViewItem
     {
         /// <summary>
-        /// Extents padding around Icon
+        /// Extents padding around Image
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public static readonly BindableProperty IconPaddingProperty = BindableProperty.Create(nameof(IconPadding), typeof(Extents), typeof(OutLineGridItem), null, propertyChanged: (bindable, oldValue, newValue) =>
+        public static readonly BindableProperty ImagePaddingProperty = BindableProperty.Create(nameof(ImagePadding), typeof(Extents), typeof(OutLineGridItem), null, propertyChanged: (bindable, oldValue, newValue) =>
         {
             var instance = (OutLineGridItem)bindable;
             instance.iconPadding = (Extents)((Extents)newValue).Clone();
             instance.UpdateContent();
         },
         defaultValueCreator: (bindable) => ((OutLineGridItem)bindable).iconPadding);
+
+        /// <summary>
+        /// Extents padding around badge from the icon top-right edge.
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static readonly BindableProperty BadgePaddingProperty = BindableProperty.Create(nameof(BadgePadding), typeof(Extents), typeof(OutLineGridItem), null, propertyChanged: (bindable, oldValue, newValue) =>
+        {
+            var instance = (OutLineGridItem)bindable;
+            instance.badgePadding = (Extents)((Extents)newValue).Clone();
+            instance.UpdateContent();
+        },
+        defaultValueCreator: (bindable) => ((OutLineGridItem)bindable).badgePadding);
 
         /// <summary>
         /// Extents padding around Label
@@ -53,9 +65,11 @@ namespace Tizen.NUI.Components
         },
         defaultValueCreator: (bindable) => ((OutLineGridItem)bindable).labelPadding);
 
+        private ImageView itemImage;
+        private View itemBadge;
         private TextLabel itemText;
-        private ImageView itemIcon;
         private Extents iconPadding;
+        private Extents badgePadding;
         private Extents labelPadding;
         static OutLineGridItem() {}
 
@@ -92,41 +106,64 @@ namespace Tizen.NUI.Components
         /// OutLineGridItem's icon part.
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public ImageView Icon
+        public ImageView Image
         {
             get
             {
-                if ( itemIcon == null)
+                if ( itemImage == null)
                 {
-                    itemIcon = CreateIcon();
-                    if (itemIcon != null)
+                    itemImage = CreateImage();
+                    if (itemImage != null)
                     {
-                        Add(itemIcon);
-                        itemIcon.Relayout += OnIconRelayout;
+                        Add(itemImage);
+                        itemImage.Relayout += OnImageRelayout;
                     }
                 }
-                return itemIcon;
+                return itemImage;
             }
             internal set
             {
-                itemIcon = value;
+                itemImage = value;
+            }
+        }
+
+
+        /// <summary>
+        /// OutLineGridItem's badge object. will be placed in right-top edge.
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public View Badge
+        {
+            get
+            {
+                return itemBadge;
+
+            }
+            set
+            {
+                if (value == null)
+                {
+                    Remove(itemBadge);
+                }
+                itemBadge = value;
+                Add(itemBadge);
             }
         }
 
 /* open when ImageView using Uri not string
         /// <summary>
-        /// Icon image's resource url in OutLineGridItem.
+        /// Image image's resource url in OutLineGridItem.
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public string IconUrl
+        public string ImageUrl
         {
             get
             {
-                return Icon.ResourceUrl;
+                return Image.ResourceUrl;
             }
             set
             {
-                Icon.ResourceUrl = value;
+                Image.ResourceUrl = value;
             }
         }
 */
@@ -173,14 +210,21 @@ namespace Tizen.NUI.Components
         }
 
         /// <summary>
-        /// Icon padding in ViewItem, work only when show icon and text.
+        /// Image padding in ViewItem, work only when show icon and text.
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public Extents IconPadding
+        public Extents ImagePadding
         {
-            get => (Extents)GetValue(IconPaddingProperty) ?? new Extents();
-            set => SetValue(IconPaddingProperty, value);
+            get => (Extents)GetValue(ImagePaddingProperty) ?? new Extents();
+            set => SetValue(ImagePaddingProperty, value);
         }
+
+        /// <summary>
+        /// Image padding in ViewItem, work only when show icon and text.
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public Extents BadgePadding { get; set; }
+
 
         /// <summary>
         /// Text padding in ViewItem, work only when show icon and text.
@@ -205,7 +249,7 @@ namespace Tizen.NUI.Components
                 ParentOrigin = NUI.ParentOrigin.BottomCenter,
                 PivotPoint = NUI.PivotPoint.BottomCenter,
                 WidthResizePolicy = ResizePolicyType.FillToParent,
-                HeightResizePolicy = ResizePolicyType.FillToParent,
+                HeightResizePolicy = ResizePolicyType.FitToChildren,
                 HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center
             };
@@ -216,13 +260,13 @@ namespace Tizen.NUI.Components
         /// </summary>
         /// <return>The created Item's icon part.</return>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        protected virtual ImageView CreateIcon()
+        protected virtual ImageView CreateImage()
         {
             return new ImageView
             {
                 PositionUsesPivotPoint = true,
-                ParentOrigin = NUI.ParentOrigin.TopCenter,
-                PivotPoint = NUI.PivotPoint.TopCenter
+                ParentOrigin = NUI.ParentOrigin.Center,
+                PivotPoint = NUI.PivotPoint.Center
             };
         }
 
@@ -230,7 +274,7 @@ namespace Tizen.NUI.Components
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected override void MeasureChild()
         {
-            if (itemIcon == null || itemText == null)
+            if (itemImage == null || itemText == null)
             {
                 return;
             }
@@ -243,51 +287,52 @@ namespace Tizen.NUI.Components
             int labelPaddingTop = labelPadding.Top;
             int labelPaddingBottom = labelPadding.Bottom;
 
-            var iconPadding = IconPadding;
+            var iconPadding = ImagePadding;
             int iconPaddingStart = iconPadding.Start;
             int iconPaddingEnd = iconPadding.End;
             int iconPaddingTop = iconPadding.Top;
             int iconPaddingBottom = iconPadding.Bottom;
 
             itemText.SizeWidth = SizeWidth - labelPaddingStart - labelPaddingEnd;
-            itemText.SizeHeight = SizeHeight - labelPaddingTop - labelPaddingBottom - iconPaddingTop - iconPaddingBottom - itemIcon.SizeHeight;
+            itemText.SizeHeight = SizeHeight - labelPaddingTop - labelPaddingBottom - iconPaddingTop - iconPaddingBottom - itemImage.SizeHeight;
         }
 
         /// <inheritdoc/>
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected override void LayoutChild()
         {
-            if (itemIcon == null || itemText == null)
+            if (itemImage == null || itemText == null)
             {
                 return;
             }
 
             var labelPadding = LabelPadding;
-            int labelPaddingStart = labelPadding.Start;
-            int labelPaddingEnd = labelPadding.End;
-            int labelPaddingTop = labelPadding.Top;
-            int labelPaddingBottom = labelPadding.Bottom;
+            var iconPadding = ImagePadding;
+            var badgePadding = BadgePadding;
 
-            var iconPadding = IconPadding;
-            int iconPaddingStart = iconPadding.Start;
-            int iconPaddingEnd = iconPadding.End;
-            int iconPaddingTop = iconPadding.Top;
-            int iconPaddingBottom = iconPadding.Bottom;
-
-            itemIcon.PositionUsesPivotPoint = true;
-            itemIcon.ParentOrigin = NUI.ParentOrigin.TopCenter;
-            itemIcon.PivotPoint = NUI.PivotPoint.TopCenter;
-            itemIcon.Position2D = new Position2D(0, iconPaddingTop);
+            itemImage.PositionUsesPivotPoint = true;
+            itemImage.ParentOrigin = NUI.ParentOrigin.TopCenter;
+            itemImage.PivotPoint = NUI.PivotPoint.TopCenter;
+            itemImage.Position2D = new Position2D(0, iconPadding.Top);
 
             itemText.PositionUsesPivotPoint = true;
             itemText.ParentOrigin = NUI.ParentOrigin.BottomCenter;
             itemText.PivotPoint = NUI.PivotPoint.BottomCenter;
-            itemText.Position2D = new Position2D(0, -labelPaddingBottom);
+            itemText.Position2D = new Position2D(0, -labelPadding.Bottom);
+
+            if (itemBadge)
+            {
+                itemBadge.PositionUsesPivotPoint = true;
+                itemBadge.ParentOrigin = NUI.ParentOrigin.TopRight;
+                itemBadge.PivotPoint = NUI.PivotPoint.TopRight;
+                itemBadge.RaiseAbove(itemImage);
+                itemBadge.Position2D = new Position2D(-(badgePadding.End + iconPadding.End), (badgePadding.Top + iconPadding.Top));
+            }
 
            if (string.IsNullOrEmpty(itemText.Text))
             {
-                itemIcon.ParentOrigin = NUI.ParentOrigin.Center;
-                itemIcon.PivotPoint = NUI.PivotPoint.Center;
+                itemImage.ParentOrigin = NUI.ParentOrigin.Center;
+                itemImage.PivotPoint = NUI.PivotPoint.Center;
             }
         }
 
@@ -314,9 +359,9 @@ namespace Tizen.NUI.Components
             {
                 //Extension : Extension?.OnDispose(this);
 
-                if (itemIcon != null)
+                if (itemImage != null)
                 {
-                    Utility.Dispose(itemIcon);
+                    Utility.Dispose(itemImage);
                 }
                 if (itemText != null)
                 {
@@ -332,7 +377,7 @@ namespace Tizen.NUI.Components
             MeasureChild();
             LayoutChild();
         }
-        private void OnIconRelayout(object sender, EventArgs e)
+        private void OnImageRelayout(object sender, EventArgs e)
         {
             MeasureChild();
             LayoutChild();

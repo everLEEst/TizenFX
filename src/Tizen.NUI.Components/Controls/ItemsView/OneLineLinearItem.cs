@@ -52,11 +52,25 @@ namespace Tizen.NUI.Components
             instance.UpdateContent();
         },
         defaultValueCreator: (bindable) => ((OneLineLinearItem)bindable).labelPadding);
+       
+        /// <summary>
+        /// Extents padding around extra icon
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static readonly BindableProperty ExtraPaddingProperty = BindableProperty.Create(nameof(ExtraPadding), typeof(Extents), typeof(OneLineLinearItem), null, propertyChanged: (bindable, oldValue, newValue) =>
+        {
+            var instance = (OneLineLinearItem)bindable;
+            instance.extraPadding = (Extents)((Extents)newValue).Clone();
+            instance.UpdateContent();
+        },
+        defaultValueCreator: (bindable) => ((OneLineLinearItem)bindable).extraPadding);
 
-        private TextLabel itemLabel;
         private View itemIcon;
+        private TextLabel itemLabel;
+        private View itemExtra;
         private Extents iconPadding;
         private Extents labelPadding;
+        private Extents extraPadding;
 
         static OneLineLinearItem() {}
 
@@ -108,7 +122,7 @@ namespace Tizen.NUI.Components
                 }
                 return itemIcon;
             }
-            internal set
+            set
             {
                 itemIcon = value;
             }
@@ -179,6 +193,33 @@ namespace Tizen.NUI.Components
         }
 
         /// <summary>
+        /// Extra icon part of OneLineLinearItem. it will place next of label.
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public View Extra
+        {
+            get
+            {
+                if (itemExtra == null)
+                {
+                    itemExtra = CreateIcon();
+                    if (itemExtra != null)
+                    {
+                        Add(itemExtra);
+                        itemExtra.Relayout += OnExtraRelayout;
+                    }
+                }
+                return itemExtra;
+            }
+            set
+            {
+                if (itemExtra != null) Remove(itemExtra);
+                itemExtra = value;
+                Add(itemExtra);
+            }
+        }
+
+        /// <summary>
         /// Icon padding in OneLineLinearItem, work only when show icon and text.
         /// </summary>
        [EditorBrowsable(EditorBrowsableState.Never)]
@@ -197,6 +238,17 @@ namespace Tizen.NUI.Components
             get => (Extents)GetValue(LabelPaddingProperty) ?? new Extents();
             set => SetValue(LabelPaddingProperty, value);
         }
+
+        /// <summary>
+        /// Extra padding in OneLineLinearItem, work only when show extra and text.
+        /// </summary>
+       [EditorBrowsable(EditorBrowsableState.Never)]
+        public Extents ExtraPadding
+        {
+            get => (Extents)GetValue(ExtraPaddingProperty) ?? new Extents();
+            set => SetValue(ExtraPaddingProperty, value);
+        }
+
 
         /// <summary>
         /// Creates Item's text part.
@@ -236,7 +288,7 @@ namespace Tizen.NUI.Components
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected override void MeasureChild()
         {
-            if (itemIcon == null || itemLabel == null)
+            if (itemLabel == null)
             {
                 return;
             }
@@ -244,71 +296,84 @@ namespace Tizen.NUI.Components
             itemLabel.HeightResizePolicy = ResizePolicyType.Fixed;
 
             var labelPadding = LabelPadding;
-            int labelPaddingStart = labelPadding.Start;
-            int labelPaddingEnd = labelPadding.End;
-            int labelPaddingTop = labelPadding.Top;
-            int labelPaddingBottom = labelPadding.Bottom;
-
             var iconPadding = IconPadding;
-            int iconPaddingStart = iconPadding.Start;
-            int iconPaddingEnd = iconPadding.End;
-            int iconPaddingTop = iconPadding.Top;
-            int iconPaddingBottom = iconPadding.Bottom;
+            var extraPadding = ExtraPadding;
 
-            itemLabel.SizeWidth = SizeWidth - labelPaddingStart - labelPaddingEnd - iconPaddingStart - iconPaddingEnd - itemIcon.SizeWidth;
-            itemLabel.SizeHeight = SizeHeight - labelPaddingTop - labelPaddingBottom;
+            var iconSize = (itemIcon?.SizeWidth ?? 0) + iconPadding.Start + iconPadding.End;
+            var extraSize = (itemExtra?.SizeWidth ?? 0) + extraPadding.Start + extraPadding.End;
+
+            itemLabel.SizeWidth = SizeWidth - labelPadding.Start - labelPadding.End - iconSize - extraSize;
+            itemLabel.SizeHeight = SizeHeight - labelPadding.Top - labelPadding.Bottom;
         }
 
         /// <inheritdoc/>
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected override void LayoutChild()
         {
-            if (itemIcon == null || itemLabel == null)
+            if (itemLabel == null)
             {
                 return;
             }
 
             var labelPadding = LabelPadding;
-            int labelPaddingStart = labelPadding.Start;
-            int labelPaddingEnd = labelPadding.End;
-            int labelPaddingTop = labelPadding.Top;
-            int labelPaddingBottom = labelPadding.Bottom;
-
             var iconPadding = IconPadding;
-            int iconPaddingStart = iconPadding.Start;
-            int iconPaddingEnd = iconPadding.End;
-            int iconPaddingTop = iconPadding.Top;
-            int iconPaddingBottom = iconPadding.Bottom;
 
-            if (LayoutDirection == ViewLayoutDirectionType.LTR)
+            if (itemIcon == null && itemExtra == null ||
+                itemIcon != null && itemExtra != null)
             {
-                itemIcon.PositionUsesPivotPoint = true;
-                itemIcon.ParentOrigin = NUI.ParentOrigin.CenterLeft;
-                itemIcon.PivotPoint = NUI.PivotPoint.CenterLeft;
-                itemIcon.Position2D = new Position2D(iconPaddingStart, 0);
-
                 itemLabel.PositionUsesPivotPoint = true;
-                itemLabel.ParentOrigin = NUI.ParentOrigin.CenterRight;
-                itemLabel.PivotPoint = NUI.PivotPoint.CenterRight;
-                itemLabel.Position2D = new Position2D(-labelPaddingEnd, 0);
+                itemLabel.ParentOrigin = NUI.ParentOrigin.Center;
+                itemLabel.PivotPoint = NUI.PivotPoint.Center;
+                itemLabel.Position2D = new Position2D(0, 0);
+
+                if (itemIcon != null && itemExtra != null)
+                {
+                    itemIcon.PositionUsesPivotPoint = true;
+                    itemIcon.ParentOrigin = NUI.ParentOrigin.CenterLeft;
+                    itemIcon.PivotPoint = NUI.PivotPoint.CenterLeft;
+                    itemIcon.Position2D = new Position2D(iconPadding.Start, 0);
+
+                    itemExtra.PositionUsesPivotPoint = true;
+                    itemExtra.ParentOrigin = NUI.ParentOrigin.CenterRight;
+                    itemExtra.PivotPoint = NUI.PivotPoint.CenterRight;
+                    itemExtra.Position2D = new Position2D(-extraPadding.End, 0);
+                }
             }
             else
             {
-                itemIcon.PositionUsesPivotPoint = true;
-                itemIcon.ParentOrigin = NUI.ParentOrigin.CenterRight;
-                itemIcon.PivotPoint = NUI.PivotPoint.CenterRight;
-                itemIcon.Position2D = new Position2D(-iconPaddingStart, 0);
+                if (itemIcon != null)
+                {
+                    itemIcon.PositionUsesPivotPoint = true;
+                    itemIcon.ParentOrigin = NUI.ParentOrigin.CenterLeft;
+                    itemIcon.PivotPoint = NUI.PivotPoint.CenterLeft;
+                    itemIcon.Position2D = new Position2D(iconPadding.Start, 0);
 
-                itemLabel.PositionUsesPivotPoint = true;
-                itemLabel.ParentOrigin = NUI.ParentOrigin.CenterLeft;
-                itemLabel.PivotPoint = NUI.PivotPoint.CenterLeft;
-                itemLabel.Position2D = new Position2D(labelPaddingEnd, 0);
+                    itemLabel.PositionUsesPivotPoint = true;
+                    itemLabel.ParentOrigin = NUI.ParentOrigin.CenterRight;
+                    itemLabel.PivotPoint = NUI.PivotPoint.CenterRight;
+                    itemLabel.Position2D = new Position2D(-labelPadding.End, 0);
+                }
+                else if (itemExtra != null)
+                {
+                    itemLabel.PositionUsesPivotPoint = true;
+                    itemLabel.ParentOrigin = NUI.ParentOrigin.CenterLeft;
+                    itemLabel.PivotPoint = NUI.PivotPoint.CenterLeft;
+                    itemLabel.Position2D = new Position2D(labelPadding.Start, 0);
+
+                    itemExtra.PositionUsesPivotPoint = true;
+                    itemExtra.ParentOrigin = NUI.ParentOrigin.CenterRight;
+                    itemExtra.PivotPoint = NUI.PivotPoint.CenterRight;
+                    itemExtra.Position2D = new Position2D(-extraPadding.End, 0);
+                }
             }
 
             if (string.IsNullOrEmpty(itemLabel.Text))
             {
-                itemIcon.ParentOrigin = NUI.ParentOrigin.Center;
-                itemIcon.PivotPoint = NUI.PivotPoint.Center;
+                if (itemIcon != null && itemExtra == null)
+                {
+                    itemIcon.ParentOrigin = NUI.ParentOrigin.Center;
+                    itemIcon.PivotPoint = NUI.PivotPoint.Center;
+                }
             }
         }
 
@@ -356,6 +421,11 @@ namespace Tizen.NUI.Components
         }
 
         private void OnIconRelayout(object sender, EventArgs e)
+        {
+            MeasureChild();
+            LayoutChild();
+        }
+        private void OnExtraRelayout(object sender, EventArgs e)
         {
             MeasureChild();
             LayoutChild();

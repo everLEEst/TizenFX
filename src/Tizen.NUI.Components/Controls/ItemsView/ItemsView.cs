@@ -38,58 +38,6 @@ namespace Tizen.NUI.Components
             Scrolling += OnScrolling;
         }
 
-        /// <summary>
-        /// Base Constructor with itemsSource
-        /// </summary>
-        /// <param name="itemsSource">item's data source</param>
-       [EditorBrowsable(EditorBrowsableState.Never)]
-        public ItemsView(IEnumerable itemsSource) : this()
-        {
-            ItemsSource = itemsSource;
-        }
-
-        /// <summary>
-        /// Base Constructor with itemsSource
-        /// </summary>
-        /// <param name="itemsSource">item's data source</param>
-        /// <param name="layouter">item's layout manager</param>
-        /// <param name="template">item's view template with data bindings</param>
-       [EditorBrowsable(EditorBrowsableState.Never)]
-        public ItemsView(IEnumerable itemsSource, ItemsLayouter layouter, DataTemplate template) : this()
-        {
-            ItemsSource = itemsSource;
-            ItemTemplate = template;
-            ItemsLayouter = layouter;
-
-            Scrolling += OnScrolling;
-        }
-
-        /// <summary>
-        /// Align item in the viewport when ScrollTo() calls.
-        /// </summary>
-       [EditorBrowsable(EditorBrowsableState.Never)]
-        public enum ItemScrollTo
-        {
-            /// <summary>
-            /// Scroll to show item in nearest viewport on scroll direction.
-            /// item is above the scroll viewport, item will be came into front,
-            /// item is under the scroll viewport, item will be came into end,
-            /// item is in the scroll viewport, no scroll.
-            /// </summary>
-            Nearest,
-            /// <summary>
-            /// Scroll to show item in start of the viewport.
-            /// </summary>
-            Start,
-            /// <summary>
-            /// Scroll to show item in center of the viewport.
-            /// </summary>
-            Center,
-            /// <summary>
-            /// Scroll to show item in end of the viewport.
-            /// </summary>
-            End,
-        }
 
         /// <summary>
         /// Item's source data.
@@ -104,12 +52,6 @@ namespace Tizen.NUI.Components
         public virtual DataTemplate ItemTemplate { get; set; }
 
         /// <summary>
-        /// Items Layouter.
-        /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public virtual ItemsLayouter ItemsLayouter { get; set; }
-
-        /// <summary>
         /// Internal encapsulated items data source.
         /// </summary>
         internal IItemSource InternalItemSource { get; set;}
@@ -118,6 +60,12 @@ namespace Tizen.NUI.Components
         /// RecycleCache of ViewItem.
         /// </summary>
         protected List<ViewItem> RecycleCache { get; } = new List<ViewItem>();
+
+        /// <summary>
+        /// Internal Items Layouter.
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        protected ItemsLayouter InternalItemsLayouter {get; set; }
             
         /// <summary>
         /// Max size of RecycleCache. Default is 50.
@@ -131,10 +79,10 @@ namespace Tizen.NUI.Components
         {
             //Console.WriteLine("LSH :: On ReLayout [{0} {0}]", size.X, size.Y);
             base.OnRelayout(size, container);
-            if (ItemsLayouter != null && ItemsSource != null && ItemTemplate != null) 
+            if (InternalItemsLayouter != null && ItemsSource != null && ItemTemplate != null) 
             {
-                ItemsLayouter.Initialize(this);
-                ItemsLayouter.RequestLayout(ScrollingDirection == Direction.Horizontal ? ContentContainer.CurrentPosition.X : ContentContainer.CurrentPosition.Y, true);
+                InternalItemsLayouter.Initialize(this);
+                InternalItemsLayouter.RequestLayout(ScrollingDirection == Direction.Horizontal ? ContentContainer.CurrentPosition.X : ContentContainer.CurrentPosition.Y, true);
             }
         }
 
@@ -144,18 +92,18 @@ namespace Tizen.NUI.Components
         public void NotifyDataSetChanged()
         {
             //Need to update view.
-            if (ItemsLayouter != null)
+            if (InternalItemsLayouter != null)
             {
-                ItemsLayouter.NotifyDataSetChanged();
+                InternalItemsLayouter.NotifyDataSetChanged();
                 if (ScrollingDirection == Direction.Horizontal)
                 {
                     ContentContainer.SizeWidth =
-                        ItemsLayouter.CalculateLayoutOrientationSize();
+                        InternalItemsLayouter.CalculateLayoutOrientationSize();
                 }
                 else
                 {
                     ContentContainer.SizeHeight =
-                        ItemsLayouter.CalculateLayoutOrientationSize();
+                        InternalItemsLayouter.CalculateLayoutOrientationSize();
                 }
             }
         }
@@ -167,9 +115,9 @@ namespace Tizen.NUI.Components
         [EditorBrowsable(EditorBrowsableState.Never)]
         public void NotifyItemChanged(IItemSource source, int startIndex)
         {
-            if (ItemsLayouter != null)
+            if (InternalItemsLayouter != null)
             {
-                ItemsLayouter.NotifyItemChanged(source, startIndex);
+                InternalItemsLayouter.NotifyItemChanged(source, startIndex);
             }
         }
 
@@ -180,9 +128,9 @@ namespace Tizen.NUI.Components
         [EditorBrowsable(EditorBrowsableState.Never)]
         public void NotifyItemInserted(IItemSource source, int startIndex)
         {
-            if (ItemsLayouter != null)
+            if (InternalItemsLayouter != null)
             {
-                ItemsLayouter.NotifyItemInserted(source, startIndex);
+                InternalItemsLayouter.NotifyItemInserted(source, startIndex);
             }
         }
 
@@ -194,9 +142,9 @@ namespace Tizen.NUI.Components
         [EditorBrowsable(EditorBrowsableState.Never)]
         public void NotifyItemMoved(IItemSource source, int fromPosition, int toPosition)
         {
-            if (ItemsLayouter != null)
+            if (InternalItemsLayouter != null)
             {
-                ItemsLayouter.NotifyItemMoved(source, fromPosition, toPosition);
+                InternalItemsLayouter.NotifyItemMoved(source, fromPosition, toPosition);
             }
         }
 
@@ -208,9 +156,9 @@ namespace Tizen.NUI.Components
         [EditorBrowsable(EditorBrowsableState.Never)]
         public void NotifyItemRangeChanged(IItemSource source, int start, int end)
         {
-            if (ItemsLayouter != null)
+            if (InternalItemsLayouter != null)
             {
-                ItemsLayouter.NotifyItemRangeChanged(source, start, end);
+                InternalItemsLayouter.NotifyItemRangeChanged(source, start, end);
             }
         }
 
@@ -222,9 +170,9 @@ namespace Tizen.NUI.Components
         [EditorBrowsable(EditorBrowsableState.Never)]
         public void NotifyItemRangeInserted(IItemSource source, int startIndex, int count)
         {
-            if (ItemsLayouter != null)
+            if (InternalItemsLayouter != null)
             {
-                ItemsLayouter.NotifyItemRangeInserted(source, startIndex, count);
+                InternalItemsLayouter.NotifyItemRangeInserted(source, startIndex, count);
             }
         }
 
@@ -236,9 +184,9 @@ namespace Tizen.NUI.Components
         [EditorBrowsable(EditorBrowsableState.Never)]
         public void NotifyItemRangeRemoved(IItemSource source, int startIndex, int count)
         {
-            if (ItemsLayouter != null)
+            if (InternalItemsLayouter != null)
             {
-                ItemsLayouter.NotifyItemRangeRemoved(source, startIndex, count);
+                InternalItemsLayouter.NotifyItemRangeRemoved(source, startIndex, count);
             }
         }
 
@@ -249,89 +197,11 @@ namespace Tizen.NUI.Components
         [EditorBrowsable(EditorBrowsableState.Never)]
         public void NotifyItemRemoved(IItemSource source, int startIndex)
         {
-            if (ItemsLayouter != null)
+            if (InternalItemsLayouter != null)
             {
-                ItemsLayouter.NotifyItemRemoved(source, startIndex);
+                InternalItemsLayouter.NotifyItemRemoved(source, startIndex);
             }
         }
-
-        /// <summary>
-        /// Scroll to position.
-        /// </summary>
-        /// <param name="position"></param>
-        /// <param name="animate"></param>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public new void ScrollTo(float position, bool animate) => base.ScrollTo(position, animate);
-        
-
-        /// <summary>
-        /// Scroll to item
-        /// </summary>
-        /// <param name="item"></param>
-        /// <param name="animate"></param>
-        /// <param name="align"></param>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public virtual void ScrollTo(object item, bool animate = false, ItemScrollTo align = ItemScrollTo.Nearest)
-        {
-            if (item == null) throw new ArgumentNullException(nameof(item));
-            if (ItemsLayouter == null) throw new Exception("Item Layouter must exist.");
-
-            if (InternalItemSource.GetPosition(item) == -1)
-            {
-                throw new Exception("ScrollTo parameter item is not a member of ItemsSource");
-            }
-
-            float scrollPos, curPos, curSize, curItemSize;
-            (float X, float Y) itemPos = ItemsLayouter.GetItemPosition(item);
-            (float X, float Y) itemSize = ItemsLayouter.GetItemSize(item);
-            if (ScrollingDirection == Direction.Horizontal)
-            {
-                scrollPos = itemPos.X;
-                curPos = ScrollPosition.X;
-                curSize = Size.Width;
-                curItemSize = itemSize.X;
-            }
-            else
-            {
-                scrollPos = itemPos.Y;
-                curPos = ScrollPosition.Y;
-                curSize = Size.Height;
-                curItemSize = itemSize.Y;
-            }
-
-            //Console.WriteLine("LSH :: ScrollTo [{0}:{1}], curPos{2}, itemPos{3}, curSize{4}, itemSize{5}", InternalItemSource.GetPosition(item), align, curPos, scrollPos, curSize, curItemSize);
-            switch (align)
-            {
-                case ItemScrollTo.Start:
-                    //nothing necessary.
-                break;
-                case ItemScrollTo.Center:
-                    scrollPos = scrollPos - (curSize / 2) + (curItemSize / 2);
-                break;
-                case ItemScrollTo.End:
-                    scrollPos = scrollPos - curSize + curItemSize;
-                break;
-                case ItemScrollTo.Nearest:
-                    if (scrollPos < curPos - curItemSize)
-                    {
-                        // item is placed before the current screen. scrollTo.Top
-                    }
-                    else if (scrollPos >= curPos + curSize + curItemSize)
-                    {
-                        // item is placed after the current screen. scrollTo.End
-                        scrollPos = scrollPos - curSize + curItemSize;
-                    }
-                    else
-                    {
-                        // item is in the scroller. ScrollTo() is ignored.
-                        return;
-                    }
-                break;
-            }
-
-            //Console.WriteLine("LSH :: ScrollTo [{0}]-------------------", scrollPos);
-            base.ScrollTo(scrollPos, animate);
-        }        
 
         /// <summary>
         /// Realize indexed item.
@@ -395,7 +265,6 @@ namespace Tizen.NUI.Components
             }
         }
 
-
         /// <summary>
         /// Adjust scrolling position by own scrolling rules.
         /// Override this function when developer wants to change destination of flicking.(e.g. always snap to center of item)
@@ -407,7 +276,7 @@ namespace Tizen.NUI.Components
         {
             // Destination is depending on implementation of layout manager.
             // Get destination from layout manager.
-            return ItemsLayouter.CalculateCandidateScrollPosition(position);
+            return InternalItemsLayouter.CalculateCandidateScrollPosition(position);
         }
 
         /// <summary>
@@ -453,10 +322,10 @@ namespace Tizen.NUI.Components
         protected virtual void OnScrolling(object source, ScrollEventArgs args)
         {
             if (args == null) throw new ArgumentNullException(nameof(args));
-            if (!disposed && ItemsLayouter != null && ItemsSource != null && ItemTemplate != null)
+            if (!disposed && InternalItemsLayouter != null && ItemsSource != null && ItemTemplate != null)
             {
                 //Console.WriteLine("LSH :: On Scrolling! {0} => {1}", ScrollPosition.Y, args.Position.Y);
-                ItemsLayouter.RequestLayout(ScrollingDirection == Direction.Horizontal ? args.Position.X : args.Position.Y);
+                InternalItemsLayouter.RequestLayout(ScrollingDirection == Direction.Horizontal ? args.Position.X : args.Position.Y);
             }
         }
 
@@ -484,8 +353,8 @@ namespace Tizen.NUI.Components
                     }
                     RecycleCache.Clear();
                 }
-                ItemsLayouter.Clear();
-                ItemsLayouter = null;
+                InternalItemsLayouter.Clear();
+                InternalItemsLayouter = null;
                 ItemsSource = null;
                 ItemTemplate = null;
                 if (InternalItemSource != null) InternalItemSource.Dispose();
@@ -497,8 +366,8 @@ namespace Tizen.NUI.Components
 
         private void OnItemRelayout(object sender, EventArgs e)
         {
-            //ItemsLayouter.NotifyItemSizeChanged((sender as ViewItem));
-            //ItemsLayouter.RequestLayout(ScrollingDirection == Direction.Horizontal ? ContentContainer.CurrentPosition.X : ContentContainer.CurrentPosition.Y);
+            //InternalItemsLayouter.NotifyItemSizeChanged((sender as ViewItem));
+            //InternalItemsLayouter.RequestLayout(ScrollingDirection == Direction.Horizontal ? ContentContainer.CurrentPosition.X : ContentContainer.CurrentPosition.Y);
         }
 
         private void DecorateItem(ViewItem item, int index)

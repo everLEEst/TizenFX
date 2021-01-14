@@ -39,9 +39,9 @@ namespace Tizen.NUI.Components
                 propertyChanged: (bindable, oldValue, newValue)=>
                 {
                     var colView = (CollectionView)bindable;
-                    var args = new SelectionChangedEventArgs(oldValue, newValue);
                     oldValue = colView.selectedItem;
                     colView.selectedItem = newValue;
+                    var args = new SelectionChangedEventArgs(oldValue, newValue);
                     
                     foreach (ViewItem item in colView.ContentContainer.Children.Where((item) => item is ViewItem))
                     {
@@ -125,27 +125,27 @@ namespace Tizen.NUI.Components
         }
 
         /// <summary>
-        /// Base Constructor with itemsSource
+        /// Base constructor with ItemsSource
         /// </summary>
         /// <param name="itemsSource">item's data source</param>
        [EditorBrowsable(EditorBrowsableState.Never)]
-        public CollectionView(IEnumerable itemsSource) : base(itemsSource)
+        public CollectionView(IEnumerable itemsSource) : this()
         {
-            FocusGroup = true;
-            SetKeyboardNavigationSupport(true);
+            ItemsSource = itemsSource;
         }
 
         /// <summary>
-        /// Base Constructor with itemsSource
+        /// Base constructor with ItemsSource, ItemsLayouter and ItemTemplate
         /// </summary>
         /// <param name="itemsSource">item's data source</param>
         /// <param name="layouter">item's layout manager</param>
         /// <param name="template">item's view template with data bindings</param>
        [EditorBrowsable(EditorBrowsableState.Never)]
-        public CollectionView(IEnumerable itemsSource, ItemsLayouter layouter, DataTemplate template) : base(itemsSource, layouter, template)
+        public CollectionView(IEnumerable itemsSource, ItemsLayouter layouter, DataTemplate template) : this()
         {
-            FocusGroup = true;
-            SetKeyboardNavigationSupport(true);
+            ItemsSource = itemsSource;
+            ItemTemplate = template;
+            ItemsLayouter = layouter;
         }
 
         /// <summary>
@@ -155,6 +155,32 @@ namespace Tizen.NUI.Components
         [EditorBrowsable(EditorBrowsableState.Never)]
         public event EventHandler<SelectionChangedEventArgs> SelectionChanged;
 
+        /// <summary>
+        /// Align item in the viewport when ScrollTo() calls.
+        /// </summary>
+       [EditorBrowsable(EditorBrowsableState.Never)]
+        public enum ItemScrollTo
+        {
+            /// <summary>
+            /// Scroll to show item in nearest viewport on scroll direction.
+            /// item is above the scroll viewport, item will be came into front,
+            /// item is under the scroll viewport, item will be came into end,
+            /// item is in the scroll viewport, no scroll.
+            /// </summary>
+            Nearest,
+            /// <summary>
+            /// Scroll to show item in start of the viewport.
+            /// </summary>
+            Start,
+            /// <summary>
+            /// Scroll to show item in center of the viewport.
+            /// </summary>
+            Center,
+            /// <summary>
+            /// Scroll to show item in end of the viewport.
+            /// </summary>
+            End,
+        }
 
         /// <summary>
         /// Item's source data.
@@ -214,7 +240,7 @@ namespace Tizen.NUI.Components
         /// Items Layouter.
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override ItemsLayouter ItemsLayouter
+        public virtual ItemsLayouter ItemsLayouter
         {
             get
             {
@@ -223,6 +249,7 @@ namespace Tizen.NUI.Components
             set
             {
                 itemsLayouter = value;
+                base.InternalItemsLayouter = ItemsLayouter;
                 if (value == null)
                 {
                     needInitalizeLayouter = false;
@@ -533,6 +560,83 @@ namespace Tizen.NUI.Components
 
             SelectedItemsPropertyChanged(oldSelection, newSelection);
         }
+
+        /// <summary>
+        /// Scroll to position.
+        /// </summary>
+        /// <param name="position"></param>
+        /// <param name="animate"></param>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public new void ScrollTo(float position, bool animate) => base.ScrollTo(position, animate);
+
+        /// <summary>
+        /// Scroll to item
+        /// </summary>
+        /// <param name="item"></param>
+        /// <param name="animate"></param>
+        /// <param name="align"></param>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public virtual void ScrollTo(object item, bool animate = false, ItemScrollTo align = ItemScrollTo.Nearest)
+        {
+            if (item == null) throw new ArgumentNullException(nameof(item));
+            if (ItemsLayouter == null) throw new Exception("Item Layouter must exist.");
+
+            if (InternalItemSource.GetPosition(item) == -1)
+            {
+                throw new Exception("ScrollTo parameter item is not a member of ItemsSource");
+            }
+
+            float scrollPos, curPos, curSize, curItemSize;
+            (float X, float Y) itemPos = ItemsLayouter.GetItemPosition(item);
+            (float X, float Y) itemSize = ItemsLayouter.GetItemSize(item);
+            if (ScrollingDirection == Direction.Horizontal)
+            {
+                scrollPos = itemPos.X;
+                curPos = ScrollPosition.X;
+                curSize = Size.Width;
+                curItemSize = itemSize.X;
+            }
+            else
+            {
+                scrollPos = itemPos.Y;
+                curPos = ScrollPosition.Y;
+                curSize = Size.Height;
+                curItemSize = itemSize.Y;
+            }
+
+            //Console.WriteLine("LSH :: ScrollTo [{0}:{1}], curPos{2}, itemPos{3}, curSize{4}, itemSize{5}", InternalItemSource.GetPosition(item), align, curPos, scrollPos, curSize, curItemSize);
+            switch (align)
+            {
+                case ItemScrollTo.Start:
+                    //nothing necessary.
+                break;
+                case ItemScrollTo.Center:
+                    scrollPos = scrollPos - (curSize / 2) + (curItemSize / 2);
+                break;
+                case ItemScrollTo.End:
+                    scrollPos = scrollPos - curSize + curItemSize;
+                break;
+                case ItemScrollTo.Nearest:
+                    if (scrollPos < curPos - curItemSize)
+                    {
+                        // item is placed before the current screen. scrollTo.Top
+                    }
+                    else if (scrollPos >= curPos + curSize + curItemSize)
+                    {
+                        // item is placed after the current screen. scrollTo.End
+                        scrollPos = scrollPos - curSize + curItemSize;
+                    }
+                    else
+                    {
+                        // item is in the scroller. ScrollTo() is ignored.
+                        return;
+                    }
+                break;
+            }
+
+            //Console.WriteLine("LSH :: ScrollTo [{0}]-------------------", scrollPos);
+            base.ScrollTo(scrollPos, animate);
+        }        
 
         // Realize and Decorate the item.
         internal override ViewItem RealizeItem(int index)
