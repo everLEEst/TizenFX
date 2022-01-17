@@ -2,21 +2,21 @@
 # Add members who own directories and files for automatic Pull Request Reviewers.
 
 # NUI Code Owners List
-/src/Tizen.NUI/ @Samsung/nui
-/src/Tizen.NUI.Components/ @Samsung/nui
-/src/Tizen.NUI/src/public/BaseComponents/Text*.cs @wonrst @Samsung/nui
-/src/Tizen.NUI/src/public/Xaml/ @AdunFang @Samsung/nui
-/src/Tizen.NUI/src/public/XamlBinding/ @AdunFang @Samsung/nui
-/src/Tizen.NUI/src/internal/Xaml/ @AdunFang @Samsung/nui
-/src/Tizen.NUI/src/internal/XamlBinding/ @AdunFang @Samsung/nui
-/src/Tizen.NUI/src/internal/EXaml/ @AdunFang @Samsung/nui
-/test/NUITestSample/ @Samsung/nui
-/test/NUITizenGallery/ @Samsung/nui
-/test/Tizen.NUI.ComponentApplication/ @Samsung/nui
-/test/Tizen.NUI.Samples/ @Samsung/nui
-/test/Tizen.NUI.SeamlessSamples/ @Samsung/nui
-/test/Tizen.NUI.Tests/ @Samsung/nui
-/test/Tizen.NUI.WebViewTest/ @Samsung/nui
-/test/Tizen.NUI.WindowSystem.Samples/ @Samsung/nui
+/src/Tizen.NUI/ @Seoyeon2Kim @taehyub @kkhos @jaehyun0cho
+/src/Tizen.NUI.Components/ @Seoyeon2Kim @kkhos @jaehyun0cho
+/src/Tizen.NUI/src/public/BaseComponents/Text*.cs @Seoyeon2Kim @taehyub @kkhos @jaehyun0cho
+/src/Tizen.NUI/src/public/Xaml/ @taehyub @kkhos @jaehyun0cho
+/src/Tizen.NUI/src/public/XamlBinding/ @Seoyeon2Kim @taehyub @kkhos @jaehyun0cho
+/src/Tizen.NUI/src/internal/Xaml/ @Seoyeon2Kim @taehyub @kkhos @jaehyun0cho
+/src/Tizen.NUI/src/internal/XamlBinding/ @Seoyeon2Kim @taehyub @kkhos @jaehyun0cho
+/src/Tizen.NUI/src/internal/EXaml/ @Seoyeon2Kim @taehyub @kkhos @jaehyun0cho
+/test/NUITestSample/ @Seoyeon2Kim @taehyub @kkhos @jaehyun0cho
+/test/NUITizenGallery/ @Seoyeon2Kim @taehyub @kkhos @jaehyun0cho
+/test/Tizen.NUI.ComponentApplication/ @Seoyeon2Kim @taehyub @kkhos @jaehyun0cho
+/test/Tizen.NUI.Samples/ @Seoyeon2Kim @taehyub @kkhos @jaehyun0cho
+/test/Tizen.NUI.SeamlessSamples/ @Seoyeon2Kim @taehyub @kkhos @jaehyun0cho
+/test/Tizen.NUI.Tests/ @Seoyeon2Kim @taehyub @kkhos @jaehyun0cho
+/test/Tizen.NUI.WebViewTest/ @Seoyeon2Kim @taehyub @kkhos @jaehyun0cho
+/test/Tizen.NUI.WindowSystem.Samples/ @Seoyeon2Kim @taehyub @kkhos @jaehyun0cho
 
 # Please Add more Code Owners below.

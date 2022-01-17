@@ -24,6 +24,7 @@ using System.ComponentModel;
 using Tizen.NUI.Text;
 using Tizen.NUI.Binding;
 
+
 namespace Tizen.NUI.BaseComponents
 {
     /// <summary>
