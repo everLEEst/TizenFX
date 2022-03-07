@@ -101,5 +101,7 @@ namespace Tizen.NUI.Components
         [EditorBrowsable(EditorBrowsableState.Never)]
         object GetGroupParent(int position);
 
+        int GetAbsolutePosition(object item);
+
     }
 }

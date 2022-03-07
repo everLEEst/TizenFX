@@ -172,6 +172,7 @@ namespace Tizen.NUI.Components
                 // measure child, should be a single scrolling child
                 foreach (LayoutItem childLayout in LayoutChildren)
                 {
+                    Tizen.Log.Error("ScrollableBase", $"OnMeasure [{childLayout.Owner.Name}]" + "\n");
                     if (childLayout != null && childLayout.Owner.Name == "ContentContainer")
                     {
                         // Get size of child
@@ -199,6 +200,24 @@ namespace Tizen.NUI.Components
                         {
                             childHeightState = MeasuredSize.StateType.MeasuredSizeTooSmall;
                         }
+                    }
+                    else if (childLayout != null && childLayout.Owner is SectionIndexer)
+                    {
+                        MeasureChildWithMargins(childLayout, widthMeasureSpec, new LayoutLength(0), heightMeasureSpec, new LayoutLength(0));
+
+                        totalWidth = (childLayout.MeasuredWidth.Size + (childLayout.Padding.Start + childLayout.Padding.End)).AsDecimal();
+                        totalHeight = (childLayout.MeasuredHeight.Size + (childLayout.Padding.Top + childLayout.Padding.Bottom)).AsDecimal();
+
+                        if (childLayout.MeasuredWidth.State == MeasuredSize.StateType.MeasuredSizeTooSmall)
+                        {
+                            childWidthState = MeasuredSize.StateType.MeasuredSizeTooSmall;
+                        }
+                        if (childLayout.MeasuredHeight.State == MeasuredSize.StateType.MeasuredSizeTooSmall)
+                        {
+                            childHeightState = MeasuredSize.StateType.MeasuredSizeTooSmall;
+                        }
+
+                        Tizen.Log.Error("ScrollableBase", $"SectionIndexer Size[{totalWidth}, {totalHeight}]" + "\n");
                     }
                 }
 
@@ -903,6 +922,13 @@ namespace Tizen.NUI.Components
         /// <since_tizen> 8 </since_tizen>
         public override void Add(View view)
         {
+            Tizen.Log.Error("ScrollableBase", $"Add [{view}]" + "\n");
+            if (view is SectionIndexer)
+            {
+                base.Add(view);
+                return;
+            }
+
             ContentContainer.Add(view);
         }
 
@@ -913,6 +939,12 @@ namespace Tizen.NUI.Components
         /// <since_tizen> 8 </since_tizen>
         public override void Remove(View view)
         {
+            if (view is SectionIndexer)
+            {
+                base.Remove(view);
+                return;
+            }
+
             if (SnapToPage && CurrentPage == Children.IndexOf(view) && CurrentPage == Children.Count - 1 && Children.Count > 1)
             {
                 // Target View is current page and also last child.
@@ -1922,7 +1954,7 @@ namespace Tizen.NUI.Components
                         PageSnap(-(PageFlickThreshold + 1));
                     }
                     else
-                    {                        
+                    {
                         ScrollTo((float)(child.ScreenPosition.X + child.Size.Width - ContentContainer.ScreenPosition.X - this.Size.Width), false);
                     }
                 }
@@ -1936,7 +1968,7 @@ namespace Tizen.NUI.Components
                         PageSnap(PageFlickThreshold + 1);
                     }
                     else
-                    {                        
+                    {
                         ScrollTo((float)(child.ScreenPosition.Y - ContentContainer.ScreenPosition.Y), false);
                     }
                 }
@@ -1947,7 +1979,7 @@ namespace Tizen.NUI.Components
                         PageSnap(-(PageFlickThreshold + 1));
                     }
                     else
-                    {                       
+                    {
                         ScrollTo((float)(child.ScreenPosition.Y + child.Size.Height - ContentContainer.ScreenPosition.Y - this.Size.Height), false);
                     }
                 }

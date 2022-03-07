@@ -69,5 +69,10 @@ namespace Tizen.NUI.Components
         {
             return null;
         }
+
+        public int GetAbsolutePosition(object item)
+        {
+            return source.GetPosition(item);
+        }
     }
 }

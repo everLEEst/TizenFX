@@ -825,6 +825,90 @@ namespace Tizen.NUI.Components
         }
 
         /// <summary>
+        /// Scroll to specific item's aligned position with or without animation.
+        /// </summary>
+        /// <param name="item">Target item of dataset.</param>
+        /// <param name="animate">Boolean flag of animation.</param>
+        /// <param name="align">Align state of item. See details in <see cref="ItemScrollTo"/>.</param>
+        /// <since_tizen> 9 </since_tizen>
+        public virtual void ScrollTo(object item, bool animate = false, ItemScrollTo align = ItemScrollTo.Nearest)
+        {
+            if (ItemsLayouter == null) throw new Exception("Item Layouter must exist.");
+            int index = 0;
+            if (IsGrouped && InternalItemSource is IGroupableItemSource groupSource)
+            {
+                index = InternalItemSource.GetAbsolutePosition(item);
+            }
+            else
+            {
+                index = InternalItemSource.GetPosition(item);
+            }
+            Tizen.Log.Error("CollectionView", $"{item}, {index} "+"\n");
+            if ((InternalItemSource == null) || needInitalizeLayouter)
+            {
+                delayedScrollTo = true;
+                delayedIndexScrollToParam = (index, animate, align);
+                return;
+            }
+            if (index < 0 || index >= InternalItemSource.Count)
+            {
+                throw new Exception("index is out of boundary. index should be a value between (0, " + InternalItemSource.Count.ToString() + ").");
+            }
+
+            float scrollPos, curPos, curSize, curItemSize;
+            (float x, float y) = ItemsLayouter.GetItemPosition(index);
+            (float width, float height) = ItemsLayouter.GetItemSize(index);
+            if (ScrollingDirection == Direction.Horizontal)
+            {
+                scrollPos = x;
+                curPos = ScrollPosition.X;
+                curSize = Size.Width;
+                curItemSize = width;
+            }
+            else
+            {
+                scrollPos = y;
+                curPos = ScrollPosition.Y;
+                curSize = Size.Height;
+                curItemSize = height;
+            }
+
+            //Console.WriteLine("[NUI] ScrollTo [{0}:{1}], curPos{2}, itemPos{3}, curSize{4}, itemSize{5}", InternalItemSource.GetPosition(item), align, curPos, scrollPos, curSize, curItemSize);
+            switch (align)
+            {
+                case ItemScrollTo.Start:
+                    //nothing necessary.
+                    break;
+                case ItemScrollTo.Center:
+                    scrollPos = scrollPos - (curSize / 2) + (curItemSize / 2);
+                    break;
+                case ItemScrollTo.End:
+                    scrollPos = scrollPos - curSize + curItemSize;
+                    break;
+                case ItemScrollTo.Nearest:
+                    if (scrollPos < curPos - curItemSize)
+                    {
+                        // item is placed before the current screen. scrollTo.Top
+                    }
+                    else if (scrollPos >= curPos + curSize + curItemSize)
+                    {
+                        // item is placed after the current screen. scrollTo.End
+                        scrollPos = scrollPos - curSize + curItemSize;
+                    }
+                    else
+                    {
+                        // item is in the scroller. ScrollTo() is ignored.
+                        return;
+                    }
+                    break;
+            }
+
+            //Console.WriteLine("[NUI] ScrollTo [{0}]-------------------", scrollPos);
+            base.ScrollTo(scrollPos, animate);
+        }
+
+
+        /// <summary>
         /// Apply style to CollectionView
         /// </summary>
         /// <param name="viewStyle">The style to apply.</param>
@@ -1251,7 +1335,7 @@ namespace Tizen.NUI.Components
             SelectionPropertyChanged(colView, args);
         }
 
-        private void Init()
+        protected virtual void Init()
         {
             if (ItemsSource == null) return;
             if (ItemsLayouter == null) return;

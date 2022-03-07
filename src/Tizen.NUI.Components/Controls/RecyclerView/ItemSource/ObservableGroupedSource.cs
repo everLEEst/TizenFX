@@ -159,7 +159,7 @@ namespace Tizen.NUI.Components
         }
 
         // The ICollectionChangedNotifier methods are called by child observable items sources (i.e., the groups)
-        // This class can then translate their local changes into global positions for upstream notification 
+        // This class can then translate their local changes into global positions for upstream notification
         // (e.g., to the actual RecyclerView.Adapter, so that it can notify the RecyclerView and handle animating
         // the changes)
         public void NotifyDataSetChanged()
@@ -364,7 +364,7 @@ namespace Tizen.NUI.Components
 
             if (groupCount != args.OldItems.Count)
             {
-                // The original and replacement sets are of unequal size; this means that most everything currently in 
+                // The original and replacement sets are of unequal size; this means that most everything currently in
                 // view will have to be updated. So just reload the whole thing.
                 Reload();
                 return;
@@ -378,13 +378,13 @@ namespace Tizen.NUI.Components
 
             if (newItemCount != oldItemCount)
             {
-                // The original and replacement sets are of unequal size; this means that most everything currently in 
+                // The original and replacement sets are of unequal size; this means that most everything currently in
                 // view will have to be updated. So just reload the whole thing.
                 Reload();
                 return;
             }
 
-            // We are replacing one set of items with a set of equal size; we can do a simple item or range notification 
+            // We are replacing one set of items with a set of equal size; we can do a simple item or range notification
             var firstGroupIndex = Math.Min(newStartIndex, oldStartIndex);
             var absolutePosition = GetAbsolutePosition(groups[firstGroupIndex], 0);
 
@@ -415,6 +415,32 @@ namespace Tizen.NUI.Components
             notifier.NotifyItemRangeMoved(this, fromPosition, toPosition, itemCount);
 
             UpdateGroupTracking();
+        }
+
+        public int GetAbsolutePosition(object item)
+        {
+            int previousGroupsOffset = 0;
+
+            for (int groupIndex = 0; groupIndex < groupSource.Count; groupIndex++)
+            {
+                if (groupSource[groupIndex].Equals(item))
+                {
+                    return AdjustPositionForHeader(previousGroupsOffset);
+                }
+
+                var group = groups[groupIndex];
+                var inGroup = group.GetPosition(item);
+
+                if (inGroup > -1)
+                {
+                    return AdjustPositionForHeader(previousGroupsOffset + inGroup);
+                }
+
+                previousGroupsOffset += group.Count;
+            }
+
+            return -1;
+
         }
 
         int GetAbsolutePosition(IItemSource group, int indexInGroup)
