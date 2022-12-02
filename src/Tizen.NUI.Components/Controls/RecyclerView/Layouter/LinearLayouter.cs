@@ -904,6 +904,11 @@ namespace Tizen.NUI.Components
             DelayedRequestLayout(scrollPosition);
         }
 
+        private printlog(string log)
+        {
+            Console.WriteLine($"LinearLayouter :: {log}");
+        }
+
         /// <Inheritdoc/>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public override void NotifyItemRemoved(IItemSource source, int startIndex)
@@ -930,6 +935,8 @@ namespace Tizen.NUI.Components
                 //Need To Implement
             }
             */
+
+
 
             // 2. Handle Group Case
             if (isGrouped && gSource != null)
