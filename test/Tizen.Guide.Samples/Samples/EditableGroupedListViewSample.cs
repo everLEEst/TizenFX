@@ -453,6 +453,7 @@ namespace Tizen.Guide.Samples
                         };
                     }
                     mSelectAll = value;
+                    OnPropertyChanged("SelectAll");
                 }
             }
         }

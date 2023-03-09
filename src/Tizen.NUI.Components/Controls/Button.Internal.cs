@@ -193,6 +193,8 @@ namespace Tizen.NUI.Components
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected void UpdateState()
         {
+
+            Console.WriteLine($"Button is UpdateState {IsSelected},{isPressed}");
             if (styleApplying) return;
 
             ControlState sourceState = ControlState;
@@ -210,6 +212,7 @@ namespace Tizen.NUI.Components
             // Focused, FocusedPressed, FocusedPressedSelected, DisabledFocused, DisabledSelectedFocused
             if (IsFocused) targetState += ControlState.Focused;
 
+                Console.WriteLine($"Button is UpdateState real {sourceState} {targetState}");
             if (sourceState != targetState)
             {
                 ControlState = targetState;
