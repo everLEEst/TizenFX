@@ -72,6 +72,8 @@ namespace Tizen.NUI.Components
             if (newValue != null)
             {
                 bool newSelected = (bool)newValue;
+                Console.WriteLine($"Button is Selected {instance.isSelected} to {newSelected}");
+
                 if (instance.isSelected != newSelected)
                 {
                     instance.isSelected = newSelected;

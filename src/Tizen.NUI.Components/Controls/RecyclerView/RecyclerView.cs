@@ -322,6 +322,7 @@ namespace Tizen.NUI.Components
         /// <param name="index"> Index position of realizing item </param>
         internal virtual RecyclerViewItem RealizeItem(int index)
         {
+            Console.WriteLine($"RealizeItem {index}");
             object context = InternalItemSource.GetItem(index);
             // Check DataTemplate is Same!
             if (ItemTemplate is DataTemplateSelector)
@@ -366,6 +367,7 @@ namespace Tizen.NUI.Components
                 return;
             }
 
+            Console.WriteLine($"UnrealizeItem {item.Index}");
             item.Index = -1;
             item.ParentItemsView = null;
             item.BindingContext = null;
@@ -519,6 +521,8 @@ namespace Tizen.NUI.Components
             item.Template = (ItemTemplate as DataTemplateSelector)?.SelectDataTemplate(InternalItemSource.GetItem(index), this) ?? ItemTemplate;
             item.BindingContext = context;
             item.Relayout += OnItemRelayout;
+
+            Console.WriteLine($"Item{item.Index} binded  {item.BindingContext.GetHashCode()}");
         }
     }
 }

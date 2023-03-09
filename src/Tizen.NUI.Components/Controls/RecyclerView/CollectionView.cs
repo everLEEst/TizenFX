@@ -48,6 +48,7 @@ namespace Tizen.NUI.Components
                     oldValue = colView.selectedItem;
                     colView.selectedItem = newValue;
 
+                    Console.WriteLine("Selected Item!");
                     var args = new SelectionChangedEventArgs(oldValue, newValue);
                     foreach (RecyclerViewItem item in colView.ContentContainer.Children.Where((item) => item is RecyclerViewItem))
                     {
@@ -92,6 +93,8 @@ namespace Tizen.NUI.Components
                     {
                         throw new Exception("Bindable object is not CollectionView.");
                     }
+
+                    Console.WriteLine("why?????");
 
                     var oldSelection = colView.selectedItems ?? selectEmpty;
                     //FIXME : CoerceSelectedItems calls only isCreatedByXaml
@@ -791,6 +794,8 @@ namespace Tizen.NUI.Components
 
                 suppressSelectionChangeNotification = false;
 
+                Console.WriteLine("NoWay");
+
                 SelectedItemsPropertyChanged(oldSelection, newSelection);
             }
         }
@@ -1090,12 +1095,14 @@ namespace Tizen.NUI.Components
             {
                 return;
             }
+            Console.WriteLine($"SelectedItemsPropertyChanged!!!!");
 
             foreach (RecyclerViewItem item in ContentContainer.Children.Where((item) => item is RecyclerViewItem))
             {
                 if (item.BindingContext == null) continue;
                 if (newSelection.Contains(item.BindingContext))
                 {
+                    Console.WriteLine($"{item.Index}:{item.BindingContext} --- {item.IsSelected}");
                     if (!item.IsSelected)
                     {
                         item.IsSelected = true;

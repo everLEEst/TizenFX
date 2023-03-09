@@ -14,6 +14,7 @@
  *
  */
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using Tizen.NUI.BaseComponents;
 using Tizen.NUI.Binding;
@@ -39,9 +40,11 @@ namespace Tizen.NUI.Components
         public static readonly BindableProperty IsSelectedProperty = BindableProperty.Create(nameof(IsSelected), typeof(bool), typeof(RecyclerViewItem), false, propertyChanged: (bindable, oldValue, newValue) =>
         {
             var instance = (RecyclerViewItem)bindable;
+            Console.WriteLine($"{instance.Index} is select changed! prev:{instance.isSelected} cur:{newValue}");
             if (newValue != null)
             {
                 bool newSelected = (bool)newValue;
+
                 if (instance.isSelected != newSelected)
                 {
                     instance.isSelected = newSelected;
@@ -49,6 +52,34 @@ namespace Tizen.NUI.Components
                     if (instance.isSelectable)
                     {
                         instance.UpdateState();
+                    }
+                    if (instance.ParentItemsView is CollectionView colView)
+                    {
+                        var context = instance.BindingContext;
+                        if (colView.SelectionMode is ItemSelectionMode.Single ||
+                            colView.SelectionMode is ItemSelectionMode.SingleAlways)
+                        {
+                            if (newSelected && colView.SelectedItem != context)
+                            {
+                                colView.SelectedItem = context;
+                            }
+                            else if (colView.SelectedItem == context)
+                            {
+                                colView.SelectedItem = null;
+                            }
+                        }
+                        else if (colView.SelectionMode is ItemSelectionMode.Multiple)
+                        {
+                            var selectedList = colView.SelectedItems;
+                            if (newSelected)
+                            {
+                                selectedList.Add(context);
+                            }
+                            else if (selectedList.Contains(context))
+                            {
+                                selectedList.Remove(context);
+                            }
+                        }
                     }
                 }
             }
@@ -123,7 +154,11 @@ namespace Tizen.NUI.Components
         public bool IsSelectable
         {
             get => (bool)GetValue(IsSelectableProperty);
-            set => SetValue(IsSelectableProperty, value);
+            set
+            {
+                SetValue(IsSelectableProperty, value);
+                OnPropertyChanged("IsSelectable");
+            }
         }
 
         /// <summary>
@@ -133,7 +168,11 @@ namespace Tizen.NUI.Components
         public bool IsSelected
         {
             get => (bool)GetValue(IsSelectedProperty);
-            set => SetValue(IsSelectedProperty, value);
+            set
+            {
+                SetValue(IsSelectedProperty, value);
+                OnPropertyChanged("IsSelected");
+            }
         }
 
         /// <summary>
