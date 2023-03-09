@@ -22,8 +22,8 @@ using Tizen.NUI.Components;
 
 namespace Tizen.Guide.Samples
 {
-    // IExample inehrited class will be automatically added in the main examples list.
-    internal class MenuExample : ContentPage, IExample
+    // ISample inehrited class will be automatically added in the main examples list.
+    internal class MenuSample : ContentPage, ISample
     {
         private View rootContent;
         private int itemCount = 7;
@@ -51,7 +51,7 @@ namespace Tizen.Guide.Samples
         }
 
         /// Modify this method for adding other examples.
-        public MenuExample() : base()
+        public MenuSample() : base()
         {
             WidthSpecification = LayoutParamPolicies.MatchParent;
             HeightSpecification = LayoutParamPolicies.MatchParent;

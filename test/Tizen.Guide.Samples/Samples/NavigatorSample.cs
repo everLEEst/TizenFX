@@ -22,8 +22,8 @@ using Tizen.NUI.Components;
 
 namespace Tizen.Guide.Samples
 {
-    // IExample inehrited class will be automatically added in the main examples list.
-    internal class NavigatorExample : ContentPage, IExample
+    // ISample inehrited class will be automatically added in the main examples list.
+    internal class NavigatorSample : ContentPage, ISample
     {
         private const int numberOfDifferentColor = 4;
         private const int colorOne = 0, colorTwo = 1, colorThree = 2;
@@ -37,7 +37,7 @@ namespace Tizen.Guide.Samples
         }
 
         /// Modify this method for adding other examples.
-        public NavigatorExample() : base()
+        public NavigatorSample() : base()
         {
             WidthSpecification = LayoutParamPolicies.MatchParent;
             HeightSpecification = LayoutParamPolicies.MatchParent;
@@ -45,7 +45,7 @@ namespace Tizen.Guide.Samples
             // Navigator bar title is added here.
             AppBar = new AppBar()
             {
-                Title = "Navigator Default Style",
+                Title = "Navigator Samples",
             };
 
             navigator = NUIApplication.GetDefaultWindow().GetDefaultNavigator();
@@ -86,7 +86,7 @@ namespace Tizen.Guide.Samples
             {
                 AppBar = new AppBar()
                 {
-                    Title = "NavigatorTestPage" + navigator.PageCount.ToString()
+                    Title = "Navigator Sample " + navigator.PageCount.ToString()
                 }
             };
             page.Content = generateContent(page);

@@ -22,8 +22,8 @@ using Tizen.NUI;
 
 namespace Tizen.Guide.Samples
 {
-    // IExample inehrited class will be automatically added in the main examples list.
-    internal class RippleEffectButtonSample : ContentPage, IExample
+    // ISample inehrited class will be automatically added in the main examples list.
+    internal class RippleEffectButtonSample : ContentPage, ISample
     {
         public void Activate()
         {

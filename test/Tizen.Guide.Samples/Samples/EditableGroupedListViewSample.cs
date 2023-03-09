@@ -25,8 +25,8 @@ using Tizen.NUI.Binding;
 
 namespace Tizen.Guide.Samples
 {
-    // IExample inehrited class will be automatically added in the main examples list.
-    internal class EditableGroupedListViewSample : ContentPage, IExample
+    // ISample inehrited class will be automatically added in the main examples list.
+    internal class EditableGroupedListViewSample : ContentPage, ISample
     {
         private Window window;
         public void Activate()

@@ -152,7 +152,7 @@ namespace Tizen.Guide.Samples
         private void GetXamlPages()
         {
             Assembly assembly = this.GetType().Assembly;
-            Type exampleType = assembly.GetType("Tizen.Guide.Samples.IExample");
+            Type exampleType = assembly.GetType("Tizen.Guide.Samples.ISample");
 
             foreach (Type type in assembly.GetTypes())
             {
@@ -174,7 +174,7 @@ namespace Tizen.Guide.Samples
             if (PageCount > 1)
             {
                 // Deactivates the peek page example before page pop.
-                if (Peek() is IExample currentExample)
+                if (Peek() is ISample currentExample)
                 {
                     currentExample.Deactivate();
                 }
@@ -338,7 +338,7 @@ namespace Tizen.Guide.Samples
 
         private void RunSample(string name)
         {
-            IExample example = typeof(Program).Assembly?.CreateInstance(name) as IExample;
+            ISample example = typeof(Program).Assembly?.CreateInstance(name) as ISample;
 
 
             Console.WriteLine($"typeof(Program).Assembly={typeof(Program).Assembly}, name={name}");

@@ -17,7 +17,7 @@
 
 namespace Tizen.Guide.Samples
 {
-    interface IExample
+    interface ISample
     {
         void Activate();
         void Deactivate();

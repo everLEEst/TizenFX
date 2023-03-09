@@ -22,8 +22,8 @@ using Tizen.NUI.Components;
 
 namespace Tizen.Guide.Samples
 {
-    // IExample inehrited class will be automatically added in the main examples list.
-    internal class ContentPageExample : ContentPage, IExample
+    // ISample inehrited class will be automatically added in the main examples list.
+    internal class ContentPageSample : ContentPage, ISample
     {
         private Window window;
         private Navigator navigator;
@@ -38,7 +38,7 @@ namespace Tizen.Guide.Samples
         }
 
         /// Modify this method for adding other examples.
-        public ContentPageExample() : base()
+        public ContentPageSample() : base()
         {
             window = NUIApplication.GetDefaultWindow();
 
@@ -48,7 +48,7 @@ namespace Tizen.Guide.Samples
             // Navigator bar title is added here.
             AppBar = new AppBar()
             {
-                Title = "ContentPage Default Style",
+                Title = "ContentPage Samples",
             };
 
             navigator = window.GetDefaultNavigator();
