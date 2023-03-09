@@ -278,14 +278,24 @@ namespace Tizen.Guide.Samples
 
                 Console.WriteLine($"SelectAll clicked! {check.IsSelected}");
 
+                List<object> newSelection;
+
                 if (check.IsSelected)
                 {
                     groups.SelectAll = true;
+
                 }
                 else
                 {
                     groups.DeselectAll();
                 }
+
+                // Binding can only cover showing items.
+                // To Change slection status of item who is out of screen on CollectionView,
+                // you need to update selection list manually.
+
+
+                colView.UpdateSelectedItems(groups.SelectedChildren);
             };
 
             editView.Add(selectAll);
@@ -427,6 +437,7 @@ namespace Tizen.Guide.Samples
             }
         }
 
+
         public bool SelectAll
         {
             get => mSelectAll;
@@ -503,6 +514,15 @@ namespace Tizen.Guide.Samples
         private bool mSelectAll;
         private bool onSelection;
 
+        // Make propertyChanged to pbulic.
+        public new PropertyChangedEventHandler PropertyChanged;
+        private void OnPropertyChanged(string propertyName)
+        {
+            var args = new PropertyChangedEventArgs(propertyName);
+            OnPropertyChanged(args);
+            PropertyChanged?.Invoke(this, args);
+        }
+
         public int SelectCount
         {
             get
@@ -515,8 +535,30 @@ namespace Tizen.Guide.Samples
                 if (mSelectCount != value)
                 {
                     mSelectCount = value;
-                    OnPropertyChanged( new PropertyChangedEventArgs("SelectCount"));
+                    OnPropertyChanged("SelectCount");
                 }
+            }
+        }
+
+        public IList<object> SelectedChildren
+        {
+            get
+            {
+                IList<object> selected = new List<object>();
+
+                // Can be efficient with using Lint...
+                foreach (DeviceGroup group in this)
+                {
+                    foreach (Device device in group)
+                    {
+                        if (device.IsSelected)
+                        {
+                            selected.Add(device);
+                        }
+                    }
+                }
+
+                return selected;
             }
         }
 
@@ -524,18 +566,17 @@ namespace Tizen.Guide.Samples
         {
             get => mSelectAll;
             set
-            {
+            {/*
                 if (mSelectAll != value)
                 {
-                    mSelectAll = value;
-                    if (value && mSelectCount == mChildCount)
+                    if (mSelectAll && mSelectCount == mChildCount)
                     {
                         return;
                     }
-                    if (!value && mSelectCount == 0)
+                    if (!mSelectAll && mSelectCount == 0)
                     {
                         return;
-                    }
+                    }*/
                     Console.WriteLine($"Groups Select All {value}");
                     onSelection = true;
                     if (value)
@@ -547,8 +588,8 @@ namespace Tizen.Guide.Samples
                     }
                     onSelection = false;
                     mSelectAll = value;
-                    OnPropertyChanged( new PropertyChangedEventArgs("SelectAll"));
-                }
+                    OnPropertyChanged("SelectAll");
+                //}
             }
         }
 
