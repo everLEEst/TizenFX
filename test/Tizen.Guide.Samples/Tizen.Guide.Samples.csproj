@@ -1,4 +1,4 @@
-﻿<!-- This is for Ubuntu-Backend build. -->
+﻿<!-- This is for Ubuntu-Backend build.
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
@@ -24,10 +24,10 @@
     </ItemGroup>
 
 </Project>
-
+ -->
 <!-- This is for TV target build.
 Tested in TIZEN-ONEMAIN-NikeM-RELEASE_20230215.6 image -->
-<!--Project Sdk="Tizen.NET.Sdk/1.1.6">
+<Project Sdk="Tizen.NET.Sdk/1.1.6">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -46,11 +46,11 @@ Tested in TIZEN-ONEMAIN-NikeM-RELEASE_20230215.6 image -->
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Tizen.NET" Version="9.0.0.16837" />
+    <PackageReference Include="Tizen.NET" Version="10.0.0.*" />
     <PackageReference Include="Tizen.NET.Sdk" Version="1.0.9" />
   </ItemGroup>
 
-</Project-->
+</Project>
 
 <!-- This is for tizen emulator build.
 Tested in tizen-unified_20230215.2_mobile-emulator32-wayland image -->
