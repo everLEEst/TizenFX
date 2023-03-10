@@ -266,7 +266,7 @@ namespace Tizen.Guide.Samples
                 Text = "SelectAll",
                 IconRelativeOrientation = Button.IconOrientation.Bottom,
             };
-            selectAll.SetBinding(Button.IsSelectedProperty, "SelectAll");
+            selectAll.SetBinding(Button.IsSelectedProperty, "SelectAll", BindingMode.TwoWay);
             selectAll.BindingContext = devices;
             selectAll.Clicked += (o, e) =>
             {

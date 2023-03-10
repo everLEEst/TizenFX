@@ -41,7 +41,6 @@
 - DeviceGroups is ObservableCollection of DeviceGroup. this will be the source of collectionView.
 - DeviceItem will be bound Device data internally, and TitleItem will be bound DeviceGroup internally. Text and Image, IsSelected property is bounded property of data.
 - SelectAll checkbox is bounded DeviceGroups who can check selected all items. when it clicked, you may need to update device SelectAll property and CollectionView Selection List manually.
-- here we have some issue on selectAll case, and we are working on to fix it.
 
 ### Menu
 ![](./res/guide/menu.png){: width="300" height="482"}
