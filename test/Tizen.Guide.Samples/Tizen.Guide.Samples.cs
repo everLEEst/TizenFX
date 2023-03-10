@@ -167,10 +167,8 @@ namespace Tizen.Guide.Samples
 
     public class CustomNavigator : Navigator
     {
-
         // Customizes how to handle back navigation.
         // base.OnBackNavigation() pops the peek page.
-        /* this API is not supported in API10 yet.
         protected override void OnBackNavigation(BackNavigationEventArgs args)
         {
             if (PageCount > 1)
@@ -186,7 +184,6 @@ namespace Tizen.Guide.Samples
             // If navigator has only one page, then the program is exited.
             base.OnBackNavigation(args);
         }
-        */
     }
 
     class Program : NUIApplication

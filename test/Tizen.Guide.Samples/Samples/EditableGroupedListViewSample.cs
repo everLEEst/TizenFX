@@ -119,7 +119,7 @@ namespace Tizen.Guide.Samples
             // Do not binding Twoway as CollectionView item is cached and reused.
             // update object IsSelected on CollectionView SelectionChanged callback
             // or Clicked.
-            item.SetBinding(RecyclerViewItem.IsSelectedProperty, "IsSelected");
+            item.SetBinding(RecyclerViewItem.IsSelectedProperty, "IsSelected", BindingMode.TwoWay);
 
             item.Clicked += (s, e) =>
             {
@@ -130,7 +130,7 @@ namespace Tizen.Guide.Samples
                 if (dev == null) return;
 
                 Console.WriteLine($"{dev.DeviceName} is clicked! {dev.IsSelected} -> {item.IsSelected}");
-                dev.IsSelected = !dev.IsSelected;
+                //dev.IsSelected = !dev.IsSelected;
             };
 
             // CheckBox does not process touch event by setting Sensitive false.
@@ -293,8 +293,6 @@ namespace Tizen.Guide.Samples
                 // Binding can only cover showing items.
                 // To Change slection status of item who is out of screen on CollectionView,
                 // you need to update selection list manually.
-
-
                 colView.UpdateSelectedItems(groups.SelectedChildren);
             };
 
