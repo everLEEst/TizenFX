@@ -123,8 +123,8 @@ namespace Tizen.Guide.Samples
 
             item.Clicked += (s, e) =>
             {
-                DeviceItem item = s as DeviceItem;
-                if (item == null) return;
+                DeviceItem devitem = s as DeviceItem;
+                if (devitem == null) return;
 
                 Device dev = item.BindingContext as Device;
                 if (dev == null) return;

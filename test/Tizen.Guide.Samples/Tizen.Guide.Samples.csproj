@@ -33,7 +33,6 @@ Tested in TIZEN-ONEMAIN-NikeM-RELEASE_20230215.6 image -->
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>tizen10.0</TargetFramework>
-    <DisableImplicitTizenReference>True</DisableImplicitTizenReference>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -48,12 +47,11 @@ Tested in TIZEN-ONEMAIN-NikeM-RELEASE_20230215.6 image -->
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Tizen.NET" Version="10.0.0.17237" />
+    <PackageReference Include="Tizen.NET" Version="10.0.0.*" />
   </ItemGroup>
 
 
 </Project>
-
 <!-- This is for tizen emulator build.
 Tested in tizen-unified_20230215.2_mobile-emulator32-wayland image -->
 <!--Project Sdk="Tizen.NET.Sdk/1.1.6">

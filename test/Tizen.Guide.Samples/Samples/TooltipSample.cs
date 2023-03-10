@@ -115,8 +115,8 @@ namespace Tizen.Guide.Samples
 
                 item.SelectedChanged += (object sender, SelectedChangedEventArgs args) =>
                 {
-                    var item = sender as MenuItem;
-                    global::System.Console.WriteLine(item.Text + $"'s IsSelected is changed to {args.IsSelected}.");
+                    var selecteditem = sender as MenuItem;
+                    global::System.Console.WriteLine(selecteditem.Text + $"'s IsSelected is changed to {args.IsSelected}.");
                 };
             }
 

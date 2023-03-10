@@ -189,7 +189,7 @@ namespace Tizen.Guide.Samples
                 var progressTimer = new Timer(300);
                 var rand = new Random();
 
-                progressTimer.Tick += (o, args) =>
+                progressTimer.Tick += (obj, args) =>
                 {
                     if (animationProgress.CurrentValue < 100)
                     {

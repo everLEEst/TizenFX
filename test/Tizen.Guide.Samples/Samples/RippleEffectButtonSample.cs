@@ -137,7 +137,6 @@ namespace Tizen.Guide.Samples
             {
                 TextColor = new Color("#FDFDFD"),
                 PixelSize = 24,
-                FontSizeScale = FontSizeScale.UseSystemSetting,
             };
             Opacity = new Selector<float?>
             {
