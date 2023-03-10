@@ -52,6 +52,7 @@ namespace Tizen.Guide.Samples
             Content = generateContent(this);
         }
 
+        /* Not supported API10. will be supported.
         protected override void OnBackNavigation(PageBackNavigationEventArgs eventArgs)
         {
             var noButton = new Button()
@@ -79,6 +80,7 @@ namespace Tizen.Guide.Samples
 
             DialogPage.ShowAlertDialog("", "Do you really want to pop?", new View[] { noButton, yesButton });
         }
+        */
 
         private ContentPage generatePage()
         {
