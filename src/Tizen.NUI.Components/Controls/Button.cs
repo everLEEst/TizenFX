@@ -69,6 +69,7 @@ namespace Tizen.NUI.Components
         public static readonly BindableProperty IsSelectedProperty = BindableProperty.Create(nameof(IsSelected), typeof(bool), typeof(Button), false, propertyChanged: (bindable, oldValue, newValue) =>
         {
             var instance = (Button)bindable;
+            Console.WriteLine($"Button is Selected {instance.isSelected} to {newValue}");
             if (newValue != null)
             {
                 bool newSelected = (bool)newValue;

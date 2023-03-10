@@ -86,7 +86,7 @@ namespace Tizen.NUI.Components
                 headerMargin = new Extents(itemMargin);
                 hasHeader = true;
 
-                colView.UnrealizeItem(header);
+                //colView.UnrealizeItem(header);
             }
             else hasHeader = false;
 
@@ -105,7 +105,7 @@ namespace Tizen.NUI.Components
                 footer.Index = count - 1;
                 hasFooter = true;
 
-                colView.UnrealizeItem(footer);
+                //colView.UnrealizeItem(footer);
             }
             else hasFooter = false;
 
@@ -259,7 +259,7 @@ namespace Tizen.NUI.Components
                 CandidateMargin = new Extents(itemMargin);
                 if (StepCandidate == 0) StepCandidate = 1; //????
 
-                colView.UnrealizeItem(sizeDeligate);
+                colView.UnrealizeItem(sizeDeligate, false);
             }
 
             float Current = IsHorizontal? Padding.Start : Padding.Top;

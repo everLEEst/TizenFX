@@ -63,7 +63,7 @@ namespace Tizen.NUI.Components
                             {
                                 colView.SelectedItem = context;
                             }
-                            else if (colView.SelectedItem == context)
+                            else if (!newSelected && colView.SelectedItem == context)
                             {
                                 colView.SelectedItem = null;
                             }
@@ -71,11 +71,12 @@ namespace Tizen.NUI.Components
                         else if (colView.SelectionMode is ItemSelectionMode.Multiple)
                         {
                             var selectedList = colView.SelectedItems;
-                            if (newSelected)
+                            bool contains = selectedList.Contains(context);
+                            if (newSelected && !contains)
                             {
                                 selectedList.Add(context);
                             }
-                            else if (selectedList.Contains(context))
+                            else if (!newSelected && contains)
                             {
                                 selectedList.Remove(context);
                             }

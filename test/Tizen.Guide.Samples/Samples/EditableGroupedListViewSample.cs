@@ -460,6 +460,7 @@ namespace Tizen.Guide.Samples
                     {
                         foreach (Device dev in this)
                         {
+                            Console.WriteLine($"Device {dev.DeviceName} Select All {value}");
                             dev.IsSelected = value;
                         };
                     }
@@ -499,10 +500,18 @@ namespace Tizen.Guide.Samples
             if (dev.IsSelected)
             {
                 SelectCount++;
+                if (SelectCount == Count)
+                {
+                    SelectAll = true;
+                }
             }
             else
             {
                 SelectCount--;
+                if (SelectAll)
+                {
+                    SelectAll = false;
+                }
             }
         }
     }
@@ -656,7 +665,7 @@ namespace Tizen.Guide.Samples
             else if (SelectAll)
             {
                 Console.WriteLine("SelectAll is cancelled!!");
-                SelectAll = false;
+                SelectAll = false;                
             }
         }
     }
