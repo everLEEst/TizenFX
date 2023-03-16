@@ -164,14 +164,14 @@ namespace Tizen.Guide.Samples
         public OverlayAnimationButtonExtension() : base()
         {
         }
-
+/* 삭제 예정. 어플리케이션 가이드 필요! 해당 코드는 불필요한 코드이므로 삭제 요청.
         public override ImageView OnCreateOverlayImage(Button button, ImageView overlayImage)
         {
             overlayImage.Hide();
 
             return overlayImage;
         }
-
+*/
         public override void OnControlStateChanged(Button button, View.ControlStateChangedEventArgs args)
         {
             if (button.ControlState != ControlState.Pressed)

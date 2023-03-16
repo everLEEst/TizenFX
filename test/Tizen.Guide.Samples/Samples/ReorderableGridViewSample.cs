@@ -92,12 +92,14 @@ namespace Tizen.Guide.Samples
                 Title = "Reorderable GridView Sample",
             };
 
+            var layouter = new ReorderableGridLayouter();
+
             // Example root content view.
             // you can decorate, add children on this view.
-            var colView = new ReorderableGridView()
+            var gridView = new ReorderableGridView()
             {
                 ItemsSource = countries,
-                ItemsLayouter = new ReorderableGridLayouter(),
+                ItemsLayouter = layouter,
                 ScrollingDirection = ScrollableBase.Direction.Vertical,
                 WidthSpecification = LayoutParamPolicies.MatchParent,
                 HeightSpecification = LayoutParamPolicies.MatchParent,
@@ -105,14 +107,20 @@ namespace Tizen.Guide.Samples
                 ScrollingEventThreshold = 100,
             };
 
+            layouter.ItemReordered += (o, e) =>
+            {
+                Console.WriteLine($"Item Reordered!!! move data from[{e.From}]-to[{e.To}]");
+                countries.Move(e.From, e.To);
+            };
+
             /*
-            colView.SelectionChanged += (o, args) =>
+            gridView.SelectionChanged += (o, args) =>
             {
                 Can track the selections on this event callback.
             }
             */
 
-            Content = colView;
+            Content = gridView;
         }
     }
 
@@ -130,8 +138,8 @@ namespace Tizen.Guide.Samples
 
         protected override void Dispose(DisposeTypes type)
         {
-            mLongPressGestureDetector.DetachAll();
-            mLongPressGestureDetector.Dispose();
+            //mLongPressGestureDetector?.DetachAll();
+            //mLongPressGestureDetector?.Dispose();
             mLongPressGestureDetector = null;
 
             base.Dispose();
@@ -183,7 +191,18 @@ namespace Tizen.Guide.Samples
         private RecyclerViewItem onReordering;
         private ReorderableGridView gridView;
         private Animation itemShiftAnimation;
-        private int targetIndex;
+        private int itemShiftDuration = 1000;
+        private int targetIndex = -1;
+        private View targetPreview;
+
+        public class ItemReorderEventArgs : EventArgs
+        {
+            public int From { get; internal set; }
+            public int To  {get; internal set; }
+        }
+
+        public EventHandler<ItemReorderEventArgs> ItemReordered;
+
         public override void Initialize(RecyclerView view)
         {
             base.Initialize(view);
@@ -191,8 +210,20 @@ namespace Tizen.Guide.Samples
             mPanGestureDetector = new PanGestureDetector();
             mPanGestureDetector.Detected += OnPanGestureDetected;
 
-            itemShiftAnimation = new Animation(1000);
+            itemShiftAnimation = new Animation(itemShiftDuration);
             itemShiftAnimation.EndAction = Animation.EndActions.StopFinal;
+
+            targetPreview = new View()
+            {
+                CornerRadius = 12f,
+                BorderlineWidth = 8f,
+                BorderlineOffset = -1,
+                BorderlineColor = new Color("#ffcd4e"),
+                BackgroundColor = new Color("#fbe392"),
+                Opacity = 0f,
+            };
+
+            Container?.Add(targetPreview);
 
         }
 
@@ -280,10 +311,22 @@ namespace Tizen.Guide.Samples
 
         public override void Clear()
         {
-            onReordering = null;
-            mPanGestureDetector.DetachAll();
-            mPanGestureDetector.Dispose();
+            if (onReordering != null)
+            {
+                gridView.InternalUnrealizeItem(onReordering, false);
+                onReordering = null;
+            }
+
+            mPanGestureDetector?.DetachAll();
+            mPanGestureDetector?.Dispose();
             mPanGestureDetector = null;
+
+            itemShiftAnimation?.Dispose();
+            itemShiftAnimation = null;
+
+            targetIndex = -1;
+            targetPreview?.Dispose();
+            targetPreview = null;
 
             base.Clear();
         }
@@ -299,19 +342,66 @@ namespace Tizen.Guide.Samples
             switch (gesture.State) {
                 case Gesture.StateType.Started :
                 onReordering = gridItem;
-                onReordering.RaiseToTop();
+                Position originPos = onReordering.Position;
+                Size originSize = onReordering.Size;
+
                 float xPos = onReordering.PositionX + (gesture.LocalPoint.X - onReordering.SizeWidth / 2);
                 float yPos = onReordering.PositionY + (gesture.LocalPoint.Y - onReordering.SizeHeight / 2);
                 onReordering.Position = new Position(xPos, yPos);
 
-                AnimateItemShift(onReordering.Index, Int32.MaxValue);
+                //AnimateItemShift(onReordering.Index, Int32.MaxValue);
 
+                targetPreview.Position = originPos;
+                targetPreview.Size = originSize;
+                targetPreview.LowerBelow(onReordering);
+                targetPreview.Opacity = 0f;
+                itemShiftAnimation.AnimateTo(targetPreview, "Opacity", 1f, 0, itemShiftDuration, new AlphaFunction(AlphaFunction.BuiltinFunctions.EaseOut));
+                itemShiftAnimation.Play();
+
+                onReordering.RaiseToTop();
                 mPanGestureDetector.Attach(Container);
                 break;
+
                 case Gesture.StateType.Finished :
+                (float X, float Y) target;
+                if (targetIndex != -1)
+                {
+                    target = GetItemPosition(targetIndex);
+                }
+                else
+                {
+                    target = GetItemPosition(onReordering.Index);
+                }
+
+                Console.WriteLine($"prev index: {onReordering.Index}, target index: {targetIndex}, targetPos : [{target.X}, {target.Y}]");
+
+                var reorderDuration = 500;
+                var reorderAnimation = new Animation(reorderDuration);
+                reorderAnimation.EndAction = Animation.EndActions.StopFinal;
+                reorderAnimation.AnimateTo(onReordering, "Position", new Position(target.X, target.Y), 0, reorderDuration, new AlphaFunction(AlphaFunction.BuiltinFunctions.EaseOut));
+                reorderAnimation.AnimateTo(targetPreview, "Opacity", 0f, 0, reorderDuration, new AlphaFunction(AlphaFunction.BuiltinFunctions.EaseOut));
+                reorderAnimation.Finished += (object o, EventArgs e) =>
+                {
+                    if (targetIndex != -1 && onReordering.Index != targetIndex)
+                    {
+                    // reordering data.
+                        var args = new ItemReorderEventArgs()
+                        {
+                            From = onReordering.Index,
+                            To = targetIndex,
+                        };
+                        ItemReordered?.Invoke(this, args);
+                    }
+
+                    onReordering = null;
+                };
+
+                reorderAnimation.Play();
+
                 mPanGestureDetector.Detach(Container);
-                onReordering = null;
+
                 break;
+
                 case Gesture.StateType.Cancelled :
                 mPanGestureDetector.Detach(Container);
                 onReordering = null;
@@ -337,13 +427,30 @@ namespace Tizen.Guide.Samples
             gridItem.Position = new Position(xPos, yPos);
             gridItem.RaiseToTop();
 
-            Console.WriteLine($"Item : [{gridItem?.Text}] is On Pan! State:[{gesture.State}] Touch: [{gesture.Position.X}, {gesture.Position.Y}] itemPos : [{gridItem.PositionX}, {gridItem.PositionY}]");
+            //Console.WriteLine($"Item : [{gridItem?.Text}] is On Pan! State:[{gesture.State}] Touch: [{gesture.Position.X}, {gesture.Position.Y}] itemPos : [{gridItem.PositionX}, {gridItem.PositionY}]");
 
             // 2. Check item is available for Reorder
-            targetIndex = CheckAvailableReorderPlace(xPos, yPos, 20);
+            int prevTargetIndex = targetIndex;
+            targetIndex = CheckAvailableReorderPlace(xPos, yPos, 50);
             if (targetIndex != -1)
             {
+                (float X, float Y) targetPos = GetItemPosition(targetIndex);
+                (float W, float H) targetSize = GetItemSize(targetIndex);
+
+                targetPreview.Position = new Position(targetPos.X, targetPos.Y);
+                targetPreview.Size = new Size(targetSize.W, targetSize.H);
+                targetPreview.LowerBelow(GetVisibleItem(targetIndex + 1));
+                targetPreview.Opacity = 0f;
+                itemShiftAnimation.AnimateTo(targetPreview, "Opacity", 1f, 0, itemShiftDuration, new AlphaFunction(AlphaFunction.BuiltinFunctions.EaseOut));
+                Console.WriteLine($"Item : [{gridItem?.Text}:{onReordering.Index}] is moved-->[{gesture.Position.X}, {gesture.Position.Y}] [{targetIndex}]! Position [{targetPos.X}, {targetPos.Y}]");
+
                 AnimateItemShift(onReordering.Index, targetIndex);
+
+
+            }
+            else
+            {
+                targetIndex = prevTargetIndex;
             }
 
             // 3. Move scroll if necessary.
@@ -362,6 +469,8 @@ namespace Tizen.Guide.Samples
         private void AnimateItemShift(int from, int to)
         {
             int index;
+
+            //itemShiftAnimation.Stop();
             for (int i = FirstVisible; i <= LastVisible; i++)
             {
                 RecyclerViewItem cur = null;
@@ -379,10 +488,14 @@ namespace Tizen.Guide.Samples
                 {
                     index++;
                 }
+                if (i == to && from > to)
+                {
+                    index++;
+                }
 
                 (float x, float y) pos = GetItemPosition(index);
                 itemShiftAnimation.AnimateTo(cur, "Position",
-                                        new Position(pos.x, pos.y), 0, 1000,
+                                        new Position(pos.x, pos.y), 0, itemShiftDuration,
                                         new AlphaFunction(AlphaFunction.BuiltinFunctions.EaseOut));
             }
 
@@ -394,7 +507,8 @@ namespace Tizen.Guide.Samples
             int ret = -1;
 
             int row = (int)(x / SizeCandidate.Width);
-            int col = (int)(y / SizeCandidate.Height);
+            int col = (int)((y + (SizeCandidate.Height/2)) / SizeCandidate.Height);
+
             int index = col * SpanSize + row;
 
             (float x, float y) pos = (row * SizeCandidate.Width, col * SizeCandidate.Height);
@@ -402,13 +516,15 @@ namespace Tizen.Guide.Samples
             if (pos.x <= x && pos.x + offset >= x)
             {
                 ret = index;
-                Console.WriteLine($"Left of {index}! return [{ret}]");
+                Console.Write($"pos:[{x}, {y}] row:[{row}], col:[{col}], index:[{index}]-----");
+                Console.WriteLine($"Calced Pos[{pos.x}, {pos.y}] Left of {index}! return [{ret}]");
             }
             // check on right (current index + 1)
             else if (pos.x + SizeCandidate.Width >= x && pos.x + SizeCandidate.Width - offset <= x)
             {
                 ret = index + 1;
-                Console.WriteLine($"Right of{index}! return [{ret}]");
+                Console.Write($"pos:[{x}, {y}] row:[{row}], col:[{col}], index:[{index}]-----");
+                Console.WriteLine($"Calced Pos[{pos.x}, {pos.y}] Right of{index}! return [{ret}]");
             }
 
             return ret;

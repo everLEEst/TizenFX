@@ -439,23 +439,7 @@ namespace Tizen.NUI.Components
             return null;
         }
 
-        /// <summary>
-        /// Get visible item object on position if it is realized.
-        /// </summary>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        protected virtual RecyclerViewItem GetVisibleItem(float x, float y)
-        {
 
-            foreach (RecyclerViewItem item in VisibleItems)
-            {
-                if (item.PositionX <= x && item.PositionX + item.SizeWidth >= x &&
-                    item.PositionY <= y && item.PositionY + item.SizeHeight >= y)
-                {
-                    return item;
-                }
-            }
-            return null;
-        }
 
     }
 }
