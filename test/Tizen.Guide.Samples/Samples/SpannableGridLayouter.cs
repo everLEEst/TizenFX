@@ -82,11 +82,6 @@ namespace Tizen.Guide.Samples
 
         protected override void OnMeasure()
         {
-            if (Container.SizeWidth != 0)
-            {
-                sizeCandidate = ((Container.SizeWidth / SpanSize), StepCandidate);
-            }
-
             RecyclerViewItem header = gridView?.Header;
             RecyclerViewItem footer = gridView?.Footer;
             int count = Source.Count;
@@ -131,6 +126,10 @@ namespace Tizen.Guide.Samples
                 throw new Exception("Source item must be implement IItemSpannable");
             }
 
+            if (Container.SizeWidth != 0)
+            {
+                sizeCandidate = ((Container.SizeWidth / SpanSize), StepCandidate);
+            }
         }
 
         public override void Initialize(RecyclerView view)

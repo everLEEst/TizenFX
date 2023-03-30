@@ -69,6 +69,7 @@ namespace Tizen.NUI.Components
 
         protected override void OnMeasure()
         {
+            base.OnMeasure();
 
             RecyclerViewItem header = collectionView?.Header;
             RecyclerViewItem footer = collectionView?.Footer;

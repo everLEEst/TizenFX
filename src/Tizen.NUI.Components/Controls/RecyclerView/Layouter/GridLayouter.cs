@@ -78,6 +78,7 @@ namespace Tizen.NUI.Components
 
         protected override void OnInitialize()
         {
+            /*
             foreach (RecyclerViewItem item in VisibleItems)
             {
                 collectionView.UnrealizeItem(item, false);
@@ -86,6 +87,8 @@ namespace Tizen.NUI.Components
             groups.Clear();
             FirstVisible = 0;
             LastVisible = 0;
+            */
+            base.OnInitialize();
         }
 
         protected override void OnMeasure()

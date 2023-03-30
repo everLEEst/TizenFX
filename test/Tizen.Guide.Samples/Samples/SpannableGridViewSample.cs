@@ -158,6 +158,8 @@ namespace Tizen.Guide.Samples
 
     public interface IItemSpannable
     {
+        // This value must be true when span set.
+        bool HasSpan ( get; )
         int RowSpan { get; set; }
         int ColumnSpan {get; set; }
     }
@@ -200,6 +202,9 @@ namespace Tizen.Guide.Samples
         {
             get => resourcePath + "flags/flag_" + mIndex % 50 + ".png";
         }
+
+        public bool HasSpan => (mRowSpan > 1 || mColumnSpan > 1);
+
 
         public int RowSpan
         {
