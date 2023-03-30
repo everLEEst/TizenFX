@@ -54,19 +54,44 @@ namespace Tizen.NUI.Components
         /// Span Size
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        protected int SpanSize => spanSize;
+        protected int SpanSize
+        {
+            get => spanSize;
+            set => spanSize = value;
+        }
 
         /// <summary>
         /// Size Candidate
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        protected (float Width, float Height) SizeCandidate => sizeCandidate;
+        protected (float Width, float Height) SizeCandidate
+        {
+            get => sizeCandidate;
+            set => sizeCandidate = value;
+        }
 
         /// <summary>
         /// Visible ViewItem.
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected override List<GroupInfo> GroupItems => groups;
+
+        protected override void OnInitialize()
+        {
+            foreach (RecyclerViewItem item in VisibleItems)
+            {
+                collectionView.UnrealizeItem(item, false);
+            }
+            VisibleItems.Clear();
+            groups.Clear();
+            FirstVisible = 0;
+            LastVisible = 0;
+        }
+
+        protected override void OnMeasure()
+        {
+            base.OnMeasure();
+        }
 
         /// <summary>
         /// Clean up ItemsLayouter.
@@ -82,17 +107,6 @@ namespace Tizen.NUI.Components
                 throw new ArgumentException("GridLayouter only can be applied CollectionView.", nameof(view));
             }
 
-            // 1. Clean Up
-            foreach (RecyclerViewItem item in VisibleItems)
-            {
-                collectionView.UnrealizeItem(item, false);
-            }
-            VisibleItems.Clear();
-            groups.Clear();
-            FirstVisible = 0;
-            LastVisible = 0;
-
-            IsHorizontal = (collectionView.ScrollingDirection == ScrollableBase.Direction.Horizontal);
 
             RecyclerViewItem header = collectionView?.Header;
             RecyclerViewItem footer = collectionView?.Footer;

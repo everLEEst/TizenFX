@@ -55,22 +55,8 @@ namespace Tizen.NUI.Components
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
         protected override List<GroupInfo> GroupItems => groups;
-
-        /// <summary>
-        /// Clean up ItemsLayouter.
-        /// </summary>
-        /// <param name="view"> CollectionView of layouter.</param>
-        /// <remarks>please note that, view must be type of CollectionView</remarks>
-        /// <since_tizen> 9 </since_tizen>
-        public override void Initialize(RecyclerView view)
+        protected override void OnInitialize()
         {
-            collectionView = view as CollectionView;
-            if (collectionView == null)
-            {
-                throw new ArgumentException("LinearLayouter only can be applied CollectionView.", nameof(view));
-            }
-
-            // 1. Clean Up
             foreach (RecyclerViewItem item in VisibleItems)
             {
                 collectionView.UnrealizeItem(item, false);
@@ -79,8 +65,10 @@ namespace Tizen.NUI.Components
             groups.Clear();
             FirstVisible = 0;
             LastVisible = 0;
+        }
 
-            IsHorizontal = (collectionView.ScrollingDirection == ScrollableBase.Direction.Horizontal);
+        protected override void OnMeasure()
+        {
 
             RecyclerViewItem header = collectionView?.Header;
             RecyclerViewItem footer = collectionView?.Footer;
@@ -370,6 +358,24 @@ namespace Tizen.NUI.Components
             ScrollContentSize = Current + (IsHorizontal? Padding.End : Padding.Bottom);
             if (IsHorizontal) collectionView.ContentContainer.SizeWidth = ScrollContentSize;
             else collectionView.ContentContainer.SizeHeight = ScrollContentSize;
+
+            base.OnMeasure();
+        }
+
+
+        /// <summary>
+        /// Clean up ItemsLayouter.
+        /// </summary>
+        /// <param name="view"> CollectionView of layouter.</param>
+        /// <remarks>please note that, view must be type of CollectionView</remarks>
+        /// <since_tizen> 9 </since_tizen>
+        public override void Initialize(RecyclerView view)
+        {
+            collectionView = view as CollectionView;
+            if (collectionView == null)
+            {
+                throw new ArgumentException("LinearLayouter only can be applied CollectionView.", nameof(view));
+            }
 
             base.Initialize(view);
             //Console.WriteLine("[NUI] Init Done, StepCnadidate{0}, Scroll{1}", StepCandidate, ScrollContentSize);

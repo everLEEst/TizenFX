@@ -131,6 +131,30 @@ namespace Tizen.NUI.Components
         protected bool IsHorizontal { get; set; }
 
         /// <summary>
+        /// boolean flag of source is empty.
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        protected bool IsSourceEmpty { get; set; }
+
+        protected virtual void OnInitialize()
+        {
+            foreach (RecyclerViewItem item in VisibleItems)
+            {
+                ItemsView.UnrealizeItem(item, false);
+            }
+            VisibleItems.Clear();
+            GroupItems.Clear();
+            FirstVisible = 0;
+            LastVisible = 0;
+        }
+
+        protected virtual void OnMeasure()
+        {
+            // Measure the children
+        }
+
+
+        /// <summary>
         /// Clean up ItemsLayouter.
         /// </summary>
         /// <param name="view"> ItemsView of layouter.</param>
@@ -139,8 +163,10 @@ namespace Tizen.NUI.Components
         {
             ItemsView = view ?? throw new ArgumentNullException(nameof(view));
             PrevScrollPosition = 0.0f;
-
             IsHorizontal = (view.ScrollingDirection == ScrollableBase.Direction.Horizontal);
+
+            OnInitialize();
+            OnMeasure();
 
             IsInitialized = true;
         }
