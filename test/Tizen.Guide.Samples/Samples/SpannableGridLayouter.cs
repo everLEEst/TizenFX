@@ -146,7 +146,6 @@ namespace Tizen.Guide.Samples
 
             base.Initialize(view);
 
-
         }
 
         public override void RequestLayout(float scrollPosition, bool force = false)
@@ -222,8 +221,56 @@ namespace Tizen.Guide.Samples
             }
         }
 
+        private (int row, int column) GetItemMatrix(int index)
+        {
+            int row = 0;
+            int column = 0;
+            int i = 0;
+            int abstractIndex = 0;
+            IItemSpannable cur;
+
+            for ( i = 0; i < index; i++)
+            {
+                cur = Source.GetItem(i) as IItemSpannable;
+
+                // throw exception?
+                if (cur == null) continue;
+
+                if (cur.HasSpan)
+                {
+                    // item is inside the span area.
+                    if (i + cur.RowSpan * cur.ColumnSpan - 1 >= index)
+                    {
+                        abstractIndex += ((index - i) / SpanSize) * cur.RowSpan;
+                    }
+                    else
+                    {
+                        abstractIndex += cur.RowSpan * cur.ColumnSpan;
+                    }
+                }
+                else
+                {
+                    abstractIndex++;
+                }
+            }
+
+
+            return (row, column);
+        }
+
+        /// <summary>
+        /// Get item position.
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        protected override (float X, float Y) GetItemPosition(int index)
+        {
+
+            return (0, 0);
+        }
+
         public override void Clear()
         {
             base.Clear();
         }
     }
+}
