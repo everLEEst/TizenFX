@@ -93,23 +93,6 @@ namespace Tizen.NUI.Components
 
         protected override void OnMeasure()
         {
-            base.OnMeasure();
-        }
-
-        /// <summary>
-        /// Clean up ItemsLayouter.
-        /// </summary>
-        /// <param name="view"> CollectionView of layouter. </param>
-        /// <remarks>please note that, view must be type of CollectionView</remarks>
-        /// <since_tizen> 9 </since_tizen>
-        public override void Initialize(RecyclerView view)
-        {
-            collectionView = view as CollectionView;
-            if (collectionView == null)
-            {
-                throw new ArgumentException("GridLayouter only can be applied CollectionView.", nameof(view));
-            }
-
 
             RecyclerViewItem header = collectionView?.Header;
             RecyclerViewItem footer = collectionView?.Footer;
@@ -156,9 +139,9 @@ namespace Tizen.NUI.Components
             if (pureCount == 0)
             {
                 isSourceEmpty = true;
-                base.Initialize(collectionView);
                 return;
             }
+
             isSourceEmpty = false;
 
             int firstIndex = header? 1 : 0;
@@ -395,6 +378,23 @@ namespace Tizen.NUI.Components
 
             if (IsHorizontal) collectionView.ContentContainer.SizeWidth = ScrollContentSize;
             else collectionView.ContentContainer.SizeHeight = ScrollContentSize;
+
+            base.OnMeasure();
+        }
+
+        /// <summary>
+        /// Clean up ItemsLayouter.
+        /// </summary>
+        /// <param name="view"> CollectionView of layouter. </param>
+        /// <remarks>please note that, view must be type of CollectionView</remarks>
+        /// <since_tizen> 9 </since_tizen>
+        public override void Initialize(RecyclerView view)
+        {
+            collectionView = view as CollectionView;
+            if (collectionView == null)
+            {
+                throw new ArgumentException("GridLayouter only can be applied CollectionView.", nameof(view));
+            }
 
             base.Initialize(collectionView);
             //Console.WriteLine("Init Done, StepCnadidate{0}, spanSize{1}, Scroll{2}", StepCandidate, spanSize, ScrollContentSize);

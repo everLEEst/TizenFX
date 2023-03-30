@@ -117,7 +117,7 @@ namespace Tizen.NUI.Components
             if (count == (hasHeader? (hasFooter? 2 : 1) : 0))
             {
                 isSourceEmpty = true;
-                base.Initialize(view);
+                //base.Initialize(collectionView);
                 return;
             }
             isSourceEmpty = false;
