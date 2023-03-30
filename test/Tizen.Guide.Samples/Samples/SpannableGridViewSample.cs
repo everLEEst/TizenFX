@@ -159,7 +159,7 @@ namespace Tizen.Guide.Samples
     public interface IItemSpannable
     {
         // This value must be true when span set.
-        bool HasSpan ( get; )
+        bool HasSpan { get; }
         int RowSpan { get; set; }
         int ColumnSpan {get; set; }
     }
